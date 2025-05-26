@@ -34,7 +34,7 @@ const router = Router();
 const upload = multer({ dest: "uploads/" });
 
 const SECRET = 'super_secret_key_12345';
-const REACT_APP_BASE_URL = 'https://localhost:5173/login';
+const REACT_APP_BASE_URL = 'https://marketing.tenacioustechies.com.au/login';
 
 const users = [
   { email: 'john@example.com', password: 'userPassword' }
