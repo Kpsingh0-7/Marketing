@@ -1,3 +1,5 @@
+import { sendTemplate } from "./sendTemplate.js";
+
 export async function handleReply(message) {
   const messageText = message.message.toLowerCase();
   let element_name;

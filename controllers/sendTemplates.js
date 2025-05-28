@@ -4,6 +4,7 @@ import { pool } from '../config/db.js';
 export const sendTemplates = async (req, res) => {
   const {
     phoneNumber,
+    name,
     element_name,
     languageCode = 'en',
     parameters = [],
@@ -11,27 +12,33 @@ export const sendTemplates = async (req, res) => {
   } = req.body;
 
   try {
-    if (!phoneNumber || !shop_id || !element_name) {
+    if (!phoneNumber || !name || !shop_id || !element_name) {
       return res.status(400).json({
         success: false,
-        error: 'phoneNumber, shop_id, and element_name are required'
+        error: 'phoneNumber, name, shop_id, and element_name are required'
       });
     }
 
     // Step 1: Find or insert customer
+        // Normalize phone number
+    const normalizedPhone = phoneNumber.replace(/\D/g, ''); // remove non-digit characters
+    const mobileNo = normalizedPhone.slice(-10); // last 10 digits
+    const userCountryCode = normalizedPhone.slice(0, -10); // everything before last 10 digits
+
+    // Step 1: Find or insert customer
     const [existingCustomer] = await pool.execute(
       `SELECT customer_id FROM wp_customer_marketing WHERE mobile_no = ? AND shop_id = ?`,
-      [phoneNumber, shop_id]
+      [mobileNo, shop_id]
     );
 
     let customer_id;
 
     if (existingCustomer.length > 0) {
-      customer_id = existingCustomer[0].id;
+      customer_id = existingCustomer[0].customer_id;
     } else {
       const [insertResult] = await pool.execute(
-        `INSERT INTO wp_customer_marketing (mobile_no, shop_id) VALUES (?, ?)`,
-        [phoneNumber, shop_id]
+        `INSERT INTO wp_customer_marketing (mobile_no, name, shop_id, user_country_code) VALUES (?, ?, ?, ?)`,
+        [mobileNo, name, shop_id, userCountryCode]
       );
       customer_id = insertResult.insertId;
     }
