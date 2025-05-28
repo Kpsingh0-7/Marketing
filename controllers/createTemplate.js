@@ -46,20 +46,24 @@ export const createTemplate = async (req, res) => {
     encodedParams.set('exampleHeader', exampleHeader );
 
     // Handle buttons
-    if (buttons.length > 0) {
-      encodedParams.set('buttons', JSON.stringify(buttons));
-    } else if (category === 'AUTHENTICATION') {
-      encodedParams.set('buttons', JSON.stringify([{
-        type: 'OTP',
-        otp_type: 'COPY_CODE',
-        text: 'Copy OTP'
-      }]));
-    } else {
-      // Optional default for non-auth
-      encodedParams.set('buttons', JSON.stringify([
-        { type: 'QUICK_REPLY', text: 'Track Order' }
-      ]));
-    }
+    // if (buttons.length > 0) {
+    //   encodedParams.set('buttons', JSON.stringify(buttons));
+    // } else if (category === 'AUTHENTICATION') {
+    //   encodedParams.set('buttons', JSON.stringify([{
+    //     type: 'OTP',
+    //     otp_type: 'COPY_CODE',
+    //     text: 'Copy OTP'
+    //   }]));
+    // } else {
+    //   // Optional default for non-auth
+    //   encodedParams.set('buttons', JSON.stringify([
+    //     { type: 'QUICK_REPLY', text: 'Track Order' }
+    //   ]));
+    // }
+// Only set buttons if provided manually
+if (buttons.length > 0) {
+  encodedParams.set('buttons', JSON.stringify(buttons));
+}
 
     // Example generation
     const generatedExample = example || 
