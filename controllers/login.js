@@ -41,7 +41,7 @@ export const loginShopUser = async (req, res) => {
         email: email,
       },
       SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "30d" }
     );
 
     return res.json({
@@ -59,3 +59,4 @@ export const loginShopUser = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+  
