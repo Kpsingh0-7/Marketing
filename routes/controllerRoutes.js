@@ -1,6 +1,5 @@
 import { Router } from "express";
 import multer from "multer";
-import jwt from 'jsonwebtoken';
 import { authenticateToken } from "../middleware/authenticateToken.js";
 import { createWebhookHandler  }  from "../webhooks/webhook.js";
 
@@ -17,6 +16,7 @@ import { sendBroadcast } from "../controllers/sendBroadcast.js";
 import { getBroadcastCustomers } from "../controllers/getBroadcastCustomers.js";
 import { getBroadcasts } from '../controllers/getBroadcasts.js';
 import { getTemplateAnalytics } from '../controllers/getTemplateAnalytics.js';
+import { loginShopUser } from "../controllers/login.js";
 
 // Controllers that require io passed (factories)
 import { returnTemplates } from '../controllers/returnTemplates.js';
@@ -33,34 +33,13 @@ import { processConversationMessage } from '../controllers/processConversationMe
 const router = Router();
 const upload = multer({ dest: "uploads/" });
 
-const SECRET = 'super_secret_key_12345';
-const REACT_APP_BASE_URL = 'https://marketing.tenacioustechies.com.au/login';
-
-const users = [
-  { email: 'john@example.com', password: 'userPassword' }
-];
-
-// You must have your `io` instance from your main server file:
-// e.g. import io from './socket.js';
-// For example, suppose you pass io here:
 export default function createRouter(io) {
   // Public Routes
-  router.post('/authenticate', (req, res) => {
-    const { email, password } = req.body;
-    const user = users.find(u => u.email === email && u.password === password);
-  
-    if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
-  
-    const token = jwt.sign({ email }, SECRET, { expiresIn: '1d' });
-    const redirectUrl = `${REACT_APP_BASE_URL}?token=${token}`;
-    return res.json({ success: true, redirectUrl });
-  });
-  
+ 
   router.post("/webhook", createWebhookHandler(io));
   
   // Protected Routes (Requires JWT)
+  router.post("/login", loginShopUser);
   router.post('/send', sendTemplate);
   router.post('/sendTemplates', sendTemplates);
   router.post('/subscription', setupSubscription);

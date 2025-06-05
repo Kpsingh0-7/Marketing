@@ -103,3 +103,103 @@
   "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
   "object": "whatsapp_business_account"
 }
+
+
+Recovery code
+
+3HM2BHCC11W5W9R72884QMBZ
+
+
+{
+  "status": "success",
+  "subscriptions": [
+    {
+      "active": true,
+      "appId": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+      "createdOn": 1747046751063,
+      "id": "10023171",
+      "latencyBucket": "lt_500_ms",
+      "mode": 8327,
+      "modes": [
+        "SENT",
+        "DELIVERED",
+        "READ",
+        "TEMPLATE",
+        "ALL"
+      ],
+      "modifiedOn": 1747046751063,
+      "showOnUI": false,
+      "tag": "FoodChowApp_v3",
+      "url": "http://next.tenacioustechies.com.au/webhook",
+      "version": 3
+    },
+    {
+      "active": true,
+      "appId": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+      "createdOn": 1747379566159,
+      "id": "10345240",
+      "latencyBucket": "lt_100_ms",
+      "mode": 8327,
+      "modes": [
+        "SENT",
+        "DELIVERED",
+        "READ",
+        "TEMPLATE",
+        "ALL"
+      ],
+      "modifiedOn": 1747379566159,
+      "showOnUI": false,
+      "tag": "FoodChowApp_v2",
+      "url": "https://pika-driving-gannet.ngrok-free.app/webhook",
+      "version": 3
+    },
+    {
+      "active": true,
+      "appId": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+      "createdOn": 1748244376526,
+      "id": "10378905",
+      "latencyBucket": "lt_500_ms",
+      "mode": 8327,
+      "modes": [
+        "SENT",
+        "DELIVERED",
+        "READ",
+        "TEMPLATE",
+        "ALL"
+      ],
+      "modifiedOn": 1748244376526,
+      "showOnUI": false,
+      "tag": "FoodChowApp_v1",
+      "url": "https://gupshup-dzaj.onrender.com/webhook",
+      "version": 3
+    }
+  ]
+}
+
+
+
+{
+    "status": "success",
+    "subscription": {
+        "active": true,
+        "appId": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+        "createdOn": 1748933386883,
+        "id": "10382236",
+        "mode": 8327,
+        "modes": [
+            "SENT",
+            "DELIVERED",
+            "READ",
+            "TEMPLATE",
+            "ALL"
+        ],
+        "modifiedOn": 1748933386883,
+        "showOnUI": false,
+        "tag": "FoodChowApp_v1",
+        "url": "https://gupshup-dzaj.onrender.com/webhook",
+        "version": 3
+    }
+}
+
+
+EAAE31D2EJH8BO1U3rDD5nnZAnqQZBJC4e8SLiZA5LXZBFVrDxrAF5JmFavtEKjtnYRuBPmbtYkKRdj5N4yCrDSF27oPu7u4ZBNPi9UKGFRbOejcvRItfE3Y9V5gMbaZA0b0ogpX6ZAUB5sGPG5YPoEc7GY1VlIgyI3d0jqZBqvon0cAt1GidDc6T7rRiHpQ56cnSC5ykRRlKnWSCCnT5jOFS3eJ0D5xG8QETy31G
