@@ -54,7 +54,7 @@ export default function createRouter(io) {
   router.delete('/deletetemplate', authenticateToken, deleteTemplate);
   router.put('/edit', authenticateToken, updateTemplate);
   
-  router.get("/me", getMe);
+  router.get("/me", authenticateToken, getMe);
   router.get('/gettemplates', authenticateToken, getTemplate);
   router.get('/contacts', authenticateToken, returnContacts); 
   router.get('/templates', authenticateToken, returnTemplates);

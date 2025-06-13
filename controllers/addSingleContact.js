@@ -1,13 +1,13 @@
 import { pool } from "../config/db.js";
 
 export const addSingleContact = async (req, res) => {
-  const { customer_id, country_code, name, mobile_no } = req.body;
+  const { customer_id, country_code, first_name, mobile_no } = req.body;
 
   // ✅ Step 1: Validate input
-  if (!customer_id || !country_code || !name || !mobile_no) {
+  if (!customer_id || !country_code || !first_name || !mobile_no) {
     return res.status(400).json({
       success: false,
-      message: "Missing required fields: customer_id, country_code, name, or mobile_no",
+      message: "Missing required fields: customer_id, country_code, first_name, or mobile_no",
     });
   }
 
@@ -28,10 +28,10 @@ export const addSingleContact = async (req, res) => {
     // ✅ Step 3: Insert new contact
     const [result] = await pool.execute(
       `
-        INSERT INTO contact (customer_id, country_code, name, mobile_no)
+        INSERT INTO contact (customer_id, country_code, first_name, mobile_no)
         VALUES (?, ?, ?, ?)
       `,
-      [customer_id, country_code, name, mobile_no]
+      [customer_id, country_code, first_name, mobile_no]
     );
 
     return res.status(201).json({

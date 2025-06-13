@@ -8,7 +8,7 @@ const SECRET = "super_secret_key_12345";
 // Cookie options
 const cookieOptions = {
   httpOnly: true,
-  secure: true, // ⚠️ Set to false in local dev without HTTPS
+  secure: false, // ⚠️ Set to false in local dev without HTTPS
   sameSite: "Strict",
   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
 };
@@ -47,7 +47,7 @@ export const loginUser = async (req, res) => {
     // Generate JWT
     const token = jwt.sign(
       {
-        customer_id: user.customer_id,
+        customer_id: user.shop_id,
         email: email,
       },
       SECRET,
@@ -61,7 +61,7 @@ export const loginUser = async (req, res) => {
       success: true,
       message: "Login successful",
       user: {
-        customer_id: user.customer_id,
+        customer_id: user.shop_id,
         email: email,
       },
     });
@@ -97,7 +97,7 @@ export const getMe = (req, res) => {
 export const logoutUser = (req, res) => {
   res.clearCookie("auth_token", {
     httpOnly: true,
-    secure: true,
+    secure: false,
     sameSite: "Strict",
   });
 
