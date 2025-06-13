@@ -24,5 +24,5 @@ export const pool = mysql.createPool({
  user: 'kpremote', // replace with your DB user 
  port: '3306',
  password: 'z*4QO2HFfEsR4YM%', // replace with your DB password 
- database: 'gupshup' // replace with your DB name 
+ database: 'marketing' // replace with your DB name 
 });
