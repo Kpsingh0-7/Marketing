@@ -1,27 +1,31 @@
 import { pool } from '../config/db.js';
 
 export const returnConversations = async (req, res) => {
-  const { shop_id } = req.query;
-
+  const { customer_id } = req.query;
+if (!customer_id) {
+    return res
+      .status(400)
+      .json({ error: "Missing required parameter: customer_id" });
+  }
   try {
     const [rows] = await pool.execute(`
       SELECT 
-        c.customer_id, 
+        c.contact_id, 
         c.conversation_id, 
         c.updated_at,
-        wp.name,
+        wp.first_name,
         wp.last_name,
         wp.profile_image,
         wp.mobile_no
       FROM 
         conversations c
       JOIN 
-        wp_customer_marketing wp ON c.customer_id = wp.customer_id
+        contact wp ON c.contact_id = wp.contact_id
       WHERE 
-        c.shop_id = ?
+        c.customer_id = ?
       ORDER BY 
         c.updated_at DESC
-    `, [shop_id]);
+    `, [customer_id]);
 
     res.json(rows);
   } catch (error) {

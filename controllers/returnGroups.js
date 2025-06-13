@@ -15,12 +15,12 @@ export const returnGroups = async (req, res) => {
         data: groups, // Array of { group_id, group_name }
       });
     } else {
-      // ✅ Return customers (customer_id, name, mobile_no) in that group
+      // ✅ Return customers (contact_id, name, mobile_no) in that group
       const [customers] = await pool.execute(
         `
-        SELECT c.customer_id, c.name, c.last_name, c.mobile_no
-        FROM customer_group_map gm
-        JOIN wp_customer_marketing c ON gm.customer_id = c.customer_id
+        SELECT c.contact_id, c.name, c.last_name, c.mobile_no
+        FROM contact_group_map gm
+        JOIN contact c ON gm.contact_id = c.contact_id
         WHERE gm.group_id = ?
         `,
         [group_id]
@@ -28,7 +28,7 @@ export const returnGroups = async (req, res) => {
 
       return res.status(200).json({
         success: true,
-        data: customers, // Array of { customer_id, name, mobile_no }
+        data: customers, // Array of { contact_id, name, mobile_no }
       });
     }
   } catch (error) {

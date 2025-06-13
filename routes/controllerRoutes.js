@@ -16,7 +16,7 @@ import { sendBroadcast } from "../controllers/sendBroadcast.js";
 import { getBroadcastCustomers } from "../controllers/getBroadcastCustomers.js";
 import { getBroadcasts } from '../controllers/getBroadcasts.js';
 import { getTemplateAnalytics } from '../controllers/getTemplateAnalytics.js';
-import { loginShopUser } from "../controllers/login.js";
+import { loginUser, getMe, logoutUser } from "../controllers/login.js";
 
 // Controllers that require io passed (factories)
 import { returnTemplates } from '../controllers/returnTemplates.js';
@@ -39,7 +39,7 @@ export default function createRouter(io) {
   router.post("/webhook", createWebhookHandler(io));
   
   // Protected Routes (Requires JWT)
-  router.post("/login", loginShopUser);
+  router.post("/login", loginUser);
   router.post('/send', sendTemplate);
   router.post('/sendTemplates', sendTemplates);
   router.post('/subscription', setupSubscription);
@@ -49,13 +49,14 @@ export default function createRouter(io) {
   router.post("/addcustomers", upload.single("file"), addBulkContacts);
   router.post("/sendBroadcast", sendBroadcast);
   router.post("/getBroadcastCustomers", getBroadcastCustomers);
-  
+  router.post("/logout", logoutUser);
   
   router.delete('/deletetemplate', authenticateToken, deleteTemplate);
   router.put('/edit', authenticateToken, updateTemplate);
   
+  router.get("/me", getMe);
   router.get('/gettemplates', authenticateToken, getTemplate);
-  router.get('/contacts', authenticateToken, returnContacts); // if returnContacts needs io, change to returnContacts(io)
+  router.get('/contacts', authenticateToken, returnContacts); 
   router.get('/templates', authenticateToken, returnTemplates);
   router.get('/conversations', authenticateToken, returnConversations);
   router.get('/messages',  returnMessages);

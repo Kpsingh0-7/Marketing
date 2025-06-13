@@ -11,9 +11,9 @@ export const processConversationMessage = async (req, res) => {
   }
 
   try {
-    // 1. Get shop_id and customer_id from conversations
+    // 1. Get customer_id and contact_id from conversations
     const [convoRows] = await pool.execute(
-      `SELECT shop_id, customer_id FROM conversations WHERE conversation_id = ?`,
+      `SELECT customer_id, contact_id FROM conversations WHERE conversation_id = ?`,
       [conversation_id]
     );
 
@@ -21,7 +21,7 @@ export const processConversationMessage = async (req, res) => {
       return res.status(404).json({ error: "Conversation not found" });
     }
 
-    const { shop_id, customer_id } = convoRows[0];
+    const { customer_id, contact_id } = convoRows[0];
 
     // 2. Update the updated_at timestamp to current time
     await pool.execute(
@@ -29,10 +29,10 @@ export const processConversationMessage = async (req, res) => {
       [conversation_id]
     );
 
-    // 3. Get mobile number from wp_customer_marketing
+    // 3. Get mobile number from contact
     const [custRows] = await pool.execute(
-      `SELECT mobile_no FROM wp_customer_marketing WHERE customer_id = ?`,
-      [customer_id]
+      `SELECT mobile_no FROM contact WHERE contact_id = ?`,
+      [contact_id]
     );
 
     if (custRows.length === 0) {
@@ -47,16 +47,16 @@ export const processConversationMessage = async (req, res) => {
       payload = {
         phoneNumber,
         element_name,
-        shop_id,
         customer_id,
+        contact_id,
         languageCode: "en",
         parameters,
       };
     } else if (message) {
       payload = {
         phoneNumber,
-        shop_id,
         customer_id,
+        contact_id,
         message,
       };
     }

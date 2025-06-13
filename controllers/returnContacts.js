@@ -1,37 +1,37 @@
 import { pool } from "../config/db.js";
 
 export const returnContacts = async (req, res) => {
-  const { shop_id } = req.query;
+  const { customer_id } = req.query;
 
-  // Validate shop_id
-  if (!shop_id) {
+  // Validate customer_id
+  if (!customer_id) {
     return res
       .status(400)
-      .json({ error: "Missing required parameter: shop_id" });
+      .json({ error: "Missing required parameter: customer_id" });
   }
   try {
     const [rows] = await pool.execute(
       `
         SELECT 
           fg.created_at,
-          fg.name,
+          fg.first_name,
           fg.last_name,
           fg.mobile_no,
-          fg.customer_id,
-          fg.user_country_code,
+          fg.contact_id,
+          fg.country_code,
           c.is_active
         FROM 
-          wp_customer_marketing fg
+          contact fg
         LEFT JOIN 
           conversations c 
         ON 
-          fg.customer_id = c.customer_id AND fg.shop_id = c.shop_id
+          fg.contact_id = c.contact_id AND fg.customer_id = c.customer_id
         WHERE 
-          fg.shop_id = ?
+          fg.customer_id = ?
         ORDER BY 
           fg.created_at DESC
       `,
-      [shop_id]
+      [customer_id]
     );
 
     res.json(rows);

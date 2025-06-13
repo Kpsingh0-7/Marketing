@@ -12,19 +12,19 @@ export const sendTemplate = async (req, res) => {
     element_name,
     languageCode = 'en',
     parameters = [],
-    shop_id,
-    customer_id
+    customer_id,
+    contact_id
   } = req.body;
 
   try {
-    if (!phoneNumber || !shop_id || !customer_id) {
-      return res.status(400).json({ success: false, error: 'phoneNumber, shop_id, and customer_id are required' });
+    if (!phoneNumber || !customer_id || !contact_id) {
+      return res.status(400).json({ success: false, error: 'phoneNumber, customer_id, and contact_id are required' });
     }
 
     // Ensure conversation exists (or create one)
     const [existing] = await pool.execute(
-      `SELECT conversation_id FROM conversations WHERE shop_id = ? AND customer_id = ?`,
-      [shop_id, customer_id]
+      `SELECT conversation_id FROM conversations WHERE customer_id = ? AND contact_id = ?`,
+      [customer_id, contact_id]
     );
 
     let conversation_id;
@@ -32,8 +32,8 @@ export const sendTemplate = async (req, res) => {
       conversation_id = existing[0].conversation_id;
     } else {
       const [insertResult] = await pool.execute(
-        `INSERT INTO conversations (shop_id, customer_id) VALUES (?, ?)`,
-        [shop_id, customer_id]
+        `INSERT INTO conversations (customer_id, contact_id) VALUES (?, ?)`,
+        [customer_id, contact_id]
       );
       conversation_id = insertResult.insertId;
     }
@@ -80,7 +80,7 @@ export const sendTemplate = async (req, res) => {
         `INSERT INTO messages 
           (conversation_id, sender_type, sender_id, message_type, content, status, external_message_id, sent_at) 
          VALUES (?, 'shop', ?, 'text', ?, 'sent', ?, NOW())`,
-        [conversation_id, shop_id, message, freeFormMessageId]
+        [conversation_id, customer_id, message, freeFormMessageId]
       );
 
       responses.push({ type: 'text', messageId: freeFormMessageId, response: freeFormResponse.data });
@@ -130,7 +130,7 @@ export const sendTemplate = async (req, res) => {
          VALUES (?, 'shop', ?, 'template', ?, ?, 'sent', ?, NOW())`,
         [
           conversation_id,
-          shop_id,
+          customer_id,
           element_name,
           JSON.stringify({ parameters }),
           //JSON.stringify(templateData),

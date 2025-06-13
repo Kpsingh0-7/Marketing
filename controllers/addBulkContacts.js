@@ -10,12 +10,12 @@ const mapContactRow = (row) => {
   const name = values[0];
   const last_name = values[1] || null;
   const mobile_no = values[2];
-  const user_country_code = values[3];
+  const country_code = values[3];
   const couponcode = values[4] || null;
   const birthday = values[5] || null;
   const anniversary = values[6] || null;
 
-  if (!name || !mobile_no || !user_country_code) {
+  if (!name || !mobile_no || !country_code) {
     throw new Error("Missing required fields in row");
   }
 
@@ -23,7 +23,7 @@ const mapContactRow = (row) => {
     name,
     last_name,
     mobile_no,
-    user_country_code,
+    country_code,
     couponcode,
     birthday,
     anniversary,
@@ -31,20 +31,20 @@ const mapContactRow = (row) => {
 };
 
 export const addBulkContacts = async (req, res) => {
-  const shop_id = parseInt(req.body.shop_id, 10);
+  const customer_id = parseInt(req.body.customer_id, 10);
   const group_name_raw = req.body.group_name;
   const file = req.file;
 
   const group_name =
     typeof group_name_raw === "string" ? group_name_raw.trim() : null;
 
-  console.log("✅ Parsed values:", { shop_id, group_name, fileExists: !!file });
+  console.log("✅ Parsed values:", { customer_id, group_name, fileExists: !!file });
 
-  if (!shop_id || !group_name || !file) {
+  if (!customer_id || !group_name || !file) {
     return res.status(400).json({
       success: false,
-      message: "Missing required fields: shop_id, group_name, or file",
-      debug: { shop_id, group_name, fileExists: !!file },
+      message: "Missing required fields: customer_id, group_name, or file",
+      debug: { customer_id, group_name, fileExists: !!file },
     });
   }
 
@@ -116,8 +116,8 @@ export const addBulkContacts = async (req, res) => {
 
     // Check if group already exists
     const [groupRows] = await connection.execute(
-      "SELECT group_id FROM contact_group WHERE group_name = ? AND shop_id = ?",
-      [group_name, shop_id]
+      "SELECT group_id FROM contact_group WHERE group_name = ? AND customer_id = ?",
+      [group_name, customer_id]
     );
 
     if (groupRows.length > 0) {
@@ -129,8 +129,8 @@ export const addBulkContacts = async (req, res) => {
 
     // Insert new group
     const [groupInsert] = await connection.execute(
-      "INSERT INTO contact_group (group_name, shop_id) VALUES (?, ?)",
-      [group_name, shop_id]
+      "INSERT INTO contact_group (group_name, customer_id) VALUES (?, ?)",
+      [group_name, customer_id]
     );
     const group_id = groupInsert.insertId;
 
@@ -138,23 +138,23 @@ export const addBulkContacts = async (req, res) => {
     const insertedIds = [];
 
     for (const contact of contacts) {
-      let customer_id;
+      let contact_id;
 
       const [existing] = await connection.execute(
-        "SELECT customer_id FROM wp_customer_marketing WHERE shop_id = ? AND mobile_no = ?",
-        [shop_id, contact.mobile_no]
+        "SELECT contact_id FROM contact WHERE customer_id = ? AND mobile_no = ?",
+        [customer_id, contact.mobile_no]
       );
 
       if (existing.length > 0) {
-        customer_id = existing[0].customer_id;
+        contact_id = existing[0].contact_id;
       } else {
         const [insert] = await connection.execute(
-          `INSERT INTO wp_customer_marketing 
-           (shop_id, user_country_code, name, last_name, mobile_no, couponcode, birthday, anniversary)
+          `INSERT INTO contact 
+           (customer_id, country_code, name, last_name, mobile_no, couponcode, birthday, anniversary)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
           [
-            shop_id,
-            contact.user_country_code,
+            customer_id,
+            contact.country_code,
             contact.name,
             contact.last_name,
             contact.mobile_no,
@@ -163,13 +163,13 @@ export const addBulkContacts = async (req, res) => {
             contact.anniversary,
           ]
         );
-        customer_id = insert.insertId;
-        insertedIds.push(customer_id);
+        contact_id = insert.insertId;
+        insertedIds.push(contact_id);
       }
 
       await connection.execute(
-        `INSERT IGNORE INTO customer_group_map (customer_id, group_id) VALUES (?, ?)`,
-        [customer_id, group_id]
+        `INSERT IGNORE INTO contact_group_map (contact_id, group_id) VALUES (?, ?)`,
+        [contact_id, group_id]
       );
     }
 

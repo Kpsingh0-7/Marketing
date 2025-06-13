@@ -1,29 +1,29 @@
 import { pool } from "../config/db.js";
 
 export const returnConversationId = async (req, res) => {
-  const { customer_id } = req.query;
+  const { contact_id } = req.query;
 
-  if (!customer_id) {
-    return res.status(400).json({ error: "Missing required parameter: customer_id" });
+  if (!contact_id) {
+    return res.status(400).json({ error: "Missing required parameter: contact_id" });
   }
 
   try {
-    // Step 1: Get shop_id from wp_customer_marketing
+    // Step 1: Get customer_id from contact
     const [shopResult] = await pool.execute(
-      `SELECT shop_id FROM wp_customer_marketing WHERE customer_id = ?`,
-      [customer_id]
+      `SELECT customer_id FROM contact WHERE contact_id = ?`,
+      [contact_id]
     );
 
     if (shopResult.length === 0) {
-      return res.status(404).json({ error: "No shop found for given customer_id" });
+      return res.status(404).json({ error: "No shop found for given contact_id" });
     }
 
-    const shop_id = shopResult[0].shop_id;
+    const customer_id = shopResult[0].customer_id;
 
     // Step 2: Check if conversation exists
     const [conversationResult] = await pool.execute(
-      `SELECT conversation_id FROM conversations WHERE customer_id = ? AND shop_id = ?`,
-      [customer_id, shop_id]
+      `SELECT conversation_id FROM conversations WHERE contact_id = ? AND customer_id = ?`,
+      [contact_id, customer_id]
     );
 
     if (conversationResult.length > 0) {
@@ -33,8 +33,8 @@ export const returnConversationId = async (req, res) => {
 
     // Step 3: Insert new conversation
     const [insertResult] = await pool.execute(
-      `INSERT INTO conversations (customer_id, shop_id) VALUES (?, ?)`,
-      [customer_id, shop_id]
+      `INSERT INTO conversations (contact_id, customer_id) VALUES (?, ?)`,
+      [contact_id, customer_id]
     );
 
     return res.json({ conversation_id: insertResult.insertId });

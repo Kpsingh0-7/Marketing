@@ -71,11 +71,11 @@ export const getBroadcastCustomers = async (req, res) => {
     const group_id = groupRows[0].group_id;
 
     const [customerMapRows] = await pool.execute(
-      `SELECT customer_id FROM customer_group_map WHERE group_id = ?`,
+      `SELECT contact_id FROM contact_group_map WHERE group_id = ?`,
       [group_id]
     );
 
-    const customerIds = customerMapRows.map((row) => row.customer_id);
+    const customerIds = customerMapRows.map((row) => row.contact_id);
 
     if (customerIds.length === 0) {
       return res.status(404).json({
@@ -86,12 +86,12 @@ export const getBroadcastCustomers = async (req, res) => {
 
     const placeholders = customerIds.map(() => "?").join(", ");
     const [mobileRows] = await pool.execute(
-      `SELECT customer_id,user_country_code, mobile_no FROM wp_customer_marketing WHERE customer_id IN (${placeholders})`,
+      `SELECT contact_id,country_code, mobile_no FROM contact WHERE contact_id IN (${placeholders})`,
       customerIds
     );
 
     const formattedPhoneNumbers = mobileRows.map(
-      ({ user_country_code, mobile_no }) => `${user_country_code}${mobile_no}`
+      ({ country_code, mobile_no }) => `${country_code}${mobile_no}`
     );
 
     const fakeRequest = {
@@ -147,19 +147,19 @@ const sendBroadcastById = async (broadcast_id) => {
     const group_id = groupRows[0].group_id;
 
     const [customerMapRows] = await pool.execute(
-      `SELECT customer_id FROM customer_group_map WHERE group_id = ?`,
+      `SELECT contact_id FROM contact_group_map WHERE group_id = ?`,
       [group_id]
     );
-    const customerIds = customerMapRows.map((r) => r.customer_id);
+    const customerIds = customerMapRows.map((r) => r.contact_id);
     if (!customerIds.length) return;
 
     const placeholders = customerIds.map(() => "?").join(", ");
     const [mobileRows] = await pool.execute(
-      `SELECT user_country_code, mobile_no FROM wp_customer_marketing WHERE customer_id IN (${placeholders})`,
+      `SELECT country_code, mobile_no FROM contact WHERE contact_id IN (${placeholders})`,
       customerIds
     );
     const phoneNumbers = mobileRows.map(
-      ({ user_country_code, mobile_no }) => `${user_country_code}${mobile_no}`
+      ({ country_code, mobile_no }) => `${country_code}${mobile_no}`
     );
 
     const fakeRequest = {

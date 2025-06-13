@@ -8,14 +8,14 @@ export const sendTemplates = async (req, res) => {
     element_name,
     languageCode = 'en',
     parameters = [],
-    shop_id
+    customer_id
   } = req.body;
 
   try {
-    if (!phoneNumber || !name || !shop_id || !element_name) {
+    if (!phoneNumber || !name || !customer_id || !element_name) {
       return res.status(400).json({
         success: false,
-        error: 'phoneNumber, name, shop_id, and element_name are required'
+        error: 'phoneNumber, name, customer_id, and element_name are required'
       });
     }
 
@@ -27,20 +27,20 @@ export const sendTemplates = async (req, res) => {
 
     // Step 1: Find or insert customer
     const [existingCustomer] = await pool.execute(
-      `SELECT customer_id FROM wp_customer_marketing WHERE mobile_no = ? AND shop_id = ?`,
-      [mobileNo, shop_id]
+      `SELECT contact_id FROM contact WHERE mobile_no = ? AND customer_id = ?`,
+      [mobileNo, customer_id]
     );
 
-    let customer_id;
+    let contact_id;
 
     if (existingCustomer.length > 0) {
-      customer_id = existingCustomer[0].customer_id;
+      contact_id = existingCustomer[0].contact_id;
     } else {
       const [insertResult] = await pool.execute(
-        `INSERT INTO wp_customer_marketing (mobile_no, name, shop_id, user_country_code) VALUES (?, ?, ?, ?)`,
-        [mobileNo, name, shop_id, userCountryCode]
+        `INSERT INTO contact (mobile_no, name, customer_id, country_code) VALUES (?, ?, ?, ?)`,
+        [mobileNo, name, customer_id, userCountryCode]
       );
-      customer_id = insertResult.insertId;
+      contact_id = insertResult.insertId;
     }
 
     // Step 2: Prepare template message payload
@@ -84,7 +84,7 @@ export const sendTemplates = async (req, res) => {
     // Step 4: Log the sent message
     await pool.execute(
      `INSERT INTO messages (conversation_id, sender_type, sender_id, message_type, element_name, template_data, status, external_message_id, sent_at) VALUES (?, 'shop', ?, 'template', ?, ?, 'sent', ?, NOW())`,
-[null, shop_id, element_name, JSON.stringify({ parameters }), templateMessageId]
+[null, customer_id, element_name, JSON.stringify({ parameters }), templateMessageId]
 );
 
     return res.status(200).json({

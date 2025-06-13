@@ -69,7 +69,7 @@ export function createWebhookHandler(io) {
         const customerNumber = msg.from;
         // Extract mobile number and country code
         const mobile_no = customerNumber.slice(-10);
-        const user_country_code = customerNumber.slice(
+        const country_code = customerNumber.slice(
           0,
           customerNumber.length - 10
         );
@@ -114,40 +114,40 @@ export function createWebhookHandler(io) {
         const timestamp = msg.timestamp;
 
         const [configRows] = await pool.query(
-          `SELECT shop_id FROM gupshup_configuration WHERE gupshup_id = ?`,
+          `SELECT customer_id FROM gupshup_configuration WHERE gupshup_id = ?`,
           [gsAppId]
         );
         if (configRows.length === 0) throw new Error("Shop not found");
 
-        const shop_id = configRows[0].shop_id;
+        const customer_id = configRows[0].customer_id;
 
-        // Check if guest exists using mobile_no and shop_id
+        // Check if guest exists using mobile_no and customer_id
         const [guestRows] = await pool.query(
-          `SELECT customer_id FROM wp_customer_marketing WHERE mobile_no = ? AND shop_id = ?`,
-          [mobile_no, shop_id]
+          `SELECT contact_id FROM contact WHERE mobile_no = ? AND customer_id = ?`,
+          [mobile_no, customer_id]
         );
 
-        let customer_id;
+        let contact_id;
         if (guestRows.length === 0) {
           const [insertGuest] = await pool.query(
-            `INSERT INTO wp_customer_marketing (name, mobile_no, user_country_code, shop_id) VALUES (?, ?, ?, ?)`,
-            [customerName, mobile_no, user_country_code, shop_id]
+            `INSERT INTO contact (name, mobile_no, country_code, customer_id) VALUES (?, ?, ?, ?)`,
+            [customerName, mobile_no, country_code, customer_id]
           );
-          customer_id = insertGuest.insertId;
+          contact_id = insertGuest.insertId;
         } else {
-          customer_id = guestRows[0].customer_id;
+          contact_id = guestRows[0].contact_id;
         }
 
         const [convRows] = await pool.query(
-          `SELECT conversation_id FROM conversations WHERE customer_id = ? AND shop_id = ?`,
-          [customer_id, shop_id]
+          `SELECT conversation_id FROM conversations WHERE contact_id = ? AND customer_id = ?`,
+          [contact_id, customer_id]
         );
 
         let conversation_id;
         if (convRows.length === 0) {
           const [insertConv] = await pool.query(
-            `INSERT INTO conversations (customer_id, shop_id, is_active) VALUES (?, ?, 1)`,
-            [customer_id, shop_id]
+            `INSERT INTO conversations (contact_id, customer_id, is_active) VALUES (?, ?, 1)`,
+            [contact_id, customer_id]
           );
           conversation_id = insertConv.insertId;
         } else {
@@ -170,7 +170,7 @@ export function createWebhookHandler(io) {
     ) VALUES (?, 'guest', ?, ?, ?, ?, FROM_UNIXTIME(?), 'received', ?)`,
             [
               conversation_id,
-              customer_id,
+              contact_id,
               messageType,
               messageText,
               mediaUrl,
@@ -185,7 +185,7 @@ export function createWebhookHandler(io) {
           const newMessage = {
             conversation_id,
             sender_type: "guest",
-            sender_id: customer_id,
+            sender_id: contact_id,
             message_type: messageType,
             content: messageText,
             media_url: mediaUrl,
@@ -208,8 +208,8 @@ export function createWebhookHandler(io) {
             message: messageText,
             payload: msg.button?.payload || null,
             timestamp: timestamp,
+            contact_id: contact_id,
             customer_id: customer_id,
-            shop_id: shop_id,
           });
         } catch (err) {
           console.error("Error in handleReply:", err);

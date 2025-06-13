@@ -34,8 +34,8 @@ export async function handleReply(message) {
     const fakeRequest = {
       body: {
         phoneNumber: message.from,
-        shop_id: message.shop_id,
         customer_id: message.customer_id,
+        contact_id: message.contact_id,
         element_name: element_name,
         languageCode: "en",
         parameters: parameters,
