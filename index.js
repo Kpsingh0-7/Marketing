@@ -12,7 +12,7 @@ const app = express();
 
 // === CORS config ===
 const corsOptions = {
-  origin: 'https://kpw-iu7e.onrender.com', // Adjust in production
+  origin: ['https://kpw-iu7e.onrender.com',' http://localhost:5173'], // Adjust in production
   methods: ['GET', 'POST'],
   credentials: true,
 };
