@@ -9,7 +9,7 @@ const SECRET = "super_secret_key_12345";
 const cookieOptions = {
   httpOnly: true,
   secure: true, // ⚠️ Set to false in local dev without HTTPS
-  sameSite: "Strict",
+  sameSite: "None",
   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
 };
 
