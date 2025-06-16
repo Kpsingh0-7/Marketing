@@ -1,13 +1,21 @@
 import { pool } from "../config/db.js";
 
 export const returnGroups = async (req, res) => {
-  const { group_id } = req.query;
+  const { group_id, customer_id } = req.query;
 
   try {
     if (!group_id) {
-      // ✅ Only return group_id and group_name
+      if (!customer_id) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing customer_id",
+        });
+      }
+
+      // ✅ Return only groups belonging to the customer
       const [groups] = await pool.execute(
-        `SELECT group_id, group_name FROM contact_group ORDER BY group_name`
+        `SELECT group_id, group_name FROM contact_group WHERE customer_id = ? ORDER BY group_name`,
+        [customer_id]
       );
 
       return res.status(200).json({

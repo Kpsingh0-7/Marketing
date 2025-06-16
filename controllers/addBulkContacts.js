@@ -7,7 +7,7 @@ import mammoth from "mammoth";
 const mapContactRow = (row) => {
   const values = row.map((val) => val?.trim() || null);
 
-  const name = values[0];
+  const first_name = values[0];
   const last_name = values[1] || null;
   const mobile_no = values[2];
   const country_code = values[3];
@@ -15,12 +15,12 @@ const mapContactRow = (row) => {
   const birthday = values[5] || null;
   const anniversary = values[6] || null;
 
-  if (!name || !mobile_no || !country_code) {
+  if (!first_name || !mobile_no || !country_code) {
     throw new Error("Missing required fields in row");
   }
 
   return {
-    name,
+    first_name,
     last_name,
     mobile_no,
     country_code,
@@ -150,12 +150,12 @@ export const addBulkContacts = async (req, res) => {
       } else {
         const [insert] = await connection.execute(
           `INSERT INTO contact 
-           (customer_id, country_code, name, last_name, mobile_no, couponcode, birthday, anniversary)
+           (customer_id, country_code, first_name, last_name, mobile_no, couponcode, birthday, anniversary)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             customer_id,
             contact.country_code,
-            contact.name,
+            contact.first_name,
             contact.last_name,
             contact.mobile_no,
             contact.couponcode,

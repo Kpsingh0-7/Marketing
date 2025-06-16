@@ -3,6 +3,7 @@ import { sendBroadcast } from "./sendBroadcast.js";
 
 export const getBroadcastCustomers = async (req, res) => {
   const {
+    customer_id,
     broadcastName,
     customerList,
     messageType,
@@ -30,9 +31,10 @@ export const getBroadcastCustomers = async (req, res) => {
     // Save broadcast
     const [insertResult] = await pool.execute(
       `INSERT INTO broadcasts 
-        (broadcast_name, customer_list, message_type, schedule, schedule_date, status, type, selected_template, template_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (customer_id,broadcast_name, customer_list, message_type, schedule, schedule_date, status, type, selected_template, template_id)
+       VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
+        customer_id,
         broadcastName,
         customerList,
         messageType,
@@ -57,9 +59,10 @@ export const getBroadcastCustomers = async (req, res) => {
 
     // Immediate: Fetch and send
     const [groupRows] = await pool.execute(
-      `SELECT group_id FROM contact_group WHERE group_name = ?`,
-      [group_name]
-    );
+  `SELECT group_id FROM contact_group WHERE group_name = ? AND customer_id = ?`,
+  [group_name, customer_id]
+);
+
 
     if (groupRows.length === 0) {
       return res.status(404).json({
@@ -140,9 +143,10 @@ const sendBroadcastById = async (broadcast_id) => {
     const broadcast = rows[0];
 
     const [groupRows] = await pool.execute(
-      `SELECT group_id FROM contact_group WHERE group_name = ?`,
-      [broadcast.customer_list]
-    );
+  `SELECT group_id FROM contact_group WHERE group_name = ? AND customer_id = ?`,
+  [group_name, customer_id]
+);
+
     if (!groupRows.length) return;
     const group_id = groupRows[0].group_id;
 

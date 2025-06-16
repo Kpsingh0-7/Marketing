@@ -21,7 +21,7 @@ export const addSingleContact = async (req, res) => {
     if (existing.length > 0) {
       return res.status(409).json({
         success: false,
-        message: "Mobile number already exists for this shop",
+        message: "Mobile number already exists...",
       });
     }
 

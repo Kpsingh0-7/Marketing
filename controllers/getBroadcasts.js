@@ -114,7 +114,17 @@ export const updateBroadcastAnalytics = async () => {
 // 🚀 Express route handler to fetch broadcasts
 export const getBroadcasts = async (req, res) => {
   try {
-    const [broadcasts] = await pool.execute(`
+    const { customer_id } = req.query; // or use req.body if sent in body
+
+    if (!customer_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing customer_id",
+      });
+    }
+
+    const [broadcasts] = await pool.execute(
+      `
       SELECT 
         broadcast_id,
         broadcast_name,
@@ -133,8 +143,11 @@ export const getBroadcasts = async (req, res) => {
         clicked,
         updated_at
       FROM broadcasts
+      WHERE customer_id = ?
       ORDER BY created_at DESC
-    `);
+    `,
+      [customer_id]
+    );
 
     return res.status(200).json({
       success: true,
@@ -149,6 +162,7 @@ export const getBroadcasts = async (req, res) => {
     });
   }
 };
+
 
 // ⏱ Cron job to update analytics Run once every day at midnight (12:00 AM).
 cron.schedule("0 0 * * *", async () => {
