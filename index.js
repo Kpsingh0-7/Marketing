@@ -13,7 +13,7 @@ const app = express();
 // === CORS config ===
 const corsOptions = {
   origin: 'https://kpw-iu7e.onrender.com', // Adjust in production
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 };
 
