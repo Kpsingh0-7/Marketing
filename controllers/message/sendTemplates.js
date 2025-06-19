@@ -1,27 +1,27 @@
-import axios from 'axios';
-import { pool } from '../../config/db.js';
+import axios from "axios";
+import { pool } from "../../config/db.js";
 
 export const sendTemplates = async (req, res) => {
   const {
     phoneNumber,
     name,
     element_name,
-    languageCode = 'en',
+    languageCode = "en",
     parameters = [],
-    customer_id
+    customer_id,
   } = req.body;
 
   try {
     if (!phoneNumber || !name || !customer_id || !element_name) {
       return res.status(400).json({
         success: false,
-        error: 'phoneNumber, name, customer_id, and element_name are required'
+        error: "phoneNumber, name, customer_id, and element_name are required",
       });
     }
 
     // Step 1: Find or insert customer
-        // Normalize phone number
-    const normalizedPhone = phoneNumber.replace(/\D/g, ''); // remove non-digit characters
+    // Normalize phone number
+    const normalizedPhone = phoneNumber.replace(/\D/g, ""); // remove non-digit characters
     const mobileNo = normalizedPhone.slice(-10); // last 10 digits
     const userCountryCode = normalizedPhone.slice(0, -10); // everything before last 10 digits
 
@@ -45,24 +45,24 @@ export const sendTemplates = async (req, res) => {
 
     // Step 2: Prepare template message payload
     const templateData = {
-      messaging_product: 'whatsapp',
-      recipient_type: 'individual',
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
       to: phoneNumber,
-      type: 'template',
+      type: "template",
       template: {
         name: element_name,
         language: { code: languageCode },
-        components: []
-      }
+        components: [],
+      },
     };
 
     if (parameters.length > 0) {
       templateData.template.components.push({
-        type: 'body',
-        parameters: parameters.map(param => ({
-          type: 'text',
-          text: param
-        }))
+        type: "body",
+        parameters: parameters.map((param) => ({
+          type: "text",
+          text: param,
+        })),
       });
     }
 
@@ -72,10 +72,10 @@ export const sendTemplates = async (req, res) => {
       templateData,
       {
         headers: {
-          accept: 'application/json',
-          Authorization: 'sk_4ac0a398aa5f4cca96d53974904ef1f3',
-          'Content-Type': 'application/json'
-        }
+          accept: "application/json",
+          Authorization: "sk_4ac0a398aa5f4cca96d53974904ef1f3",
+          "Content-Type": "application/json",
+        },
       }
     );
 
@@ -83,22 +83,24 @@ export const sendTemplates = async (req, res) => {
 
     // Step 4: Log the sent message
     await pool.execute(
-     `INSERT INTO messages (conversation_id, sender_type, sender_id, message_type, element_name, template_data, status, external_message_id, sent_at) VALUES (?, 'shop', ?, 'template', ?, ?, 'sent', ?, NOW())`,
-[null, customer_id, element_name, templateData, templateMessageId]
-);
+      `INSERT INTO messages (conversation_id, sender_type, sender_id, message_type, element_name, template_data, status, external_message_id, sent_at) VALUES (?, 'shop', ?, 'template', ?, ?, 'sent', ?, NOW())`,
+      [null, customer_id, element_name, templateData, templateMessageId]
+    );
 
     return res.status(200).json({
       success: true,
       messageId: templateMessageId,
-      response: templateResponse.data
+      response: templateResponse.data,
     });
-
   } catch (error) {
-    console.error('Error sending WhatsApp template message:', error.response?.data || error.message);
+    console.error(
+      "Error sending WhatsApp template message:",
+      error.response?.data || error.message
+    );
     return res.status(error.response?.status || 500).json({
       success: false,
       error: error.response?.data?.message || error.message,
-      details: error.response?.data
+      details: error.response?.data,
     });
   }
 };
