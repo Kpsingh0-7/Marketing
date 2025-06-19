@@ -25,6 +25,7 @@ import { returnGroups } from "../controllers/broadcast/returnGroups.js";
 import { returnContacts } from "../controllers/contact/returnContacts.js";
 import { returnConversationId } from "../controllers/message/returnConversationId.js";
 import { returnConversations } from "../controllers/message/returnConversations.js";
+import { returnCustomerCreditUsage } from "../controllers/returnCustomerCreditUsage.js";
 
 // Controllers you renamed with _ prefix (if needed)
 import { addSingleContact } from "../controllers/contact/addSingleContact.js";
@@ -68,6 +69,7 @@ export default function createRouter(io) {
   router.get("/returnGroups", authenticateToken, returnGroups);
   router.get("/getBroadcasts", authenticateToken, getBroadcasts);
   router.get("/getTemplateAnalytics", getTemplateAnalytics);
+  router.get("/creditUsage", authenticateToken, returnCustomerCreditUsage);
 
   return router;
 }

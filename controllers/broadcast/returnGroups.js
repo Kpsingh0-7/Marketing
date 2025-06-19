@@ -26,7 +26,7 @@ export const returnGroups = async (req, res) => {
       // ✅ Return customers (contact_id, name, mobile_no) in that group
       const [customers] = await pool.execute(
         `
-        SELECT c.contact_id, c.name, c.last_name, c.mobile_no
+        SELECT c.contact_id, c.first_name, c.last_name, c.mobile_no
         FROM contact_group_map gm
         JOIN contact c ON gm.contact_id = c.contact_id
         WHERE gm.group_id = ?
