@@ -1,4 +1,4 @@
-import { pool } from "../config/db.js";
+import { pool } from "../../config/db.js";
 
 export const returnGroups = async (req, res) => {
   const { group_id, customer_id } = req.query;

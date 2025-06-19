@@ -1,4 +1,4 @@
-import { pool } from "../config/db.js";
+import { pool } from "../../config/db.js";
 
 export const addSingleContact = async (req, res) => {
   const { customer_id, country_code, first_name, mobile_no } = req.body;

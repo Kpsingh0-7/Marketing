@@ -1,4 +1,4 @@
-import { pool } from "../config/db.js";
+import { pool } from "../../config/db.js";
 
 export const returnMessages = async (req, res) => {
   const { conversation_id } = req.query;

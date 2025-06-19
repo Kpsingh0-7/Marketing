@@ -1,4 +1,4 @@
-import { pool } from "../config/db.js";
+import { pool } from "../../config/db.js";
 import { sendBroadcast } from "./sendBroadcast.js";
 
 export const getBroadcastCustomers = async (req, res) => {

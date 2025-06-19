@@ -1,4 +1,4 @@
-import { pool } from "../config/db.js";
+import { pool } from "../../config/db.js";
 import cron from "node-cron";
 import axios from "axios";
 

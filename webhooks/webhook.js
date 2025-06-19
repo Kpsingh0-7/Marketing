@@ -1,4 +1,4 @@
-import { handleReply } from "../controllers/replyController.js";
+import { handleReply } from "../controllers/message/replyController.js";
 import { pool } from "../config/db.js";
 import fs from "fs/promises"; // Use promise-based fs
 import path from "path";
@@ -22,7 +22,7 @@ export function createWebhookHandler(io) {
 
   try {
     const messages = req.body.entry?.[0]?.changes || [];
-    const gsAppId = req.body.gs_app_id || null;
+    const gsAppId = req.body.gs_app_id;
 
     for (const change of messages) {
       const value = change.value;
@@ -130,7 +130,7 @@ export function createWebhookHandler(io) {
         let contact_id;
         if (guestRows.length === 0) {
           const [insertGuest] = await pool.query(
-            `INSERT INTO contact (name, mobile_no, country_code, customer_id) VALUES (?, ?, ?, ?)`,
+            `INSERT INTO contact (first_name, mobile_no, country_code, customer_id) VALUES (?, ?, ?, ?)`,
             [customerName, mobile_no, country_code, customer_id]
           );
           contact_id = insertGuest.insertId;

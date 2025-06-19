@@ -1,7 +1,8 @@
-import axios from 'axios';
-import dotenv from 'dotenv';
-import moment from 'moment';
-import { pool } from '../config/db.js';
+import axios from "axios";
+import dotenv from "dotenv";
+import moment from "moment";
+import { pool } from "../../config/db.js";
+import { updateCreditUsage } from "../updateCreditUsage.js";
 
 dotenv.config();
 
@@ -10,15 +11,20 @@ export const sendTemplate = async (req, res) => {
     phoneNumber,
     message,
     element_name,
-    languageCode = 'en',
+    languageCode = "en",
     parameters = [],
     customer_id,
-    contact_id
+    contact_id,
   } = req.body;
 
   try {
     if (!phoneNumber || !customer_id || !contact_id) {
-      return res.status(400).json({ success: false, error: 'phoneNumber, customer_id, and contact_id are required' });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "phoneNumber, customer_id, and contact_id are required",
+        });
     }
 
     // Ensure conversation exists (or create one)
@@ -48,18 +54,19 @@ export const sendTemplate = async (req, res) => {
 
     const lastMessageTimestamp = rows.length > 0 ? rows[0].sent_at : null;
     const isWithin24Hours =
-      lastMessageTimestamp && moment().diff(moment.utc(lastMessageTimestamp), 'hours') < 24;
+      lastMessageTimestamp &&
+      moment().diff(moment.utc(lastMessageTimestamp), "hours") < 24;
 
     let responses = [];
 
     // Send Free-form Message (within 24-hour window)
     if (isWithin24Hours && message) {
       const freeFormData = {
-        messaging_product: 'whatsapp',
-        recipient_type: 'individual',
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
         to: phoneNumber,
-        type: 'text',
-        text: { body: message }
+        type: "text",
+        text: { body: message },
       };
 
       const freeFormResponse = await axios.post(
@@ -67,10 +74,10 @@ export const sendTemplate = async (req, res) => {
         freeFormData,
         {
           headers: {
-            'accept': 'application/json',
-            'Authorization': "sk_4ac0a398aa5f4cca96d53974904ef1f3",
-            'Content-Type': 'application/json'
-          }
+            accept: "application/json",
+            Authorization: "sk_4ac0a398aa5f4cca96d53974904ef1f3",
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -82,31 +89,36 @@ export const sendTemplate = async (req, res) => {
          VALUES (?, 'shop', ?, 'text', ?, 'sent', ?, NOW())`,
         [conversation_id, customer_id, message, freeFormMessageId]
       );
+      await updateCreditUsage(customer_id);
 
-      responses.push({ type: 'text', messageId: freeFormMessageId, response: freeFormResponse.data });
+      responses.push({
+        type: "text",
+        messageId: freeFormMessageId,
+        response: freeFormResponse.data,
+      });
     }
 
     // Send Template Message
     if (element_name) {
       const templateData = {
-        messaging_product: 'whatsapp',
-        recipient_type: 'individual',
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
         to: phoneNumber,
-        type: 'template',
+        type: "template",
         template: {
           name: element_name,
           language: { code: languageCode },
-          components: []
-        }
+          components: [],
+        },
       };
 
       if (parameters.length > 0) {
         templateData.template.components.push({
-          type: 'body',
-          parameters: parameters.map(param => ({
-            type: 'text',
-            text: param
-          }))
+          type: "body",
+          parameters: parameters.map((param) => ({
+            type: "text",
+            text: param,
+          })),
         });
       }
 
@@ -115,10 +127,10 @@ export const sendTemplate = async (req, res) => {
         templateData,
         {
           headers: {
-            'accept': 'application/json',
-            'Authorization': "sk_4ac0a398aa5f4cca96d53974904ef1f3",
-            'Content-Type': 'application/json'
-          }
+            accept: "application/json",
+            Authorization: "sk_4ac0a398aa5f4cca96d53974904ef1f3",
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -132,26 +144,33 @@ export const sendTemplate = async (req, res) => {
           conversation_id,
           customer_id,
           element_name,
-          JSON.stringify({ parameters }),
-          //JSON.stringify(templateData),
-          templateMessageId
+          //JSON.stringify({ parameters }),
+          JSON.stringify(templateData),
+          templateMessageId,
         ]
       );
+      await updateCreditUsage(customer_id);
 
-      responses.push({ type: 'template', messageId: templateMessageId, response: templateResponse.data });
+      responses.push({
+        type: "template",
+        messageId: templateMessageId,
+        response: templateResponse.data,
+      });
     }
 
     return res.status(200).json({
       success: true,
-      responses
+      responses,
     });
-
   } catch (error) {
-    console.error('Error sending WhatsApp message:', error.response?.data || error.message);
+    console.error(
+      "Error sending WhatsApp message:",
+      error.response?.data || error.message
+    );
     return res.status(error.response?.status || 500).json({
       success: false,
       error: error.response?.data?.message || error.message,
-      details: error.response?.data
+      details: error.response?.data,
     });
   }
 };

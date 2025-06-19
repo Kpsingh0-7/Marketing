@@ -1,4 +1,4 @@
-import { pool } from "../config/db.js";
+import { pool } from "../../config/db.js";
 import { sendTemplate } from "./sendTemplate.js";
 
 export const processConversationMessage = async (req, res) => {

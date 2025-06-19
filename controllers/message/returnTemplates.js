@@ -1,4 +1,4 @@
-import { pool } from '../config/db.js';
+import { pool } from '../../config/db.js';
 
 export const returnTemplates = async (req, res) => {
   const { customer_id } = req.query;

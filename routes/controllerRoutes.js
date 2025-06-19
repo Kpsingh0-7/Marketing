@@ -4,31 +4,31 @@ import { authenticateToken } from "../middleware/authenticateToken.js";
 import { createWebhookHandler } from "../webhooks/webhook.js";
 
 // Controllers that don't need io
-import { getTemplate } from "../controllers/getTemplate.js";
-import { sendTemplate } from "../controllers/sendTemplate.js";
-import { sendTemplates } from "../controllers/sendTemplates.js";
-import { createTemplate } from "../controllers/createTemplate.js";
-import { deleteTemplate } from "../controllers/deleteTemplate.js";
-import { updateTemplate } from "../controllers/editTemplate.js";
-import { setupSubscription } from "../controllers/setSubscription.js";
-import { addBulkContacts } from "../controllers/addBulkContacts.js";
-import { sendBroadcast } from "../controllers/sendBroadcast.js";
-import { getBroadcastCustomers } from "../controllers/getBroadcastCustomers.js";
-import { getBroadcasts } from "../controllers/getBroadcasts.js";
-import { getTemplateAnalytics } from "../controllers/getTemplateAnalytics.js";
+import { getTemplate } from "../controllers/template/getTemplate.js";
+import { sendTemplate } from "../controllers/message/sendTemplate.js";
+import { sendTemplates } from "../controllers/message/sendTemplates.js";
+import { createTemplate } from "../controllers/template/createTemplate.js";
+import { deleteTemplate } from "../controllers/template/deleteTemplate.js";
+import { updateTemplate } from "../controllers/template/editTemplate.js";
+import { setupSubscription } from "../controllers/template/setSubscription.js";
+import { addBulkContacts } from "../controllers/contact/addBulkContacts.js";
+import { sendBroadcast } from "../controllers/broadcast/sendBroadcast.js";
+import { getBroadcastCustomers } from "../controllers/broadcast/getBroadcastCustomers.js";
+import { getBroadcasts } from "../controllers/broadcast/getBroadcasts.js";
+import { getTemplateAnalytics } from "../controllers/template/getTemplateAnalytics.js";
 import { loginUser, getMe, logoutUser } from "../controllers/login.js";
 
 // Controllers that require io passed (factories)
-import { returnTemplates } from "../controllers/returnTemplates.js";
-import { returnMessages } from "../controllers/returnMessages.js";
-import { returnGroups } from "../controllers/returnGroups.js";
-import { returnContacts } from "../controllers/returnContacts.js";
-import { returnConversationId } from "../controllers/returnConversationId.js";
-import { returnConversations } from "../controllers/returnConversations.js";
+import { returnTemplates } from "../controllers/message/returnTemplates.js";
+import { returnMessages } from "../controllers/message/returnMessages.js";
+import { returnGroups } from "../controllers/broadcast/returnGroups.js";
+import { returnContacts } from "../controllers/contact/returnContacts.js";
+import { returnConversationId } from "../controllers/message/returnConversationId.js";
+import { returnConversations } from "../controllers/message/returnConversations.js";
 
 // Controllers you renamed with _ prefix (if needed)
-import { addSingleContact } from "../controllers/addSingleContact.js";
-import { processConversationMessage } from "../controllers/processConversationMessage.js";
+import { addSingleContact } from "../controllers/contact/addSingleContact.js";
+import { processConversationMessage } from "../controllers/message/processConversationMessage.js";
 import { updateContact } from "../controllers/contact/updateContact.js";
 import { deleteContact } from "../controllers/contact/deleteContact.js";
 
