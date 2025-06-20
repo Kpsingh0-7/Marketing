@@ -128,7 +128,7 @@ export const loginUser = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      "SELECT id AS customer_id, email, password FROM customer WHERE email = ?",
+      "SELECT customer_id AS customer_id, email_id, password FROM customer WHERE email_id = ?",
       [email]
     );
 
