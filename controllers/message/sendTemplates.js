@@ -1,10 +1,12 @@
 import axios from "axios";
 import { pool } from "../../config/db.js";
+import { updateCreditUsage } from "../updateCreditUsage.js";
+
 
 export const sendTemplates = async (req, res) => {
   const {
     phoneNumber,
-    name,
+    first_name,
     element_name,
     languageCode = "en",
     parameters = [],
@@ -12,10 +14,10 @@ export const sendTemplates = async (req, res) => {
   } = req.body;
 
   try {
-    if (!phoneNumber || !name || !customer_id || !element_name) {
+    if (!phoneNumber || !first_name || !customer_id || !element_name) {
       return res.status(400).json({
         success: false,
-        error: "phoneNumber, name, customer_id, and element_name are required",
+        error: "phoneNumber, first_name, customer_id, and element_name are required",
       });
     }
 
@@ -37,8 +39,8 @@ export const sendTemplates = async (req, res) => {
       contact_id = existingCustomer[0].contact_id;
     } else {
       const [insertResult] = await pool.execute(
-        `INSERT INTO contact (mobile_no, name, customer_id, country_code) VALUES (?, ?, ?, ?)`,
-        [mobileNo, name, customer_id, userCountryCode]
+        `INSERT INTO contact (mobile_no, first_name, customer_id, country_code) VALUES (?, ?, ?, ?)`,
+        [mobileNo, first_name, customer_id, userCountryCode]
       );
       contact_id = insertResult.insertId;
     }
@@ -86,6 +88,8 @@ export const sendTemplates = async (req, res) => {
       `INSERT INTO messages (conversation_id, sender_type, sender_id, message_type, element_name, template_data, status, external_message_id, sent_at) VALUES (?, 'shop', ?, 'template', ?, ?, 'sent', ?, NOW())`,
       [null, customer_id, element_name, templateData, templateMessageId]
     );
+
+    await updateCreditUsage(customer_id);
 
     return res.status(200).json({
       success: true,

@@ -101,6 +101,7 @@ export const getBroadcastCustomers = async (req, res) => {
       body: {
         phoneNumbers: formattedPhoneNumbers,
         element_name: element_name,
+        customer_id:customer_id,
       },
     };
     const fakeResponse = {

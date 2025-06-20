@@ -1719,3 +1719,143 @@
   "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
   "object": "whatsapp_business_account"
 }
+
+
+=== Webhook Received at 2025-06-19T11:38:56.191Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "cda9596d-9106-4f83-968f-9d83c5af92a5",
+                "gs_id": "6b49d84f-cd2e-4bac-9356-c9f098b8f205",
+                "id": "cda9596d-9106-4f83-968f-9d83c5af92a5",
+                "meta_msg_id": "wamid.HBgMOTE5ODI0NTg4ODg3FQIAERgSRkUzQjYzN0E1QkNCQTA5RDRFAA==",
+                "recipient_id": "919824588887",
+                "status": "read",
+                "timestamp": "1750333074"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-06-19T11:38:56.548Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "e54cd4be-2c21-4804-825f-f15f339867ee",
+                "gs_id": "436ccff6-20a4-4e3a-b265-2b2877046e51",
+                "id": "e54cd4be-2c21-4804-825f-f15f339867ee",
+                "meta_msg_id": "wamid.HBgMOTE5ODI0NTg4ODg3FQIAERgSNUUwNTdEQTVEOTJDQzUyMDgwAA==",
+                "recipient_id": "919824588887",
+                "status": "read",
+                "timestamp": "1750333074"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-06-19T11:38:57.002Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "00517a79-b7ca-4bfa-9ab8-b4e34e2ea8d8",
+                "gs_id": "003896c5-2982-4bd0-a62e-f4b1403996e3",
+                "id": "00517a79-b7ca-4bfa-9ab8-b4e34e2ea8d8",
+                "meta_msg_id": "wamid.HBgMOTE5ODI0NTg4ODg3FQIAERgSMTk5Q0M5QUZFQ0JBRkIxOThEAA==",
+                "recipient_id": "919824588887",
+                "status": "read",
+                "timestamp": "1750333074"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-06-19T11:38:57.267Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "b9515561-25c6-45eb-99a7-21cbc83c5a26",
+                "gs_id": "a18387db-82a2-450f-8387-25cdbd5cca35",
+                "id": "b9515561-25c6-45eb-99a7-21cbc83c5a26",
+                "meta_msg_id": "wamid.HBgMOTE5ODI0NTg4ODg3FQIAERgSNThFQjUwNzZFRUQ5QjFEMDFEAA==",
+                "recipient_id": "919824588887",
+                "status": "read",
+                "timestamp": "1750333074"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}

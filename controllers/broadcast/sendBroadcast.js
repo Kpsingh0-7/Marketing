@@ -1,7 +1,10 @@
 import axios from 'axios';
+import { updateCreditUsage } from "../updateCreditUsage.js";
+
 
 export const sendBroadcast = async (req, res) => {
   const {
+    customer_id,
     phoneNumbers,
     element_name,
     parameters = [],
@@ -70,6 +73,7 @@ export const sendBroadcast = async (req, res) => {
         success: true,
         response: templateResponse.data
       });
+      await updateCreditUsage(customer_id);
 
     } catch (error) {
       console.error(`Error sending to ${phoneNumber}:`, error.response?.data || error.message);

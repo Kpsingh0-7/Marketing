@@ -17,55 +17,6 @@ console.log("Received customer_id:", customer_id);
     await connection.beginTransaction();
 
     for (const contact_id of contact_ids) {
-      // Step 1: Delete messages if conversation exists
-      const [conversationRows] = await connection.execute(
-        `SELECT conversation_id FROM conversations WHERE contact_id = ? AND customer_id = ?`,
-        [contact_id, customer_id]
-      );
-
-      if (conversationRows.length > 0) {
-        const conversation_id = conversationRows[0].conversation_id;
-
-        await connection.execute(
-          `DELETE FROM messages WHERE conversation_id = ?`,
-          [conversation_id]
-        );
-
-        await connection.execute(
-          `DELETE FROM conversations WHERE conversation_id = ?`,
-          [conversation_id]
-        );
-      }
-
-      // Step 2: Remove from contact_group_map
-      const [groupMapRows] = await connection.execute(
-        `SELECT group_id FROM contact_group_map WHERE contact_id = ?`,
-        [contact_id]
-      );
-
-      if (groupMapRows.length > 0) {
-        for (const row of groupMapRows) {
-          await connection.execute(
-            `DELETE FROM contact_group_map WHERE contact_id = ? AND group_id = ?`,
-            [contact_id, row.group_id]
-          );
-
-          // Step 5: Delete group if unused
-          const [remaining] = await connection.execute(
-            `SELECT * FROM contact_group_map WHERE group_id = ?`,
-            [row.group_id]
-          );
-
-          if (remaining.length === 0) {
-            await connection.execute(
-              `DELETE FROM contact_group WHERE group_id = ? AND customer_id = ?`,
-              [row.group_id, customer_id]
-            );
-          }
-        }
-      }
-
-      // Step 3: Delete from contact table
       await connection.execute(
         `DELETE FROM contact WHERE contact_id = ? AND customer_id = ?`,
         [contact_id, customer_id]
