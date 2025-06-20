@@ -165,7 +165,7 @@ export const getBroadcasts = async (req, res) => {
 
 
 // ⏱ Cron job to update analytics Run once every day at midnight (12:00 AM).
-cron.schedule("* * * * *", async () => {
+cron.schedule("0 0 * * *", async () => {
   console.log(
     `[${new Date().toISOString()}] 🕒 Running broadcast analytics update task...`
   );
