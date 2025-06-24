@@ -89,7 +89,7 @@ export const sendTemplate = async (req, res) => {
          VALUES (?, 'shop', ?, 'text', ?, 'sent', ?, NOW())`,
         [conversation_id, customer_id, message, freeFormMessageId]
       );
-      await updateCreditUsage(customer_id);
+await updateCreditUsage(customer_id, 'sent');
 
       responses.push({
         type: "text",
@@ -149,7 +149,7 @@ export const sendTemplate = async (req, res) => {
           templateMessageId,
         ]
       );
-      await updateCreditUsage(customer_id);
+await updateCreditUsage(customer_id, 'sent');
 
       responses.push({
         type: "template",
