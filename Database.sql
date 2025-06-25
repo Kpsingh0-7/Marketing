@@ -12,7 +12,9 @@ CREATE TABLE `customer` (
     `email_id` VARCHAR(100) DEFAULT NULL,
     `password` VARCHAR(50) DEFAULT NULL,
     `address` VARCHAR(500) DEFAULT NULL,
-    `credit` VARCHAR(500) DEFAULT NULL,
+    `total_credit` DECIMAL(10,2) DEFAULT 0.00,
+    `total_credit_consumed` DECIMAL(10, 2) DEFAULT 0.00,
+    `total_credit_remaining` DECIMAL(10, 2) DEFAULT 0.00,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`customer_id`)

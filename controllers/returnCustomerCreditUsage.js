@@ -13,8 +13,6 @@ export const returnCustomerCreditUsage = async (req, res) => {
    SELECT 
   customer_id,
   DATE_FORMAT(usage_date, '%Y-%m-%d') AS usage_date,
-  credit_consumed,
-  credit_remaining,
   messages_sent,
   messages_received,
   total_cost,
