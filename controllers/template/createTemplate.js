@@ -17,7 +17,19 @@ export const createTemplate = async (req, res) => {
     exampleHeader,
     messageSendTTL
   } = req.body;
-
+console.log({
+  elementName,
+  content,
+  category,
+  templateType,
+  languageCode,
+  header,
+  footer,
+  buttons,
+  example,
+  exampleHeader,
+  messageSendTTL
+});
   try {
     // Validate required fields
     if (!elementName || !content) {

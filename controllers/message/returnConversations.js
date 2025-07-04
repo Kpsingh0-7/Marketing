@@ -12,6 +12,7 @@ if (!customer_id) {
       SELECT 
         c.contact_id, 
         c.conversation_id, 
+        wp.country_code,
         c.updated_at,
         wp.first_name,
         wp.last_name,
