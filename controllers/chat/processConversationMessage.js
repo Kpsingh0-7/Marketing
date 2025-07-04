@@ -30,16 +30,20 @@ export const processConversationMessage = async (req, res) => {
     );
 
     // 3. Get mobile number from contact
-    const [custRows] = await pool.execute(
-      `SELECT mobile_no FROM contact WHERE contact_id = ?`,
-      [contact_id]
-    );
+const [custRows] = await pool.execute(
+  `SELECT mobile_no, country_code FROM contact WHERE contact_id = ?`,
+  [contact_id]
+);
 
-    if (custRows.length === 0) {
-      return res.status(404).json({ error: "Customer not found" });
-    }
+if (custRows.length === 0) {
+  return res.status(404).json({ error: "Customer not found" });
+}
 
-    const phoneNumber = custRows[0].mobile_no;
+const { mobile_no, country_code } = custRows[0];
+
+// Combine country code and mobile number
+const phoneNumber = `${country_code}${mobile_no}`; // e.g., "+91" + "9876543210"
+
 
     // 4. Construct payload
     let payload = null;

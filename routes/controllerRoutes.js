@@ -5,8 +5,8 @@ import { createWebhookHandler } from "../webhooks/webhook.js";
 
 // Controllers that don't need io
 import { getTemplate } from "../controllers/template/getTemplate.js";
-import { sendTemplate } from "../controllers/message/sendTemplate.js";
-import { sendTemplates } from "../controllers/message/sendTemplates.js";
+import { sendTemplate } from "../controllers/chat/sendTemplate.js";
+import { sendTemplates } from "../controllers/chat/sendTemplates.js";
 import { createTemplate } from "../controllers/template/createTemplate.js";
 import { deleteTemplate } from "../controllers/template/deleteTemplate.js";
 import { updateTemplate } from "../controllers/template/editTemplate.js";
@@ -19,19 +19,21 @@ import { getTemplateAnalytics } from "../controllers/template/getTemplateAnalyti
 import { loginUser, getMe, logoutUser } from "../controllers/login.js";
 
 // Controllers that require io passed (factories)
-import { returnTemplates } from "../controllers/message/returnTemplates.js";
-import { returnMessages } from "../controllers/message/returnMessages.js";
+import { returnTemplates } from "../controllers/chat/returnTemplates.js";
+import { returnMessages } from "../controllers/chat/returnMessages.js";
 import { returnGroups } from "../controllers/broadcast/returnGroups.js";
 import { returnContacts } from "../controllers/contact/returnContacts.js";
-import { returnConversationId } from "../controllers/message/returnConversationId.js";
-import { returnConversations } from "../controllers/message/returnConversations.js";
+import { returnConversationId } from "../controllers/chat/returnConversationId.js";
+import { returnConversations } from "../controllers/chat/returnConversations.js";
 import { returnCustomerCreditUsage } from "../controllers/returnCustomerCreditUsage.js";
 
 // Controllers you renamed with _ prefix (if needed)
 import { addSingleContact } from "../controllers/contact/addSingleContact.js";
-import { processConversationMessage } from "../controllers/message/processConversationMessage.js";
+import { processConversationMessage } from "../controllers/chat/processConversationMessage.js";
 import { updateContact } from "../controllers/contact/updateContact.js";
 import { deleteContact } from "../controllers/contact/deleteContact.js";
+import { deleteConversations } from "../controllers/chat/deleteConversations.js";
+
 
 const router = Router();
 const upload = multer({ dest: "uploads/" });
@@ -58,6 +60,7 @@ export default function createRouter(io) {
   router.put("/edit", authenticateToken, updateTemplate);
   router.put("/updatecontact", authenticateToken, updateContact);
   router.delete("/deletecontact", authenticateToken, deleteContact);
+  router.delete("/deleteconversations", deleteConversations);
 
   router.get("/me", authenticateToken, getMe);
   router.get("/gettemplates", authenticateToken, getTemplate);

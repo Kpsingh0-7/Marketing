@@ -1,6 +1,6 @@
 // Optimized Webhook Handler (with points 1 to 7 applied, WebSocket logic unchanged)
 
-import { handleReply } from "../controllers/message/replyController.js";
+import { handleReply } from "../controllers/chat/replyController.js";
 import { updateCreditUsage } from "../controllers/updateCreditUsage.js";
 import { pool } from "../config/db.js";
 import fs from "fs/promises";

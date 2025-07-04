@@ -5193,3 +5193,580 @@
   "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
   "object": "whatsapp_business_account"
 }
+
+
+=== Webhook Received at 2025-07-04T06:28:01.575Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "e4e16113-645d-4f9d-8832-74e479aefbf4",
+                "conversation": {
+                  "expiration_timestamp": "1751610480",
+                  "id": "a0d33a1f559d732d4030ff1d8561d8ce",
+                  "origin": {
+                    "type": "marketing"
+                  }
+                },
+                "gs_id": "ce22f2cc-fa43-4095-b550-a4aa8ac5ebf0",
+                "id": "e4e16113-645d-4f9d-8832-74e479aefbf4",
+                "meta_msg_id": "wamid.HBgMOTE5OTU1OTkxNTEyFQIAERgSMjZGNjJCRTM2RkRFQzYzRDQwAA==",
+                "pricing": {
+                  "billable": true,
+                  "category": "marketing",
+                  "pricing_model": "PMP",
+                  "type": "regular"
+                },
+                "recipient_id": "919955991512",
+                "status": "sent",
+                "timestamp": "1751610480"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-07-04T06:28:02.848Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "e4e16113-645d-4f9d-8832-74e479aefbf4",
+                "conversation": {
+                  "id": "a0d33a1f559d732d4030ff1d8561d8ce",
+                  "origin": {
+                    "type": "marketing"
+                  }
+                },
+                "gs_id": "ce22f2cc-fa43-4095-b550-a4aa8ac5ebf0",
+                "id": "e4e16113-645d-4f9d-8832-74e479aefbf4",
+                "meta_msg_id": "wamid.HBgMOTE5OTU1OTkxNTEyFQIAERgSMjZGNjJCRTM2RkRFQzYzRDQwAA==",
+                "pricing": {
+                  "billable": true,
+                  "category": "marketing",
+                  "pricing_model": "PMP",
+                  "type": "regular"
+                },
+                "recipient_id": "919955991512",
+                "status": "delivered",
+                "timestamp": "1751610481"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-07-04T06:28:19.249Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "e4e16113-645d-4f9d-8832-74e479aefbf4",
+                "gs_id": "ce22f2cc-fa43-4095-b550-a4aa8ac5ebf0",
+                "id": "e4e16113-645d-4f9d-8832-74e479aefbf4",
+                "meta_msg_id": "wamid.HBgMOTE5OTU1OTkxNTEyFQIAERgSMjZGNjJCRTM2RkRFQzYzRDQwAA==",
+                "recipient_id": "919955991512",
+                "status": "read",
+                "timestamp": "1751610498"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-07-04T06:28:19.956Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "contacts": [
+              {
+                "profile": {
+                  "name": "KP Singh"
+                },
+                "wa_id": "919955991512"
+              }
+            ],
+            "messages": [
+              {
+                "button": {
+                  "payload": "Order Now",
+                  "text": "Order Now"
+                },
+                "context": {
+                  "from": "919274334248",
+                  "gs_id": "ce22f2cc-fa43-4095-b550-a4aa8ac5ebf0",
+                  "id": "e4e16113-645d-4f9d-8832-74e479aefbf4",
+                  "meta_msg_id": "wamid.HBgMOTE5OTU1OTkxNTEyFQIAERgSMjZGNjJCRTM2RkRFQzYzRDQwAA=="
+                },
+                "from": "919955991512",
+                "id": "wamid.HBgMOTE5OTU1OTkxNTEyFQIAEhgUM0FGM0M0QzZFNzREQ0U1RTc2NDkA",
+                "timestamp": "1751610498",
+                "type": "button"
+              }
+            ],
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            }
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gsMetadata": {
+    "SOURCE": "SS",
+    "SOURCE_ID": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+    "SOURCE_MSG_ID": "ce22f2cc-fa43-4095-b550-a4aa8ac5ebf0",
+    "SOURCE_NAME": "FoodChowApp",
+    "X-GS-IS-TEMPLATE": "true",
+    "X-GS-MSG-SRC": "SS",
+    "X-GS-SS-ID": "ce22f2cc-fa43-4095-b550-a4aa8ac5ebf0",
+    "accid": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+    "iid": "ce22f2cc-fa43-4095-b550-a4aa8ac5ebf0",
+    "rid": "ce22f2cc-fa43-4095-b550-a4aa8ac5ebf0_0",
+    "sji": "ce22f2cc-fa43-4095-b550-a4aa8ac5ebf0",
+    "src": "SS"
+  },
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-07-04T06:30:32.150Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "48692a08-39cf-4e79-b6f7-16ea5cf31038",
+                "conversation": {
+                  "expiration_timestamp": "1751610570",
+                  "id": "e3a0f58b51a8df961d39b23dc72230e2",
+                  "origin": {
+                    "type": "service"
+                  }
+                },
+                "gs_id": "b40fad3d-0678-4b60-806a-8167d8786c27",
+                "id": "48692a08-39cf-4e79-b6f7-16ea5cf31038",
+                "meta_msg_id": "wamid.HBgMOTE5OTU1OTkxNTEyFQIAERgSODdDMjMxOEIwOEZCREQxNDI3AA==",
+                "pricing": {
+                  "billable": false,
+                  "category": "service",
+                  "pricing_model": "PMP",
+                  "type": "free_customer_service"
+                },
+                "recipient_id": "919955991512",
+                "status": "sent",
+                "timestamp": "1751610570"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-07-04T06:30:33.177Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "48692a08-39cf-4e79-b6f7-16ea5cf31038",
+                "conversation": {
+                  "id": "e3a0f58b51a8df961d39b23dc72230e2",
+                  "origin": {
+                    "type": "service"
+                  }
+                },
+                "gs_id": "b40fad3d-0678-4b60-806a-8167d8786c27",
+                "id": "48692a08-39cf-4e79-b6f7-16ea5cf31038",
+                "meta_msg_id": "wamid.HBgMOTE5OTU1OTkxNTEyFQIAERgSODdDMjMxOEIwOEZCREQxNDI3AA==",
+                "pricing": {
+                  "billable": false,
+                  "category": "service",
+                  "pricing_model": "PMP",
+                  "type": "free_customer_service"
+                },
+                "recipient_id": "919955991512",
+                "status": "delivered",
+                "timestamp": "1751610571"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-07-04T06:36:07.981Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "48692a08-39cf-4e79-b6f7-16ea5cf31038",
+                "gs_id": "b40fad3d-0678-4b60-806a-8167d8786c27",
+                "id": "48692a08-39cf-4e79-b6f7-16ea5cf31038",
+                "meta_msg_id": "wamid.HBgMOTE5OTU1OTkxNTEyFQIAERgSODdDMjMxOEIwOEZCREQxNDI3AA==",
+                "recipient_id": "919955991512",
+                "status": "read",
+                "timestamp": "1751610966"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-07-04T06:36:51.953Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "template_category_update",
+          "value": {
+            "gs_template_id": "90197181-82d4-4f8e-b5fd-a1cc549fe954",
+            "message_template_language": "en",
+            "message_template_name": "order_missed",
+            "new_category": "MARKETING",
+            "previous_category": "UTILITY"
+          }
+        }
+      ],
+      "id": "110171975093525",
+      "time": 1751611011851
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-07-04T06:36:58.384Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "template_category_update",
+          "value": {
+            "gs_template_id": "90197181-82d4-4f8e-b5fd-a1cc549fe954",
+            "message_template_id": 1426926161855067,
+            "message_template_language": "en",
+            "message_template_name": "order_missed",
+            "new_category": "MARKETING"
+          }
+        }
+      ],
+      "id": "110171975093525",
+      "time": 1751611017
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-07-04T06:37:29.868Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "message_template_status_update",
+          "value": {
+            "event": "APPROVED",
+            "gs_template_id": "90197181-82d4-4f8e-b5fd-a1cc549fe954",
+            "message_template_id": 1426926161855067,
+            "message_template_language": "en",
+            "message_template_name": "order_missed",
+            "reason": "NONE"
+          }
+        }
+      ],
+      "id": "110171975093525",
+      "time": 1751611048
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-07-04T06:50:56.202Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "c585df6e-2e26-4e72-8292-84ff11879ae5",
+                "conversation": {
+                  "id": "5665ffc264120be4f6c176c1f4299871",
+                  "origin": {
+                    "type": "marketing"
+                  }
+                },
+                "gs_id": "c0c0c339-a89b-4a49-97cd-8e4a087b53f0",
+                "id": "c585df6e-2e26-4e72-8292-84ff11879ae5",
+                "meta_msg_id": "wamid.HBgMOTE5ODI1Nzk0MjEwFQIAERgSRERFOTZBQkY4QjE1NjNBRTZEAA==",
+                "pricing": {
+                  "billable": true,
+                  "category": "marketing",
+                  "pricing_model": "PMP",
+                  "type": "regular"
+                },
+                "recipient_id": "919825794210",
+                "status": "delivered",
+                "timestamp": "1751611855"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-07-04T06:50:56.501Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "c585df6e-2e26-4e72-8292-84ff11879ae5",
+                "conversation": {
+                  "expiration_timestamp": "1751611854",
+                  "id": "5665ffc264120be4f6c176c1f4299871",
+                  "origin": {
+                    "type": "marketing"
+                  }
+                },
+                "gs_id": "c0c0c339-a89b-4a49-97cd-8e4a087b53f0",
+                "id": "c585df6e-2e26-4e72-8292-84ff11879ae5",
+                "meta_msg_id": "wamid.HBgMOTE5ODI1Nzk0MjEwFQIAERgSRERFOTZBQkY4QjE1NjNBRTZEAA==",
+                "pricing": {
+                  "billable": true,
+                  "category": "marketing",
+                  "pricing_model": "PMP",
+                  "type": "regular"
+                },
+                "recipient_id": "919825794210",
+                "status": "sent",
+                "timestamp": "1751611854"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-07-04T06:50:56.499Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "c585df6e-2e26-4e72-8292-84ff11879ae5",
+                "conversation": {
+                  "id": "5665ffc264120be4f6c176c1f4299871",
+                  "origin": {
+                    "type": "marketing"
+                  }
+                },
+                "gs_id": "c0c0c339-a89b-4a49-97cd-8e4a087b53f0",
+                "id": "c585df6e-2e26-4e72-8292-84ff11879ae5",
+                "meta_msg_id": "wamid.HBgMOTE5ODI1Nzk0MjEwFQIAERgSRERFOTZBQkY4QjE1NjNBRTZEAA==",
+                "pricing": {
+                  "billable": true,
+                  "category": "marketing",
+                  "pricing_model": "PMP",
+                  "type": "regular"
+                },
+                "recipient_id": "919825794210",
+                "status": "delivered",
+                "timestamp": "1751611854"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
+
+
+=== Webhook Received at 2025-07-04T06:51:21.489Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "c585df6e-2e26-4e72-8292-84ff11879ae5",
+                "gs_id": "c0c0c339-a89b-4a49-97cd-8e4a087b53f0",
+                "id": "c585df6e-2e26-4e72-8292-84ff11879ae5",
+                "meta_msg_id": "wamid.HBgMOTE5ODI1Nzk0MjEwFQIAERgSRERFOTZBQkY4QjE1NjNBRTZEAA==",
+                "recipient_id": "919825794210",
+                "status": "read",
+                "timestamp": "1751611880"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}
