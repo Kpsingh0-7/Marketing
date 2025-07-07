@@ -33,6 +33,7 @@ import { processConversationMessage } from "../controllers/chat/processConversat
 import { updateContact } from "../controllers/contact/updateContact.js";
 import { deleteContact } from "../controllers/contact/deleteContact.js";
 import { deleteConversations } from "../controllers/chat/deleteConversations.js";
+import { createRazorpayOrder, verifyRazorpayPayment } from '../controllers/payment/payment.js';
 
 
 const router = Router();
@@ -45,6 +46,8 @@ export default function createRouter(io) {
 
   // Protected Routes (Requires JWT)
   router.post("/login", loginUser);
+  router.post('/create-payment', createRazorpayOrder);
+router.post('/verify-payment', verifyRazorpayPayment);
   router.post("/send", sendTemplate);
   router.post("/sendTemplates", sendTemplates);
   router.post("/subscription", setupSubscription);

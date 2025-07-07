@@ -1,6 +1,8 @@
 -- DATABASE CREATION
 CREATE DATABASE IF NOT EXISTS Marketing;
 USE Marketing;
+SET GLOBAL time_zone = '+00:00';
+SELECT NOW(), UTC_TIMESTAMP();
 
 -- CUSTOMER TABLE
 CREATE TABLE `customer` (
@@ -47,7 +49,6 @@ CREATE TABLE `contact` (
     `mobile_no` VARCHAR(20) DEFAULT NULL,
     `profile_image` VARCHAR(255) DEFAULT NULL,
     `customer_id` BIGINT DEFAULT NULL,
-    `register_date` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `couponcode` VARCHAR(20),
     `birthday` DATE,
     `anniversary` DATE,
