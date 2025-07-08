@@ -66,6 +66,13 @@ io.on('connection', (socket) => {
     console.log(`Socket ${socket.id} joined conversation: ${conversation_id}`);
   });
 
+
+  // ✅ Join a customer-wide room for global notifications
+  socket.on('join_customer_room', (customer_id) => {
+    socket.join(String(customer_id));
+    console.log(`Socket ${socket.id} joined customer room: ${customer_id}`);
+  });
+
   socket.on('disconnect', () => {
     console.log('Socket disconnected:', socket.id);
   });

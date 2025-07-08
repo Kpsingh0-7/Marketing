@@ -173,6 +173,18 @@ async function handleIncomingMessage(value, gsAppId, io) {
     // ✅ WebSocket logic unchanged
     io.to(String(conversation_id)).emit("newMessage", newMessage);
     console.log(`Emitted to room ${conversation_id}`, newMessage);
+
+
+    // ✅ Emit to toast notification
+    io.to(String(customer_id)).emit("newMessageAlert", {
+      contact_id,
+      conversation_id,
+      name: customerName,
+      content: messageText,
+      type: msg.type,
+      time: newMessage.sent_at,
+    });
+    console.log(`🔔 Emitted newMessageAlert to customer ${customer_id}`);
   } else {
     console.log(`Message already exists: ${messageId}`);
   }
