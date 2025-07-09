@@ -11,7 +11,7 @@ export const markMessagesAsRead = async (req, res) => {
   try {
     const [result] = await pool.execute(
       `UPDATE messages
-       SET read_at = CURRENT_TIMESTAMP, status = 'read'
+       SET read_at = CURRENT_TIMESTAMP
        WHERE conversation_id = ? AND read_at IS NULL`,
       [conversation_id]
     );
