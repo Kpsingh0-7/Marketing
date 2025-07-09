@@ -25,6 +25,7 @@ import { returnGroups } from "../controllers/broadcast/returnGroups.js";
 import { returnContacts } from "../controllers/contact/returnContacts.js";
 import { returnConversationId } from "../controllers/chat/returnConversationId.js";
 import { returnConversations } from "../controllers/chat/returnConversations.js";
+import { markMessagesAsRead } from "../controllers/chat/markMessagesAsRead.js";
 import { returnCustomerCreditUsage } from "../controllers/returnCustomerCreditUsage.js";
 
 // Controllers you renamed with _ prefix (if needed)
@@ -57,6 +58,8 @@ router.post('/verify-payment', verifyRazorpayPayment);
   router.post("/addcustomers", upload.single("file"), addBulkContacts);
   router.post("/sendBroadcast", sendBroadcast);
   router.post("/getBroadcastCustomers", getBroadcastCustomers);
+    router.post("/markMessagesAsRead", markMessagesAsRead);
+
   router.post("/logout", logoutUser);
 
   router.delete("/deletetemplate", authenticateToken, deleteTemplate);

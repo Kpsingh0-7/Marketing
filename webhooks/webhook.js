@@ -174,7 +174,6 @@ async function handleIncomingMessage(value, gsAppId, io) {
     io.to(String(conversation_id)).emit("newMessage", newMessage);
     console.log(`Emitted to room ${conversation_id}`, newMessage);
 
-
     // ✅ Emit to toast notification
     io.to(String(customer_id)).emit("newMessageAlert", {
       contact_id,
