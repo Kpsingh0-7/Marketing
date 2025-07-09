@@ -4,9 +4,9 @@ import moment from "moment";
 export const updateCreditUsage = async (customer_id, direction = "sent") => {
   const today = moment().format("YYYY-MM-DD");
   const creditConsumed = 1;
-  const costPerMsg = 0.65;
+  const costPerMsg = 1;
   const gsFee = 0.2;
-  const metaFee = 0.45;
+  const metaFee = 0.8;
 
   try {
     console.log(`[${today}] Starting updateCreditUsage for customer_id:`, customer_id);
