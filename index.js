@@ -139,11 +139,25 @@ const io = new SocketIO(server, {
 const router = createRouter(io);
 app.use('/', router);
 
-// === Error handler ===
-app.use((err, req, res, next) => {
-  console.error('Server error:', err);
-  res.status(500).json({ error: 'Internal Server Error' });
+;
+
+// ✅ Ensure CORS headers apply to every route in the router
+router.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://marketing.tenacioustechies.com.au');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  );
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+
+  next();
 });
+
 
 const SECRET = 'super_secret_key_12345';
 
