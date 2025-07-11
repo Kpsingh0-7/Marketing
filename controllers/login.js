@@ -128,7 +128,7 @@ export const loginUser = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      "SELECT customer_id AS customer_id, email_id, password FROM customer WHERE email_id = ?",
+      "SELECT customer_id AS customer_id, email_id, password, role, allowed_routes FROM customer WHERE email_id = ?",
       [email]
     );
 
@@ -152,6 +152,8 @@ export const loginUser = async (req, res) => {
       user: {
         customer_id: user.customer_id,
         email: user.email,
+        role: user.role,
+        allowed_routes: user.allowed_routes,
       },
     });
   } catch (err) {

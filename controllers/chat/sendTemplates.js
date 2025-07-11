@@ -6,21 +6,22 @@ import { updateCreditUsage } from "../updateCreditUsage.js";
 export const sendTemplates = async (req, res) => {
   const {
     phoneNumber,
-    first_name,
+    name,
     element_name,
     languageCode = "en",
     parameters = [],
-    customer_id,
+    shop_id,
   } = req.body;
 
   try {
-    if (!phoneNumber || !first_name || !customer_id || !element_name) {
+    if (!phoneNumber || !name || !shop_id || !element_name) {
       return res.status(400).json({
         success: false,
-        error: "phoneNumber, first_name, customer_id, and element_name are required",
+        error: "phoneNumber, name, shop_id, and element_name are required",
       });
     }
-
+    const customer_id = shop_id;
+    const first_name = name;
     // Step 1: Find or insert customer
     // Normalize phone number
     const normalizedPhone = phoneNumber.replace(/\D/g, ""); // remove non-digit characters
