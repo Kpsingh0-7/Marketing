@@ -29,7 +29,7 @@ export const createRazorpayOrder = async (req, res) => {
       [
         order.id,
         customer_id,
-        order.amount,
+        amount,
         order.currency,
         order.receipt,
         order.status || 'created',
@@ -56,19 +56,49 @@ export const verifyRazorpayPayment = async (req, res) => {
     .update(`${razorpay_order_id}|${razorpay_payment_id}`)
     .digest('hex');
 
-  if (expectedSignature === razorpay_signature) {
-    try {
-      await pool.execute(
-        `UPDATE payments SET status = ?, razorpay_payment_id = ? WHERE order_id = ?`,
-        ['paid', razorpay_payment_id, razorpay_order_id]
-      );
+  if (expectedSignature !== razorpay_signature) {
+    return res.status(400).json({ success: false, message: 'Invalid signature' });
+  }
 
-      res.json({ success: true, message: 'Payment verified and updated successfully' });
-    } catch (dbErr) {
-      console.error("DB update error:", dbErr);
-      res.status(500).json({ success: false, error: "Payment verified but DB update failed" });
+  try {
+    // Step 1: Update payment status
+    await pool.execute(
+      `UPDATE payments SET status = ?, razorpay_payment_id = ? WHERE order_id = ?`,
+      ['paid', razorpay_payment_id, razorpay_order_id]
+    );
+
+    // Step 2: Get amount and customer_id
+    const [paymentResult] = await pool.execute(
+      `SELECT amount, customer_id FROM payments WHERE order_id = ?`,
+      [razorpay_order_id]
+    );
+
+    if (paymentResult.length === 0) {
+      return res.status(404).json({ success: false, error: "Payment record not found" });
     }
-  } else {
-    res.status(400).json({ success: false, message: 'Invalid signature' });
+
+    const { amount, customer_id } = paymentResult[0];
+
+    // Step 3: Update `customer` table
+    await pool.execute(
+      `UPDATE customer SET 
+        total_credit = total_credit + ?, 
+        total_credit_remaining = total_credit_remaining + ?
+      WHERE customer_id = ?`,
+      [amount, amount, customer_id]
+    );
+
+    // Step 4: Update `customer_credit_usage` table
+    await pool.execute(
+      `UPDATE customer_credit_usage SET 
+        credit_remaining = credit_remaining + ?
+      WHERE customer_id = ?`,
+      [amount, customer_id]
+    );
+
+    return res.json({ success: true, message: 'Payment verified and credits updated successfully' });
+  } catch (dbErr) {
+    console.error("Error updating credit info:", dbErr);
+    return res.status(500).json({ success: false, error: "Internal server error" });
   }
 };

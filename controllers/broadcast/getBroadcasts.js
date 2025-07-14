@@ -40,11 +40,11 @@ export const updateBroadcastAnalytics = async () => {
         limit: 30,
       });
 
-      const url = `https://partner.gupshup.io/partner/app/7f97d76e-d64a-4c7b-b589-7b607dce5b45/template/analytics?${params.toString()}`;
+      const url = `https://partner.gupshup.io/partner/app/e6fc2b8d-6e8d-4713-8d91-da5323e400da/template/analytics?${params.toString()}`;
 
       const response = await axios.get(url, {
         headers: {
-          Authorization: "sk_4ac0a398aa5f4cca96d53974904ef1f3",
+          Authorization: "sk_4830e6e27ce44be5af5892c5913396b8",
         },
       });
 

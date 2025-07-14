@@ -3,6 +3,12 @@ CREATE DATABASE IF NOT EXISTS Marketing;
 USE Marketing;
 SET GLOBAL time_zone = '+00:00';
 SELECT NOW(), UTC_TIMESTAMP();
+ALTER TABLE customer
+ADD COLUMN role ENUM('admin', 'user') DEFAULT 'user',
+ADD COLUMN allowed_routes JSON DEFAULT (JSON_ARRAY());
+UPDATE customer
+SET allowed_routes = '["/login","/register","/forgot-password","/","/contact", "/templates"]'
+WHERE customer_id = 7872;
 
 -- CUSTOMER TABLE
 CREATE TABLE `customer` (
@@ -17,10 +23,13 @@ CREATE TABLE `customer` (
     `total_credit` DECIMAL(10,2) DEFAULT 0.00,
     `total_credit_consumed` DECIMAL(10, 2) DEFAULT 0.00,
     `total_credit_remaining` DECIMAL(10, 2) DEFAULT 0.00,
+    `role` ENUM('admin', 'user') DEFAULT 'user',              -- ✅ Role column added
+    `allowed_routes` JSON DEFAULT (JSON_ARRAY()),             -- ✅ Allowed routes column
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`customer_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 -- CUSTOMER CREDIT USAGE TABLE
 CREATE TABLE `customer_credit_usage` (
@@ -45,7 +54,7 @@ CREATE TABLE `contact` (
     `contact_id` BIGINT NOT NULL AUTO_INCREMENT,
     `first_name` VARCHAR(255) DEFAULT NULL,
     `last_name` VARCHAR(50) DEFAULT NULL,
-    `country_code` VARCHAR(5),
+    `country_code` VARCHAR(50),
     `mobile_no` VARCHAR(20) DEFAULT NULL,
     `profile_image` VARCHAR(255) DEFAULT NULL,
     `customer_id` BIGINT DEFAULT NULL,
@@ -171,4 +180,20 @@ CREATE TABLE `messages` (
     `external_message_id` VARCHAR(100) DEFAULT NULL,
     PRIMARY KEY (`message_id`),
     FOREIGN KEY (`conversation_id`) REFERENCES `conversations`(`conversation_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+CREATE TABLE `payments` (
+    `payment_id` BIGINT NOT NULL AUTO_INCREMENT,
+    `customer_id` BIGINT NOT NULL,
+    `order_id` VARCHAR(100),
+    `razorpay_payment_id` VARCHAR(100),
+    `amount` INT,
+    `currency` VARCHAR(10),
+    `receipt` VARCHAR(100),
+    `status` VARCHAR(50),
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`payment_id`),
+    FOREIGN KEY (`customer_id`) REFERENCES customer(`customer_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

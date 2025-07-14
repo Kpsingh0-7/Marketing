@@ -5,8 +5,8 @@ dotenv.config();
 export const setupSubscription = async (req, res) => {
   const {
     modes = "SENT, READ, DELIVERED, ALL, TEMPLATE", // SENT, READ, DELIVERED,
-    tag = "FoodChowApp_v6",
-    url = "http://195.201.175.72:3000/we",
+    tag = "FoodChowApp_v1",
+    url = "https://pika-driving-gannet.ngrok-free.app/webhook",
     version = 3,
     showOnUI = false,
     meta = null,
@@ -30,11 +30,11 @@ export const setupSubscription = async (req, res) => {
     if (meta) encodedParams.set("meta", JSON.stringify(meta));
 
     const response = await axios.post(
-      `https://partner.gupshup.io/partner/app/7f97d76e-d64a-4c7b-b589-7b607dce5b45/subscription`,
+      `https://partner.gupshup.io/partner/app/e6fc2b8d-6e8d-4713-8d91-da5323e400da/subscription`,
       encodedParams.toString(),
       {
         headers: {
-          Authorization: "sk_4ac0a398aa5f4cca96d53974904ef1f3",
+          Authorization: "sk_4830e6e27ce44be5af5892c5913396b8",
           "Content-Type": "application/x-www-form-urlencoded",
         },
       }

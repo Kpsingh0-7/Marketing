@@ -40,7 +40,7 @@
       "id": "110171975093525"
     }
   ],
-  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "gs_app_id": "e6fc2b8d-6e8d-4713-8d91-da5323e400da",
   "object": "whatsapp_business_account"
 }
 
@@ -94,13 +94,13 @@
   "gsMetadata": {
     "X-GS-MSG-SRC": "SS",
     "X-GS-SS-ID": "6b6603a9-2c7c-4193-83f4-357c65fad31f",
-    "accid": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+    "accid": "e6fc2b8d-6e8d-4713-8d91-da5323e400da",
     "iid": "6b6603a9-2c7c-4193-83f4-357c65fad31f",
     "rid": "6b6603a9-2c7c-4193-83f4-357c65fad31f_0",
     "sji": "6b6603a9-2c7c-4193-83f4-357c65fad31f",
     "src": "SS"
   },
-  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "gs_app_id": "e6fc2b8d-6e8d-4713-8d91-da5323e400da",
   "object": "whatsapp_business_account"
 }
 
@@ -115,7 +115,7 @@ Recovery code
   "subscriptions": [
     {
       "active": true,
-      "appId": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+      "appId": "e6fc2b8d-6e8d-4713-8d91-da5323e400da",
       "createdOn": 1747046751063,
       "id": "10023171",
       "latencyBucket": "lt_500_ms",
@@ -135,7 +135,7 @@ Recovery code
     },
     {
       "active": true,
-      "appId": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+      "appId": "e6fc2b8d-6e8d-4713-8d91-da5323e400da",
       "createdOn": 1747379566159,
       "id": "10345240",
       "latencyBucket": "lt_100_ms",
@@ -155,7 +155,7 @@ Recovery code
     },
     {
       "active": true,
-      "appId": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+      "appId": "e6fc2b8d-6e8d-4713-8d91-da5323e400da",
       "createdOn": 1748244376526,
       "id": "10378905",
       "latencyBucket": "lt_500_ms",
@@ -182,7 +182,7 @@ Recovery code
     "status": "success",
     "subscription": {
         "active": true,
-        "appId": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+        "appId": "e6fc2b8d-6e8d-4713-8d91-da5323e400da",
         "createdOn": 1748933386883,
         "id": "10382236",
         "mode": 8327,
