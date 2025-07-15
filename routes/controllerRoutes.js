@@ -39,8 +39,7 @@ import {
   verifyRazorpayPayment,
 } from "../controllers/payment/payment.js";
 import { returnAllMessage } from "../controllers/admin/returnAllMessage.js";
-import { createSubUser, updateSubUser } from "../controllers/user/createSubUser.js";
-import { getSubUser } from "../controllers/user/getSubUser.js";
+import { createSubUser, getSubUser, updateSubUser, deleteSubUser} from "../controllers/user/subUser.js";
 
 const router = Router();
 const upload = multer({ dest: "uploads/" });
@@ -71,9 +70,11 @@ export default function createRouter(io) {
   router.delete("/deletetemplate", authenticateToken, deleteTemplate);
   router.put("/edit", authenticateToken, updateTemplate);
   router.put("/updatecontact", authenticateToken, updateContact);
-  router.put("/updateSubUser", updateSubUser);
+  router.put("/updatesubuser", updateSubUser);
   router.delete("/deletecontact", authenticateToken, deleteContact);
   router.delete("/deleteconversations", deleteConversations);
+  router.delete("/deletesubuser", deleteSubUser);
+
 
   router.get("/me", authenticateToken, getMe);
   router.get("/gettemplates", authenticateToken, getTemplate);
@@ -86,7 +87,7 @@ export default function createRouter(io) {
   router.get("/getBroadcasts", authenticateToken, getBroadcasts);
   router.get("/getTemplateAnalytics", getTemplateAnalytics);
   router.get("/creditUsage", authenticateToken, returnCustomerCreditUsage);
-  router.get("/subUsers", getSubUser);
+  router.get("/getsubusers", getSubUser);
 
 
   router.get("/returnAllMessage", returnAllMessage);
