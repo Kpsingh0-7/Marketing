@@ -21,7 +21,7 @@ const upsertUserAccess = async (customer_id, user_id, allowed_routes) => {
 };
 
 // Create Sub-User
-export const createUser = async (req, res) => {
+export const createSubUser = async (req, res) => {
   const { customer_id, name, email, mobile_no, password, allowed_routes } = req.body;
 console.log(customer_id, name);
   if (!customer_id || !email || !password) {
@@ -59,7 +59,7 @@ console.log(customer_id, name);
 };
 
 // Update Sub-User
-export const updateUser = async (req, res) => {
+export const updateSubUser = async (req, res) => {
   const { user_id } = req.params;
   const { name, email, mobile_no, password, allowed_routes } = req.body;
 

@@ -39,7 +39,7 @@ import {
   verifyRazorpayPayment,
 } from "../controllers/payment/payment.js";
 import { returnAllMessage } from "../controllers/admin/returnAllMessage.js";
-import { createUser, updateUser } from "../controllers/user/createSubUser.js";
+import { createSubUser, updateSubUser } from "../controllers/user/createSubUser.js";
 import { getSubUser } from "../controllers/user/getSubUser.js";
 
 const router = Router();
@@ -64,14 +64,14 @@ export default function createRouter(io) {
   router.post("/sendBroadcast", sendBroadcast);
   router.post("/getBroadcastCustomers", getBroadcastCustomers);
   router.post("/markMessagesAsRead", markMessagesAsRead);
-  router.post("/user", createUser);
+  router.post("/createSubUser", createSubUser);
   
   router.post("/logout", logoutUser);
 
   router.delete("/deletetemplate", authenticateToken, deleteTemplate);
   router.put("/edit", authenticateToken, updateTemplate);
   router.put("/updatecontact", authenticateToken, updateContact);
-  router.put("/user/:user_id", updateUser);
+  router.put("/updateSubUser", updateSubUser);
   router.delete("/deletecontact", authenticateToken, deleteContact);
   router.delete("/deleteconversations", deleteConversations);
 
@@ -86,7 +86,7 @@ export default function createRouter(io) {
   router.get("/getBroadcasts", authenticateToken, getBroadcasts);
   router.get("/getTemplateAnalytics", getTemplateAnalytics);
   router.get("/creditUsage", authenticateToken, returnCustomerCreditUsage);
-  router.get("/users", getSubUser);
+  router.get("/subUsers", getSubUser);
 
 
   router.get("/returnAllMessage", returnAllMessage);
