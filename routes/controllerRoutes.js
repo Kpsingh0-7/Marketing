@@ -34,8 +34,13 @@ import { processConversationMessage } from "../controllers/chat/processConversat
 import { updateContact } from "../controllers/contact/updateContact.js";
 import { deleteContact } from "../controllers/contact/deleteContact.js";
 import { deleteConversations } from "../controllers/chat/deleteConversations.js";
-import { createRazorpayOrder, verifyRazorpayPayment } from '../controllers/payment/payment.js';
-
+import {
+  createRazorpayOrder,
+  verifyRazorpayPayment,
+} from "../controllers/payment/payment.js";
+import { returnAllMessage } from "../controllers/admin/returnAllMessage.js";
+import { createUser, updateUser } from "../controllers/user/createSubUser.js";
+import { getSubUser } from "../controllers/user/getSubUser.js";
 
 const router = Router();
 const upload = multer({ dest: "uploads/" });
@@ -47,8 +52,8 @@ export default function createRouter(io) {
 
   // Protected Routes (Requires JWT)
   router.post("/login", loginUser);
-  router.post('/create-payment', createRazorpayOrder);
-router.post('/verify-payment', verifyRazorpayPayment);
+  router.post("/create-payment", createRazorpayOrder);
+  router.post("/verify-payment", verifyRazorpayPayment);
   router.post("/send", sendTemplate);
   router.post("/sendTemplates", sendTemplates);
   router.post("/subscription", setupSubscription);
@@ -58,13 +63,15 @@ router.post('/verify-payment', verifyRazorpayPayment);
   router.post("/addcustomers", upload.single("file"), addBulkContacts);
   router.post("/sendBroadcast", sendBroadcast);
   router.post("/getBroadcastCustomers", getBroadcastCustomers);
-    router.post("/markMessagesAsRead", markMessagesAsRead);
-
+  router.post("/markMessagesAsRead", markMessagesAsRead);
+  router.post("/user", createUser);
+  
   router.post("/logout", logoutUser);
 
   router.delete("/deletetemplate", authenticateToken, deleteTemplate);
   router.put("/edit", authenticateToken, updateTemplate);
   router.put("/updatecontact", authenticateToken, updateContact);
+  router.put("/user/:user_id", updateUser);
   router.delete("/deletecontact", authenticateToken, deleteContact);
   router.delete("/deleteconversations", deleteConversations);
 
@@ -79,6 +86,10 @@ router.post('/verify-payment', verifyRazorpayPayment);
   router.get("/getBroadcasts", authenticateToken, getBroadcasts);
   router.get("/getTemplateAnalytics", getTemplateAnalytics);
   router.get("/creditUsage", authenticateToken, returnCustomerCreditUsage);
+  router.get("/users", getSubUser);
+
+
+  router.get("/returnAllMessage", returnAllMessage);
 
   return router;
 }

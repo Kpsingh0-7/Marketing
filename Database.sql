@@ -1,14 +1,15 @@
 -- DATABASE CREATION
-CREATE DATABASE IF NOT EXISTS Marketing;
-USE Marketing;
+CREATE DATABASE IF NOT EXISTS TestMarketing;
+USE TestMarketing;
 SET GLOBAL time_zone = '+00:00';
 SELECT NOW(), UTC_TIMESTAMP();
 ALTER TABLE customer
 ADD COLUMN role ENUM('admin', 'user') DEFAULT 'user',
 ADD COLUMN allowed_routes JSON DEFAULT (JSON_ARRAY());
 UPDATE customer
-SET allowed_routes = '["/login","/register","/forgot-password","/","/contact", "/templates"]'
-WHERE customer_id = 7872;
+SET allowed_routes = '["/login","/register","/forgot-password","/","/contact", "/templates","/templates/explore", "/chats", "/broadcast", "/settings", "/help"]'
+WHERE customer_id = 0;
+SELECT * FROM customer WHERE customer_id = 1;
 
 -- CUSTOMER TABLE
 CREATE TABLE `customer` (
@@ -17,18 +18,40 @@ CREATE TABLE `customer` (
     `last_name` VARCHAR(50) DEFAULT NULL,
     `mobile_no` VARCHAR(20) DEFAULT NULL,
     `profile_image` VARCHAR(255) DEFAULT NULL,
-    `email_id` VARCHAR(100) DEFAULT NULL,
+    `email_id` VARCHAR(100) UNIQUE,
     `password` VARCHAR(50) DEFAULT NULL,
     `address` VARCHAR(500) DEFAULT NULL,
     `total_credit` DECIMAL(10,2) DEFAULT 0.00,
     `total_credit_consumed` DECIMAL(10, 2) DEFAULT 0.00,
     `total_credit_remaining` DECIMAL(10, 2) DEFAULT 0.00,
-    `role` ENUM('admin', 'user') DEFAULT 'user',              -- ✅ Role column added
-    `allowed_routes` JSON DEFAULT (JSON_ARRAY()),             -- ✅ Allowed routes column
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`customer_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE customer_users (
+    user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    customer_id BIGINT NOT NULL,
+    name VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
+    mobile_no VARCHAR(20),
+    password VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customer(customer_id)
+);
+
+CREATE TABLE customer_user_access (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    customer_id BIGINT NOT NULL,
+    user_id BIGINT DEFAULT NULL, -- NULL = main customer
+    allowed_routes JSON NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customer(customer_id),
+    FOREIGN KEY (user_id) REFERENCES customer_users(user_id)
+);
+
 
 
 -- CUSTOMER CREDIT USAGE TABLE

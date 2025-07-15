@@ -10,7 +10,7 @@
 //   httpOnly: true,
 //   secure: true, // ⚠️ Set to false in local dev without HTTPS
 //   sameSite: "None",
-  
+
 //   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
 // };
 
@@ -105,10 +105,9 @@
 //   return res.json({ success: true, message: "Logged out successfully" });
 // };
 
-
 // authController.js
 import jwt from "jsonwebtoken";
-import { pool } from '../config/db.js';
+import { pool } from "../config/db.js";
 
 const SECRET = "super_secret_key_12345";
 
@@ -127,41 +126,99 @@ export const loginUser = async (req, res) => {
   }
 
   try {
-    const [rows] = await pool.query(
-      "SELECT customer_id AS customer_id, email_id, password, role, allowed_routes FROM customer WHERE email_id = ?",
+    // 1. Try logging in as main customer
+    const [mainRows] = await pool.query(
+      `SELECT customer_id, email_id AS email, password FROM customer WHERE email_id = ?`,
       [email]
     );
 
-    const user = rows[0];
+    if (mainRows.length > 0 && mainRows[0].password === password) {
+      const user = mainRows[0];
 
-    if (!user || user.password !== password) {
-      return res.status(401).json({ error: "Invalid email or password." });
+      const [accessRows] = await pool.query(
+        `SELECT allowed_routes FROM customer_user_access 
+         WHERE customer_id = ? AND user_id IS NULL`,
+        [user.customer_id]
+      );
+
+      const allowed_routes = accessRows.length
+        ? typeof accessRows[0].allowed_routes === "string"
+          ? JSON.parse(accessRows[0].allowed_routes)
+          : accessRows[0].allowed_routes
+        : [];
+
+      const token = jwt.sign(
+        { customer_id: user.customer_id, email: user.email },
+        SECRET,
+        { expiresIn: "30d" }
+      );
+
+      res.cookie("auth_token", token, cookieOptions);
+
+      return res.json({
+        success: true,
+        message: "Login successful",
+        user: {
+          customer_id: user.customer_id,
+          email: user.email,
+          role: "main", // fixed value for backward compatibility
+          allowed_routes,
+        },
+      });
     }
 
-    const token = jwt.sign(
-      { customer_id: user.customer_id, email: user.email },
-      SECRET,
-      { expiresIn: "30d" }
+    // 2. Try logging in as sub-user
+    const [subRows] = await pool.query(
+      `SELECT user_id, customer_id, email, password FROM customer_users WHERE email = ?`,
+      [email]
     );
 
-    res.cookie("auth_token", token, cookieOptions);
+    if (subRows.length > 0 && subRows[0].password === password) {
+      const user = subRows[0];
 
-    return res.json({
-      success: true,
-      message: "Login successful",
-      user: {
-        customer_id: user.customer_id,
-        email: user.email,
-        role: user.role,
-        allowed_routes: user.allowed_routes,
-      },
-    });
+      const [accessRows] = await pool.query(
+        `SELECT allowed_routes FROM customer_user_access 
+         WHERE customer_id = ? AND user_id = ?`,
+        [user.customer_id, user.user_id]
+      );
+
+      const allowed_routes = accessRows.length
+        ? typeof accessRows[0].allowed_routes === "string"
+          ? JSON.parse(accessRows[0].allowed_routes)
+          : accessRows[0].allowed_routes
+        : [];
+
+      const token = jwt.sign(
+        {
+          customer_id: user.customer_id,
+          user_id: user.user_id,
+          email: user.email,
+        },
+        SECRET,
+        { expiresIn: "30d" }
+      );
+
+      res.cookie("auth_token", token, cookieOptions);
+
+      return res.json({
+        success: true,
+        message: "Login successful",
+        user: {
+          customer_id: user.customer_id,
+          email: user.email,
+          role: "sub_user", // to keep return data same shape
+          allowed_routes,
+        },
+      });
+    }
+
+    // If no match
+    return res.status(401).json({ error: "Invalid email or password." });
   } catch (err) {
     console.error("Login error:", err.message);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 // ME Route
 export const getMe = (req, res) => {

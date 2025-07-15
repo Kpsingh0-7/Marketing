@@ -128,7 +128,7 @@ export const getBroadcasts = async (req, res) => {
       SELECT 
         broadcast_id,
         broadcast_name,
-        customer_list,
+        group_id,
         message_type,
         schedule,
         schedule_date,
