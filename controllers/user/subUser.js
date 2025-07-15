@@ -22,22 +22,25 @@ const upsertUserAccess = async (customer_id, user_id, allowed_routes) => {
 
 // Create Sub-User
 export const createSubUser = async (req, res) => {
-  const { customer_id, name, email, mobile_no, password, allowed_routes } = req.body;
-console.log(customer_id, name);
+  const { customer_id, name, email, mobile_no, password, allowed_routes } =
+    req.body;
   if (!customer_id || !email || !password) {
-    return res.status(400).json({ success: false, error: "Missing required fields." });
+    return res
+      .status(400)
+      .json({ success: false, error: "Missing required fields." });
   }
 
   try {
-    const [existing] = await pool.query(
-      `SELECT user_id FROM customer_users WHERE email = ?`,
-      [email]
+    const [conflict] = await pool.query(
+      `SELECT 1 FROM customer WHERE email_id = ? UNION SELECT 1 FROM customer_users WHERE email = ?`,
+      [email, email]
     );
 
-    if (existing.length > 0) {
-      return res.status(409).json({ success: false, error: "Email already exists." });
+    if (conflict.length > 0) {
+      return res
+        .status(409)
+        .json({ success: false, error: "Email already in use." });
     }
-
     const [result] = await pool.query(
       `INSERT INTO customer_users (customer_id, name, email, mobile_no, password) VALUES (?, ?, ?, ?, ?)`,
       [customer_id, name, email, mobile_no, password]
@@ -54,7 +57,9 @@ console.log(customer_id, name);
     });
   } catch (err) {
     console.error("Create User Error:", err.message);
-    return res.status(500).json({ success: false, error: "Internal Server Error" });
+    return res
+      .status(500)
+      .json({ success: false, error: "Internal Server Error" });
   }
 };
 
@@ -112,9 +117,13 @@ export const getSubUser = async (req, res) => {
 export const updateSubUser = async (req, res) => {
   const { user_id } = req.query;
   const { name, email, mobile_no, password, allowed_routes } = req.body;
-if (!user_id) {
-    return res.status(400).json({ success: false, message: "user_id is required in URL params." });
+
+  if (!user_id) {
+    return res
+      .status(400)
+      .json({ success: false, message: "user_id is required in URL params." });
   }
+
   try {
     const [existing] = await pool.query(
       `SELECT customer_id FROM customer_users WHERE user_id = ?`,
@@ -127,28 +136,56 @@ if (!user_id) {
 
     const customer_id = existing[0].customer_id;
 
-    await pool.query(
-      `UPDATE customer_users SET name = ?, email = ?, mobile_no = ?, password = ? WHERE user_id = ?`,
-      [name, email, mobile_no, password, user_id]
-    );
+    // 🧠 Dynamically build SET clause
+    const fields = [];
+    const values = [];
 
-    if (allowed_routes) {
+    if (name !== undefined) {
+      fields.push("name = ?");
+      values.push(name);
+    }
+    if (email !== undefined) {
+      fields.push("email = ?");
+      values.push(email);
+    }
+    if (mobile_no !== undefined) {
+      fields.push("mobile_no = ?");
+      values.push(mobile_no);
+    }
+    if (password !== undefined) {
+      fields.push("password = ?");
+      values.push(password);
+    }
+
+    if (fields.length > 0) {
+      const updateQuery = `UPDATE customer_users SET ${fields.join(", ")} WHERE user_id = ?`;
+      values.push(user_id);
+      await pool.query(updateQuery, values);
+    }
+
+    if (allowed_routes !== undefined) {
       await upsertUserAccess(customer_id, user_id, allowed_routes);
     }
 
     return res.json({ success: true, message: "User updated successfully." });
   } catch (err) {
     console.error("Update User Error:", err.message);
-    return res.status(500).json({ success: false, error: "Internal Server Error" });
+    return res
+      .status(500)
+      .json({ success: false, error: "Internal Server Error" });
   }
 };
-
 
 export const deleteSubUser = async (req, res) => {
   const { user_id } = req.query;
 
   if (!user_id) {
-    return res.status(400).json({ success: false, message: "user_id is required in query params." });
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: "user_id is required in query params.",
+      });
   }
 
   try {
@@ -159,7 +196,9 @@ export const deleteSubUser = async (req, res) => {
     );
 
     if (existing.length === 0) {
-      return res.status(404).json({ success: false, message: "User not found." });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
     }
 
     const customer_id = existing[0].customer_id;
@@ -171,14 +210,16 @@ export const deleteSubUser = async (req, res) => {
     );
 
     // Then delete the user
-    await pool.query(
-      `DELETE FROM customer_users WHERE user_id = ?`,
-      [user_id]
-    );
+    await pool.query(`DELETE FROM customer_users WHERE user_id = ?`, [user_id]);
 
-    return res.json({ success: true, message: "Sub-user deleted successfully." });
+    return res.json({
+      success: true,
+      message: "Sub-user deleted successfully.",
+    });
   } catch (err) {
     console.error("Delete Sub-user Error:", err.message);
-    return res.status(500).json({ success: false, message: "Internal Server Error" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
   }
 };
