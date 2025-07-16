@@ -4,7 +4,7 @@ import path from "path";
 import { parse } from "csv-parse/sync";
 import mammoth from "mammoth";
 
-export const addBulkContacts = async (req, res) => {
+export const addGroup = async (req, res) => {
   const customer_id = parseInt(req.body.customer_id, 10);
   const group_name_raw = req.body.group_name;
   const file = req.file;
