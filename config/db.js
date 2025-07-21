@@ -1,9 +1,9 @@
 // import mysql from 'mysql2/promise';
 // export const pool = mysql.createPool({
 //  host: 'localhost', // replace with your DB host
-//  user: 'markreac_root', // replace with your DB user
+//  user: 'markcouk_kpsingh ', // replace with your DB user
 //  password: 'Kpsingh@1234', // replace with your DB password
-//  database: 'markreac_market' // replace with your DB name
+//  database: 'markcouk_marketing' // replace with your DB name
 // });
 
 // import mysql from "mysql2/promise";
@@ -28,6 +28,6 @@ export const pool = mysql.createPool({
 });
 
 // Force UTC for MySQL session too
-pool.on('connection', function (connection) {
-  connection.query("SET time_zone = '+00:00'");
-});
+// pool.on('connection', function (connection) {
+//   connection.query("SET time_zone = '+00:00'");
+// });

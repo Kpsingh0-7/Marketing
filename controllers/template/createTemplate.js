@@ -15,33 +15,51 @@ export const createTemplate = async (req, res) => {
     buttons = [],
     example,
     exampleHeader,
-    messageSendTTL
+    messageSendTTL,
+    customer_id  // ✅ Needed to fetch credentials
   } = req.body;
-console.log({
-  elementName,
-  content,
-  category,
-  templateType,
-  languageCode,
-  header,
-  footer,
-  buttons,
-  example,
-  exampleHeader,
-  messageSendTTL
-});
+
+  console.log({
+    elementName,
+    content,
+    category,
+    templateType,
+    languageCode,
+    header,
+    footer,
+    buttons,
+    example,
+    exampleHeader,
+    messageSendTTL,
+    customer_id
+  });
+
   try {
-    // Validate required fields
-    if (!elementName || !content) {
+    // ✅ Validate required fields
+    if (!elementName || !content || !customer_id) {
       return res.status(400).json({
         success: false,
-        error: 'elementName and content are required fields'
+        error: 'elementName, content, and customer_id are required fields'
       });
     }
 
-    const encodedParams = new URLSearchParams();
+    // ✅ Fetch gupshup credentials
+    const [configRows] = await pool.query(
+      'SELECT gupshup_id, token FROM gupshup_configuration WHERE customer_id = ?',
+      [customer_id]
+    );
 
-    // Required parameters
+    if (configRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Gupshup configuration not found for this customer'
+      });
+    }
+
+    const { gupshup_id, token } = configRows[0];
+
+    // ✅ Prepare request body
+    const encodedParams = new URLSearchParams();
     encodedParams.set('elementName', elementName);
     encodedParams.set('languageCode', languageCode);
     encodedParams.set('category', category);
@@ -49,48 +67,29 @@ console.log({
     encodedParams.set('vertical', 'TEXT');
     encodedParams.set('content', content);
     encodedParams.set('allowTemplateCategoryChange', 'false');
-    encodedParams.set('message_send_ttl_seconds', messageSendTTL.toString());
+    encodedParams.set('message_send_ttl_seconds', messageSendTTL?.toString() || '3600');
     encodedParams.set('enableSample', 'true');
 
-    // Header and footer 
-    encodedParams.set('header', header);
-    encodedParams.set('footer', footer);
-    encodedParams.set('exampleHeader', exampleHeader );
+    if (header) encodedParams.set('header', header);
+    if (footer) encodedParams.set('footer', footer);
+    if (exampleHeader) encodedParams.set('exampleHeader', exampleHeader);
+    if (buttons.length > 0) {
+      encodedParams.set('buttons', JSON.stringify(buttons));
+    }
 
-    // Handle buttons
-    // if (buttons.length > 0) {
-    //   encodedParams.set('buttons', JSON.stringify(buttons));
-    // } else if (category === 'AUTHENTICATION') {
-    //   encodedParams.set('buttons', JSON.stringify([{
-    //     type: 'OTP',
-    //     otp_type: 'COPY_CODE',
-    //     text: 'Copy OTP'
-    //   }]));
-    // } else {
-    //   // Optional default for non-auth
-    //   encodedParams.set('buttons', JSON.stringify([
-    //     { type: 'QUICK_REPLY', text: 'Track Order' }
-    //   ]));
-    // }
-// Only set buttons if provided manually
-if (buttons.length > 0) {
-  encodedParams.set('buttons', JSON.stringify(buttons));
-}
-
-    // Example generation
-    const generatedExample = example || 
-      content.replace(/\{\{1\}\}/g, '4')
-             .replace(/\{\{2\}\}/g, '2025-04-25');  // Use future-looking date
+    const generatedExample = example || content
+      .replace(/\{\{1\}\}/g, '4')
+      .replace(/\{\{2\}\}/g, '2025-04-25');
     encodedParams.set('example', generatedExample);
 
-    // Send API request
+    // ✅ Send template creation request
     const response = await axios.post(
-      `https://partner.gupshup.io/partner/app/e6fc2b8d-6e8d-4713-8d91-da5323e400da/templates`,
+      `https://partner.gupshup.io/partner/app/${gupshup_id}/templates`,
       encodedParams.toString(),
       {
         headers: {
           accept: 'application/json',
-          token: "sk_4830e6e27ce44be5af5892c5913396b8",
+          token: token,
           'content-type': 'application/x-www-form-urlencoded'
         }
       }
@@ -98,7 +97,7 @@ if (buttons.length > 0) {
 
     const template = response.data.template;
 
-    // Insert into MySQL database
+    // ✅ Save to database
     const insertQuery = `
       INSERT INTO whatsapp_templates (
         id, external_id, app_id, waba_id,

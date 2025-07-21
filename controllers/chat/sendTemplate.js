@@ -19,15 +19,28 @@ export const sendTemplate = async (req, res) => {
 
   try {
     if (!phoneNumber || !customer_id || !contact_id) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: "phoneNumber, customer_id, and contact_id are required",
-        });
+      return res.status(400).json({
+        success: false,
+        error: "phoneNumber, customer_id, and contact_id are required",
+      });
     }
 
-    // Ensure conversation exists (or create one)
+    // Fetch Gupshup credentials from DB
+    const [configRows] = await pool.query(
+      `SELECT gupshup_id, token FROM gupshup_configuration WHERE customer_id = ?`,
+      [customer_id]
+    );
+
+    if (configRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Gupshup configuration not found for this customer",
+      });
+    }
+
+    const { gupshup_id, token } = configRows[0];
+
+    // Ensure conversation exists
     const [existing] = await pool.execute(
       `SELECT conversation_id FROM conversations WHERE customer_id = ? AND contact_id = ?`,
       [customer_id, contact_id]
@@ -59,7 +72,7 @@ export const sendTemplate = async (req, res) => {
 
     let responses = [];
 
-    // Send Free-form Message (within 24-hour window)
+    // ✅ Free-form Message (within 24 hours)
     if (isWithin24Hours && message) {
       const freeFormData = {
         messaging_product: "whatsapp",
@@ -70,12 +83,12 @@ export const sendTemplate = async (req, res) => {
       };
 
       const freeFormResponse = await axios.post(
-        `https://partner.gupshup.io/partner/app/e6fc2b8d-6e8d-4713-8d91-da5323e400da/v3/message`,
+        `https://partner.gupshup.io/partner/app/${gupshup_id}/v3/message`,
         freeFormData,
         {
           headers: {
             accept: "application/json",
-            Authorization: "sk_4830e6e27ce44be5af5892c5913396b8",
+            Authorization: token,
             "Content-Type": "application/json",
           },
         }
@@ -89,7 +102,8 @@ export const sendTemplate = async (req, res) => {
          VALUES (?, 'shop', ?, 'text', ?, 'sent', ?, NOW())`,
         [conversation_id, customer_id, message, freeFormMessageId]
       );
-await updateCreditUsage(customer_id, 'sent');
+
+      await updateCreditUsage(customer_id, 'sent');
 
       responses.push({
         type: "text",
@@ -98,7 +112,7 @@ await updateCreditUsage(customer_id, 'sent');
       });
     }
 
-    // Send Template Message
+    // ✅ Template Message
     if (element_name) {
       const templateData = {
         messaging_product: "whatsapp",
@@ -123,12 +137,12 @@ await updateCreditUsage(customer_id, 'sent');
       }
 
       const templateResponse = await axios.post(
-        `https://partner.gupshup.io/partner/app/e6fc2b8d-6e8d-4713-8d91-da5323e400da/v3/message`,
+        `https://partner.gupshup.io/partner/app/${gupshup_id}/v3/message`,
         templateData,
         {
           headers: {
             accept: "application/json",
-            Authorization: "sk_4830e6e27ce44be5af5892c5913396b8",
+            Authorization: token,
             "Content-Type": "application/json",
           },
         }
@@ -144,12 +158,12 @@ await updateCreditUsage(customer_id, 'sent');
           conversation_id,
           customer_id,
           element_name,
-          //JSON.stringify({ parameters }),
           JSON.stringify(templateData),
           templateMessageId,
         ]
       );
-await updateCreditUsage(customer_id, 'sent');
+
+      await updateCreditUsage(customer_id, 'sent');
 
       responses.push({
         type: "template",

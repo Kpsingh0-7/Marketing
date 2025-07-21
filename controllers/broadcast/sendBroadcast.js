@@ -1,6 +1,6 @@
 import axios from 'axios';
+import { pool } from "../../config/db.js";
 import { updateCreditUsage } from "../updateCreditUsage.js";
-
 
 export const sendBroadcast = async (req, res) => {
   const {
@@ -11,7 +11,7 @@ export const sendBroadcast = async (req, res) => {
     languageCode = 'en'
   } = req.body;
 
-  // Basic validation
+  // Validation
   if (!Array.isArray(phoneNumbers) || phoneNumbers.length === 0 || !element_name) {
     return res.status(400).json({
       success: false,
@@ -19,7 +19,6 @@ export const sendBroadcast = async (req, res) => {
     });
   }
 
-  // Conditional validation if parameters are provided
   if (parameters.length > 0 && parameters.length !== phoneNumbers.length) {
     return res.status(400).json({
       success: false,
@@ -27,64 +26,82 @@ export const sendBroadcast = async (req, res) => {
     });
   }
 
-  const responses = [];
+  try {
+    // Fetch Gupshup credentials from the database
+    const [configRows] = await pool.query(
+      'SELECT gupshup_id, token FROM gupshup_configuration WHERE customer_id = ?',
+      [customer_id]
+    );
 
-  for (let i = 0; i < phoneNumbers.length; i++) {
-    const phoneNumber = phoneNumbers[i];
-    const paramSet = parameters[i] || []; // Use empty array if no parameters for this number
-
-    const templateData = {
-      messaging_product: 'whatsapp',
-      recipient_type: 'individual',
-      to: phoneNumber,
-      type: 'template',
-      template: {
-        name: element_name,
-        language: { code: languageCode },
-        components: []
-      }
-    };
-
-    if (Array.isArray(paramSet) && paramSet.length > 0) {
-      templateData.template.components.push({
-        type: 'body',
-        parameters: paramSet.map(param => ({
-          type: 'text',
-          text: param
-        }))
-      });
+    if (configRows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Gupshup configuration not found for customer' });
     }
 
-    try {
-      const templateResponse = await axios.post(
-        `https://partner.gupshup.io/partner/app/e6fc2b8d-6e8d-4713-8d91-da5323e400da/v3/message`,
-        templateData,
-        {
-          headers: {
-            'accept': 'application/json',
-            'Authorization': "sk_4830e6e27ce44be5af5892c5913396b8",
-            'Content-Type': 'application/json'
-          }
+    const { gupshup_id, token } = configRows[0];
+    const responses = [];
+
+    for (let i = 0; i < phoneNumbers.length; i++) {
+      const phoneNumber = phoneNumbers[i];
+      const paramSet = parameters[i] || [];
+
+      const templateData = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to: phoneNumber,
+        type: 'template',
+        template: {
+          name: element_name,
+          language: { code: languageCode },
+          components: []
         }
-      );
+      };
 
-      responses.push({
-        phoneNumber,
-        success: true,
-        response: templateResponse.data
-      });
-      await updateCreditUsage(customer_id);
+      if (Array.isArray(paramSet) && paramSet.length > 0) {
+        templateData.template.components.push({
+          type: 'body',
+          parameters: paramSet.map(param => ({
+            type: 'text',
+            text: param
+          }))
+        });
+      }
 
-    } catch (error) {
-      console.error(`Error sending to ${phoneNumber}:`, error.response?.data || error.message);
-      responses.push({
-        phoneNumber,
-        success: false,
-        error: error.response?.data?.message || error.message,
-        details: error.response?.data
-      });
+      try {
+        const templateResponse = await axios.post(
+          `https://partner.gupshup.io/partner/app/${gupshup_id}/v3/message`,
+          templateData,
+          {
+            headers: {
+              'accept': 'application/json',
+              'Authorization': token,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        responses.push({
+          phoneNumber,
+          success: true,
+          response: templateResponse.data
+        });
+
+        await updateCreditUsage(customer_id);
+
+      } catch (error) {
+        console.error(`Error sending to ${phoneNumber}:`, error.response?.data || error.message);
+        responses.push({
+          phoneNumber,
+          success: false,
+          error: error.response?.data?.message || error.message,
+          details: error.response?.data
+        });
+      }
     }
-  }
 
-  return res.status(207).json({ results: responses });
+    return res.status(207).json({ results: responses });
+
+  } catch (dbError) {
+    console.error("Database error:", dbError.message);
+    return res.status(500).json({ success: false, error: "Internal server error" });
+  }
 };

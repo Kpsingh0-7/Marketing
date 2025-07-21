@@ -117,7 +117,6 @@ export const getSubUser = async (req, res) => {
 export const updateSubUser = async (req, res) => {
   const { user_id } = req.query;
   const { name, email, mobile_no, password, allowed_routes } = req.body;
-
   if (!user_id) {
     return res
       .status(400)
@@ -125,6 +124,7 @@ export const updateSubUser = async (req, res) => {
   }
 
   try {
+    // Check if user exists
     const [existing] = await pool.query(
       `SELECT customer_id FROM customer_users WHERE user_id = ?`,
       [user_id]
@@ -135,6 +135,21 @@ export const updateSubUser = async (req, res) => {
     }
 
     const customer_id = existing[0].customer_id;
+
+    // ✅ Check for duplicate email (only if email is being updated)
+    if (email) {
+      const [emailExists] = await pool.query(
+        `SELECT user_id FROM customer_users WHERE email = ? AND user_id != ?`,
+        [email, user_id]
+      );
+
+      if (emailExists.length > 0) {
+        return res.status(409).json({
+          success: false,
+          error: "Email is already in use by another user.",
+        });
+      }
+    }
 
     // 🧠 Dynamically build SET clause
     const fields = [];
@@ -152,17 +167,21 @@ export const updateSubUser = async (req, res) => {
       fields.push("mobile_no = ?");
       values.push(mobile_no);
     }
-    if (password !== undefined) {
+    if (password !== undefined && password !== null && password.trim() !== "") {
       fields.push("password = ?");
       values.push(password);
     }
 
+    // Update only if there are fields to update
     if (fields.length > 0) {
-      const updateQuery = `UPDATE customer_users SET ${fields.join(", ")} WHERE user_id = ?`;
+      const updateQuery = `UPDATE customer_users SET ${fields.join(
+        ", "
+      )} WHERE user_id = ?`;
       values.push(user_id);
       await pool.query(updateQuery, values);
     }
 
+    // Update allowed_routes
     if (allowed_routes !== undefined) {
       await upsertUserAccess(customer_id, user_id, allowed_routes);
     }
@@ -180,12 +199,10 @@ export const deleteSubUser = async (req, res) => {
   const { user_id } = req.query;
 
   if (!user_id) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "user_id is required in query params.",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "user_id is required in query params.",
+    });
   }
 
   try {

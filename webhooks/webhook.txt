@@ -203,3 +203,70 @@ Recovery code
 
 
 EAAE31D2EJH8BO1U3rDD5nnZAnqQZBJC4e8SLiZA5LXZBFVrDxrAF5JmFavtEKjtnYRuBPmbtYkKRdj5N4yCrDSF27oPu7u4ZBNPi9UKGFRbOejcvRItfE3Y9V5gMbaZA0b0ogpX6ZAUB5sGPG5YPoEc7GY1VlIgyI3d0jqZBqvon0cAt1GidDc6T7rRiHpQ56cnSC5ykRRlKnWSCCnT5jOFS3eJ0D5xG8QETy31G
+
+
+
+
+<VirtualHost 95.217.85.210:443>
+	ServerName marketing.foodchow.co.uk
+	ServerAlias www.marketing.foodchow.co.uk
+	ServerAdmin webmaster@marketing.foodchow.co.uk
+	DocumentRoot /home/markcouk/public_html
+	UseCanonicalName Off
+	ScriptAlias /cgi-bin/ /home/markcouk/public_html/cgi-bin/
+
+	#CustomLog /usr/local/apache/domlogs/marketing.foodchow.co.uk.bytes bytes
+	#CustomLog /usr/local/apache/domlogs/marketing.foodchow.co.uk.log combined
+	ErrorLog /usr/local/apache/domlogs/marketing.foodchow.co.uk.error.log
+
+	# Custom settings are loaded below this line (if any exist)
+	# IncludeOptional "/usr/local/apache/conf/userdata/markcouk/marketing.foodchow.co.uk/*.conf"
+
+	SSLEngine on
+	SSLCertificateFile /etc/pki/tls/certs/marketing.foodchow.co.uk.cert
+	SSLCertificateKeyFile /etc/pki/tls/private/marketing.foodchow.co.uk.key
+	SSLCertificateChainFile /etc/pki/tls/certs/marketing.foodchow.co.uk.bundle
+	SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
+
+	<IfModule mod_userdir.c>
+		UserDir disabled
+		UserDir enabled markcouk
+	</IfModule>
+
+	<IfModule mod_suexec.c>
+		SuexecUserGroup markcouk markcouk
+	</IfModule>
+
+	<IfModule mod_suphp.c>
+		suPHP_UserGroup markcouk markcouk
+		suPHP_ConfigPath /home/markcouk
+	</IfModule>
+
+	<IfModule mod_ruid2.c>
+		RMode config
+		RUidGid markcouk markcouk
+	</IfModule>
+
+	<IfModule itk.c>
+		AssignUserID markcouk markcouk
+	</IfModule>
+
+	<Directory "/home/markcouk/public_html">
+		Options -Indexes -FollowSymLinks +SymLinksIfOwnerMatch
+		AllowOverride All Options=ExecCGI,Includes,IncludesNOEXEC,Indexes,MultiViews,SymLinksIfOwnerMatch
+		SSLRequireSSL
+	</Directory>
+
+	<IfModule mod_proxy.c>
+		ProxyRequests Off
+		ProxyPreserveHost On
+		ProxyVia Full
+		ProxyPass / http://127.0.0.1:50000/
+		ProxyPassReverse / http://127.0.0.1:50000/
+
+		<Proxy *>
+			AllowOverride All
+		</Proxy>
+	</IfModule>
+
+</VirtualHost>

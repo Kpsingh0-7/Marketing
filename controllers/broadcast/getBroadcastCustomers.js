@@ -20,6 +20,7 @@ export const getBroadcastCustomers = async (req, res) => {
 
   const element_name = selectedTemplate?.element_name || "";
   const template_id = selectedTemplate?.id;
+  console.log(group_id);
 
   try {
     if (!broadcastName || !group_id || !element_name) {
