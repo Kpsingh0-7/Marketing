@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import { pool } from '../../config/db.js'; // adjust this if needed
 
 const razorpay = new Razorpay({
-  key_id: "rzp_test_wZzgxWxiJTWptw",
+  key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
@@ -61,15 +61,9 @@ export const verifyRazorpayPayment = async (req, res) => {
   }
 
   try {
-    // Step 1: Update payment status
-    await pool.execute(
-      `UPDATE payments SET status = ?, razorpay_payment_id = ? WHERE order_id = ?`,
-      ['paid', razorpay_payment_id, razorpay_order_id]
-    );
-
-    // Step 2: Get amount and customer_id
+    // Step 1: Get payment record and check status
     const [paymentResult] = await pool.execute(
-      `SELECT amount, customer_id FROM payments WHERE order_id = ?`,
+      `SELECT amount, customer_id, status FROM payments WHERE order_id = ?`,
       [razorpay_order_id]
     );
 
@@ -77,7 +71,17 @@ export const verifyRazorpayPayment = async (req, res) => {
       return res.status(404).json({ success: false, error: "Payment record not found" });
     }
 
-    const { amount, customer_id } = paymentResult[0];
+    const { amount, customer_id, status } = paymentResult[0];
+
+    if (status === 'paid') {
+      return res.status(200).json({ success: true, message: 'Payment already verified' });
+    }
+
+    // Step 2: Update payment status
+    await pool.execute(
+      `UPDATE payments SET status = ?, razorpay_payment_id = ? WHERE order_id = ?`,
+      ['paid', razorpay_payment_id, razorpay_order_id]
+    );
 
     // Step 3: Update `customer` table
     await pool.execute(

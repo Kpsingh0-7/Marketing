@@ -26,7 +26,8 @@ export const getBroadcastCustomers = async (req, res) => {
     if (!broadcastName || !group_id || !element_name) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields: broadcast_name, group_id, or element_name.",
+        message:
+          "Missing required fields: broadcast_name, group_id, or element_name.",
       });
     }
 
@@ -89,17 +90,14 @@ export const getBroadcastCustomers = async (req, res) => {
       });
 
       const headers = records[0].map((h) => h.toLowerCase());
-      const countryIndex = headers.findIndex((h) =>
-        h.includes("country")
-      );
-      const phoneIndex = headers.findIndex((h) =>
-        h.includes("phone")
-      );
+      const countryIndex = headers.findIndex((h) => h.includes("country"));
+      const phoneIndex = headers.findIndex((h) => h.includes("phone"));
 
       if (countryIndex === -1 || phoneIndex === -1) {
         return res.status(400).json({
           success: false,
-          message: "CSV/TSV file must contain 'CountryCode' and 'Phone' columns.",
+          message:
+            "CSV/TSV file must contain 'CountryCode' and 'Phone' columns.",
         });
       }
 
@@ -140,17 +138,73 @@ export const getBroadcastCustomers = async (req, res) => {
     };
     const fakeResponse = {
       status: (code) => ({
-        json: (data) => console.log(`Response (${code}):`, data),
+        json: (data) => {
+          console.log(`Response (${code}):`, JSON.stringify(data, null, 2));
+
+          // Count how many messages were successfully sent
+          const successCount = data.results.filter((r) => r.success).length;
+
+          // Update both status and sent_count in the database
+          pool.execute(
+            `UPDATE broadcasts SET status = ?, sent = ? WHERE broadcast_id = ?`,
+            ["Sent", successCount, broadcast_id]
+          );
+        },
       }),
     };
 
-     await sendBroadcast(fakeRequest, fakeResponse);
+    // ✅ Trigger the broadcast but don't wait for DB update
+    sendBroadcast(fakeRequest, {
+      status: (code) => ({
+        json: async (data) => {
+          console.log(`Response (${code}):`, JSON.stringify(data, null, 2));
 
-    await pool.execute(
-      `UPDATE broadcasts SET status = ? WHERE broadcast_id = ?`,
-      ["Sent", broadcast_id]
-    );
+          const successCount = data.results.filter((r) => r.success).length;
 
+          // ✅ Insert individual message logs
+          const messageValues = data.results
+            .filter((r) => r.success && r.response?.messages?.[0]?.id)
+            .map((r) => [
+              broadcast_id,
+              r.response.messages[0].id,
+              r.response.contacts?.[0]?.wa_id || r.phoneNumber,
+              "sent", // initial status
+              Math.floor(Date.now() / 1000),
+              null, // conversation_id
+              null, // pricing_category
+              null, // error_code
+              null, // error_message
+            ]);
+
+          if (messageValues.length > 0) {
+            try {
+              await pool.query(
+                `INSERT INTO broadcast_messages 
+              (broadcast_id, message_id, recipient_id, status, timestamp, conversation_id, pricing_category, error_code, error_message)
+              VALUES ?`,
+                [messageValues]
+              );
+              console.log("✅ Message logs inserted into broadcast_messages");
+            } catch (err) {
+              console.error("❌ Failed to insert message logs:", err);
+            }
+          }
+
+          // ✅ Update overall broadcast
+          try {
+            await pool.execute(
+              `UPDATE broadcasts SET status = ?, sent = ? WHERE broadcast_id = ?`,
+              ["Sent", successCount, broadcast_id]
+            );
+            console.log("✅ Broadcast status updated in DB");
+          } catch (err) {
+            console.error("❌ Failed to update broadcast status:", err);
+          }
+        },
+      }),
+    });
+
+    // ✅ Send response immediately
     return res.status(200).json({
       success: true,
       message: "Broadcast sent successfully",

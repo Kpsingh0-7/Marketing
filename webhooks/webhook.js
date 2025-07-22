@@ -28,7 +28,7 @@ export function createWebhookHandler(io) {
         // Parallelize status and message processing
         await Promise.all([
           handleStatusUpdates(value?.statuses),
-          handleIncomingMessage(value, gsAppId, io)
+          handleIncomingMessage(value, gsAppId, io),
         ]);
       }
     } catch (err) {
@@ -41,14 +41,19 @@ async function handleStatusUpdates(statuses = []) {
   const statusPriority = { sent: 1, delivered: 2, read: 3 };
 
   for (const { gs_id, status } of statuses) {
+    // 1. Check in messages table
     const [existing] = await pool.query(
       `SELECT status FROM messages WHERE external_message_id = ?`,
       [gs_id]
     );
 
-    if (existing.length) {
+    if (existing.length > 0) {
       const currentStatus = existing[0].status;
-      if (currentStatus !== "read" && (!statusPriority[currentStatus] || statusPriority[status] > statusPriority[currentStatus])) {
+
+      if (
+        currentStatus !== "read" &&
+        statusPriority[status] > (statusPriority[currentStatus] || 0)
+      ) {
         await pool.query(
           `UPDATE messages 
            SET status = ?, 
@@ -57,10 +62,50 @@ async function handleStatusUpdates(statuses = []) {
            WHERE external_message_id = ?`,
           [status, status, status, gs_id]
         );
-        console.log(`Updated status for ${gs_id}`);
+        console.log(`Updated status for ${gs_id} in messages table`);
       }
     } else {
-      console.warn(`No message found for status: ${gs_id}`);
+      // 2. Check in broadcast_messages table
+      const [broadcastRows] = await pool.query(
+        `SELECT status, broadcast_id FROM broadcast_messages WHERE message_id = ?`,
+        [gs_id]
+      );
+
+      if (broadcastRows.length > 0) {
+        const { status: currentStatus, broadcast_id } = broadcastRows[0];
+
+        if (
+          currentStatus !== "read" &&
+          statusPriority[status] > (statusPriority[currentStatus] || 0)
+        ) {
+          await pool.query(
+            `UPDATE broadcast_messages SET status = ? WHERE message_id = ?`,
+            [status, gs_id]
+          );
+          console.log(`Updated status for ${gs_id} in broadcast_messages`);
+
+          // 🔼 Increment only when upgrading
+          if (status === "delivered" && currentStatus !== "delivered") {
+            await pool.query(
+              `UPDATE broadcasts SET delivered = delivered + 1 WHERE broadcast_id = ?`,
+              [broadcast_id]
+            );
+          } else if (status === "read") {
+            if (currentStatus !== "read") {
+              await pool.query(
+                `UPDATE broadcasts SET \`read\` = \`read\` + 1 WHERE broadcast_id = ?`,
+                [broadcast_id]
+              );
+            }
+          }
+        } else {
+          console.log(`No status upgrade needed for ${gs_id}`);
+        }
+      } else {
+        console.warn(
+          `No message found in broadcast_messages for gs_id: ${gs_id}`
+        );
+      }
     }
   }
 }
@@ -123,16 +168,59 @@ async function handleIncomingMessage(value, gsAppId, io) {
   const timestamp = msg.timestamp;
   let messageText = "No text";
   let mediaUrl = null;
+  // --- Handle click tracking ---
+  if (msg.type === "button" && msg.context?.gs_id) {
+    const gs_id = msg.context.gs_id;
+
+    const [rows] = await pool.query(
+      `SELECT broadcast_id FROM broadcast_messages WHERE message_id = ?`,
+      [gs_id]
+    );
+
+    if (rows.length > 0) {
+      const broadcast_id = rows[0].broadcast_id;
+
+      await pool.query(
+        `UPDATE broadcasts SET clicked = clicked + 1 WHERE broadcast_id = ?`,
+        [broadcast_id]
+      );
+
+      console.log(`🔘 Click recorded for broadcast_id ${broadcast_id}`);
+    } else {
+      console.warn(`No broadcast found for clicked gs_id ${gs_id}`);
+    }
+  }
 
   switch (msg.type) {
-    case "text": messageText = msg.text?.body; break;
-    case "image": mediaUrl = msg.image?.url; messageText = "📷 Image received"; break;
-    case "video": mediaUrl = msg.video?.url; messageText = "📹 Video received"; break;
-    case "audio": mediaUrl = msg.audio?.url; messageText = "🔊 Audio received"; break;
-    case "document": mediaUrl = msg.document?.url; messageText = msg.document?.filename; break;
-    case "sticker": mediaUrl = msg.sticker?.url; messageText = "🧃 Sticker received"; break;
-    case "button": messageText = msg.button?.text; break;
-    default: messageText = "Unsupported message type"; console.warn("Unsupported type:", msg.type);
+    case "text":
+      messageText = msg.text?.body;
+      break;
+    case "image":
+      mediaUrl = msg.image?.url;
+      messageText = "📷 Image received";
+      break;
+    case "video":
+      mediaUrl = msg.video?.url;
+      messageText = "📹 Video received";
+      break;
+    case "audio":
+      mediaUrl = msg.audio?.url;
+      messageText = "🔊 Audio received";
+      break;
+    case "document":
+      mediaUrl = msg.document?.url;
+      messageText = msg.document?.filename;
+      break;
+    case "sticker":
+      mediaUrl = msg.sticker?.url;
+      messageText = "🧃 Sticker received";
+      break;
+    case "button":
+      messageText = msg.button?.text;
+      break;
+    default:
+      messageText = "Unsupported message type";
+      console.warn("Unsupported type:", msg.type);
   }
 
   const [existingMessage] = await pool.query(
@@ -197,6 +285,6 @@ async function handleIncomingMessage(value, gsAppId, io) {
       timestamp: timestamp,
       contact_id: contact_id,
       customer_id: customer_id,
-    }).catch(err => console.error("handleReply error:", err));
+    }).catch((err) => console.error("handleReply error:", err));
   });
 }
