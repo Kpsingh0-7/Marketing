@@ -1,22 +1,22 @@
-import axios from 'axios';
+import axios from "axios";
 import { pool } from "../../config/db.js";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
 export const createTemplate = async (req, res) => {
   const {
     elementName,
     content,
-    category = 'MARKETING',
+    category = "MARKETING",
     templateType,
-    languageCode = 'en',
+    languageCode = "en",
     header,
     footer,
     buttons = [],
     example,
     exampleHeader,
     messageSendTTL,
-    customer_id  // ✅ Needed to fetch credentials
+    customer_id, // ✅ Needed to fetch credentials
   } = req.body;
 
   console.log({
@@ -31,7 +31,7 @@ export const createTemplate = async (req, res) => {
     example,
     exampleHeader,
     messageSendTTL,
-    customer_id
+    customer_id,
   });
 
   try {
@@ -39,20 +39,20 @@ export const createTemplate = async (req, res) => {
     if (!elementName || !content || !customer_id) {
       return res.status(400).json({
         success: false,
-        error: 'elementName, content, and customer_id are required fields'
+        error: "elementName, content, and customer_id are required fields",
       });
     }
 
     // ✅ Fetch gupshup credentials
     const [configRows] = await pool.query(
-      'SELECT gupshup_id, token FROM gupshup_configuration WHERE customer_id = ?',
+      "SELECT gupshup_id, token FROM gupshup_configuration WHERE customer_id = ?",
       [customer_id]
     );
 
     if (configRows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: 'Gupshup configuration not found for this customer'
+        error: "Gupshup configuration not found for this customer",
       });
     }
 
@@ -60,27 +60,30 @@ export const createTemplate = async (req, res) => {
 
     // ✅ Prepare request body
     const encodedParams = new URLSearchParams();
-    encodedParams.set('elementName', elementName);
-    encodedParams.set('languageCode', languageCode);
-    encodedParams.set('category', category);
-    encodedParams.set('templateType', templateType);
-    encodedParams.set('vertical', 'TEXT');
-    encodedParams.set('content', content);
-    encodedParams.set('allowTemplateCategoryChange', 'false');
-    encodedParams.set('message_send_ttl_seconds', messageSendTTL?.toString() || '3600');
-    encodedParams.set('enableSample', 'true');
+    encodedParams.set("elementName", elementName);
+    encodedParams.set("languageCode", languageCode);
+    encodedParams.set("category", category);
+    encodedParams.set("templateType", templateType);
+    encodedParams.set("vertical", "TEXT");
+    encodedParams.set("content", content);
+    encodedParams.set("allowTemplateCategoryChange", "false");
+    encodedParams.set(
+      "message_send_ttl_seconds",
+      messageSendTTL?.toString() || "3600"
+    );
+    encodedParams.set("enableSample", "true");
 
-    if (header) encodedParams.set('header', header);
-    if (footer) encodedParams.set('footer', footer);
-    if (exampleHeader) encodedParams.set('exampleHeader', exampleHeader);
+    if (header) encodedParams.set("header", header);
+    if (footer) encodedParams.set("footer", footer);
+    if (exampleHeader) encodedParams.set("exampleHeader", exampleHeader);
     if (buttons.length > 0) {
-      encodedParams.set('buttons', JSON.stringify(buttons));
+      encodedParams.set("buttons", JSON.stringify(buttons));
     }
 
-    const generatedExample = example || content
-      .replace(/\{\{1\}\}/g, '4')
-      .replace(/\{\{2\}\}/g, '2025-04-25');
-    encodedParams.set('example', generatedExample);
+    const generatedExample =
+      example ||
+      content.replace(/\{\{1\}\}/g, "4").replace(/\{\{2\}\}/g, "2025-04-25");
+    encodedParams.set("example", generatedExample);
 
     // ✅ Send template creation request
     const response = await axios.post(
@@ -88,23 +91,23 @@ export const createTemplate = async (req, res) => {
       encodedParams.toString(),
       {
         headers: {
-          accept: 'application/json',
+          accept: "application/json",
           token: token,
-          'content-type': 'application/x-www-form-urlencoded'
-        }
+          "content-type": "application/x-www-form-urlencoded",
+        },
       }
     );
 
     const template = response.data.template;
 
-    // ✅ Save to database
+    // ✅ Save to whatsapp_templates
     const insertQuery = `
-      INSERT INTO whatsapp_templates (
-        id, external_id, app_id, waba_id,
-        element_name, category, language_code, template_type,
-        status, data, container_meta, created_on, modified_on
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+  INSERT INTO whatsapp_templates (
+    id, external_id, app_id, waba_id,
+    element_name, category, language_code, template_type,
+    status, data, container_meta, created_on, modified_on
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`;
 
     const values = [
       template.id,
@@ -119,23 +122,33 @@ export const createTemplate = async (req, res) => {
       template.data,
       JSON.stringify(template.containerMeta),
       template.createdOn,
-      template.modifiedOn
+      template.modifiedOn,
     ];
 
     await pool.execute(insertQuery, values);
 
+    // ✅ Then insert into customer_template_map
+    
+
+    await pool.execute(
+      `INSERT INTO customer_template_map (customer_id, template_id) VALUES (?, ?)`,
+      [customer_id, template.id]
+    );
+
     return res.status(200).json({
       success: true,
       templateId: template.id,
-      response: template
+      response: template,
     });
-
   } catch (error) {
-    console.error('Template creation error:', error.response?.data || error.message);
+    console.error(
+      "Template creation error:",
+      error.response?.data || error.message
+    );
     return res.status(error.response?.status || 500).json({
       success: false,
       error: error.response?.data?.message || error.message,
-      details: error.response?.data
+      details: error.response?.data,
     });
   }
 };

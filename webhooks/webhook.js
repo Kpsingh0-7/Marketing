@@ -25,6 +25,12 @@ export function createWebhookHandler(io) {
       for (const change of messages) {
         const value = change.value;
 
+        // Template status update
+        if (change.field === "message_template_status_update") {
+          await handleTemplateStatusUpdate(value, gsAppId);
+          continue; // skip to next change
+        }
+
         // Parallelize status and message processing
         await Promise.all([
           handleStatusUpdates(value?.statuses),
@@ -287,4 +293,32 @@ async function handleIncomingMessage(value, gsAppId, io) {
       customer_id: customer_id,
     }).catch((err) => console.error("handleReply error:", err));
   });
+}
+
+async function handleTemplateStatusUpdate(value, gsAppId) {
+  const gs_template_id = value?.gs_template_id;
+  const newStatus = value?.event;
+
+  if (!gs_template_id || !newStatus) return;
+
+  try {
+    const [result] = await pool.query(
+      `UPDATE whatsapp_templates 
+       SET status = ? 
+       WHERE id = ? AND app_id = ?`,
+      [newStatus, gs_template_id, gsAppId]
+    );
+
+    if (result.affectedRows > 0) {
+      console.log(
+        `✅ Template ${gs_template_id} updated to status "${newStatus}"`
+      );
+    } else {
+      console.warn(
+        `⚠️ No template matched gs_template_id ${gs_template_id} and app_id ${gsAppId}`
+      );
+    }
+  } catch (err) {
+    console.error("❌ Error updating template status:", err);
+  }
 }
