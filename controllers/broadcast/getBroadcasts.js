@@ -1,11 +1,10 @@
 import { pool } from "../../config/db.js";
 import axios from "axios";
 
-
 // 🚀 Express route handler to fetch broadcasts
 export const getBroadcasts = async (req, res) => {
   try {
-    const { customer_id } = req.query; // or use req.body if sent in body
+    const { customer_id } = req.query;
 
     if (!customer_id) {
       return res.status(400).json({
@@ -15,27 +14,28 @@ export const getBroadcasts = async (req, res) => {
     }
 
     const [broadcasts] = await pool.execute(
-      `
-      SELECT 
-        broadcast_id,
-        broadcast_name,
-        group_id,
-        message_type,
-        schedule,
-        schedule_date,
-        status,
-        type,
-        selected_template,
-        template_id,
-        created_at,
-        sent,
-        delivered,
-        \`read\`,
-        clicked,
-        updated_at
-      FROM broadcasts
-      WHERE customer_id = ?
-      ORDER BY created_at DESC
+      `SELECT 
+        b.broadcast_id,
+        b.broadcast_name,
+        b.group_id,
+        b.message_type,
+        b.schedule,
+        b.schedule_date,
+        b.status,
+        b.type,
+        b.selected_template,
+        b.template_id,
+        b.created_at,
+        b.sent,
+        b.delivered,
+        b.\`read\`,
+        b.clicked,
+        b.updated_at,
+        wt.container_meta
+      FROM broadcasts b
+      LEFT JOIN whatsapp_templates wt ON b.template_id = wt.id
+      WHERE b.customer_id = ?
+      ORDER BY b.created_at DESC
     `,
       [customer_id]
     );
@@ -53,4 +53,3 @@ export const getBroadcasts = async (req, res) => {
     });
   }
 };
-

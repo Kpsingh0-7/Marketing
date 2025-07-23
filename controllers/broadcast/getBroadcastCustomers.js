@@ -136,73 +136,54 @@ export const getBroadcastCustomers = async (req, res) => {
         customer_id,
       },
     };
-    const fakeResponse = {
-      status: (code) => ({
-        json: (data) => {
-          console.log(`Response (${code}):`, JSON.stringify(data, null, 2));
-
-          // Count how many messages were successfully sent
-          const successCount = data.results.filter((r) => r.success).length;
-
-          // Update both status and sent_count in the database
-          pool.execute(
-            `UPDATE broadcasts SET status = ?, sent = ? WHERE broadcast_id = ?`,
-            ["Sent", successCount, broadcast_id]
-          );
-        },
-      }),
-    };
+    
 
     // ✅ Trigger the broadcast but don't wait for DB update
-    sendBroadcast(fakeRequest, {
-      status: (code) => ({
-        json: async (data) => {
-          console.log(`Response (${code}):`, JSON.stringify(data, null, 2));
+    await sendBroadcast(fakeRequest, {
+  status: (code) => ({
+    json: async (data) => {
+      try {
+        console.log("🚀 sendBroadcast response json() triggered!");
+        console.log(`Response (${code}):`, JSON.stringify(data, null, 2));
 
-          const successCount = data.results.filter((r) => r.success).length;
+        const successResults = data.results.filter((r) => r.success);
+        const successCount = successResults.length;
 
-          // ✅ Insert individual message logs
-          const messageValues = data.results
-            .filter((r) => r.success && r.response?.messages?.[0]?.id)
-            .map((r) => [
-              broadcast_id,
-              r.response.messages[0].id,
-              r.response.contacts?.[0]?.wa_id || r.phoneNumber,
-              "sent", // initial status
-              Math.floor(Date.now() / 1000),
-              null, // conversation_id
-              null, // pricing_category
-              null, // error_code
-              null, // error_message
-            ]);
+        const messageValues = successResults
+          .filter((r) => r.response?.messages?.[0]?.id)
+          .map((r) => [
+            broadcast_id,
+            r.response.messages[0].id,
+            r.response.contacts?.[0]?.wa_id || r.phoneNumber,
+            "sent",
+            Math.floor(Date.now() / 1000),
+            null,
+          ]);
 
-          if (messageValues.length > 0) {
-            try {
-              await pool.query(
-                `INSERT INTO broadcast_messages 
-              (broadcast_id, message_id, recipient_id, status, timestamp, conversation_id, pricing_category, error_code, error_message)
-              VALUES ?`,
-                [messageValues]
-              );
-              console.log("✅ Message logs inserted into broadcast_messages");
-            } catch (err) {
-              console.error("❌ Failed to insert message logs:", err);
-            }
-          }
+        console.log("📥 messageValues:", messageValues);
 
-          // ✅ Update overall broadcast
-          try {
-            await pool.execute(
-              `UPDATE broadcasts SET status = ?, sent = ? WHERE broadcast_id = ?`,
-              ["Sent", successCount, broadcast_id]
-            );
-            console.log("✅ Broadcast status updated in DB");
-          } catch (err) {
-            console.error("❌ Failed to update broadcast status:", err);
-          }
-        },
-      }),
-    });
+        if (messageValues.length > 0) {
+          await pool.query(
+            `INSERT INTO broadcast_messages 
+             (broadcast_id, message_id, recipient_id, status, timestamp, error_message)
+             VALUES ?`,
+            [messageValues]
+          );
+          console.log("✅ Message logs inserted into broadcast_messages");
+        }
+
+        await pool.execute(
+          `UPDATE broadcasts SET status = ?, sent = ? WHERE broadcast_id = ?`,
+          ["Sent", successCount, broadcast_id]
+        );
+        console.log("✅ Broadcast status updated in DB");
+      } catch (err) {
+        console.error("❌ Error in fakeResponse.json():", err);
+      }
+    },
+  }),
+});
+
 
     // ✅ Send response immediately
     return res.status(200).json({
