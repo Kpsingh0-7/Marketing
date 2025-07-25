@@ -1,7 +1,7 @@
 // Optimized Webhook Handler (with points 1 to 7 applied, WebSocket logic unchanged)
 
 import { handleReply } from "../controllers/chat/replyController.js";
-import { updateCreditUsage } from "../controllers/updateCreditUsage.js";
+import { updateCreditUsage } from "../controllers/credit/updateCreditUsage.js";
 import { pool } from "../config/db.js";
 import fs from "fs/promises";
 import path from "path";
@@ -165,7 +165,7 @@ async function handleIncomingMessage(value, gsAppId, io) {
   } else {
     conversation_id = convRows[0].conversation_id;
     await pool.query(
-      `UPDATE conversations SET updated_at = CURRENT_TIMESTAMP WHERE conversation_id = ?`,
+      `UPDATE conversations SET updated_at = CURRENT_TIMESTAMP, is_active = 1 WHERE conversation_id = ?`,
       [conversation_id]
     );
   }

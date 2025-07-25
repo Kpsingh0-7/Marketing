@@ -2,7 +2,8 @@ import axios from "axios";
 import dotenv from "dotenv";
 import moment from "moment";
 import { pool } from "../../config/db.js";
-import { updateCreditUsage } from "../updateCreditUsage.js";
+import { updateCreditUsage } from "../credit/updateCreditUsage.js";
+import { checkCustomerCredit } from "../credit/checkCustomerCredit.js";
 
 dotenv.config();
 
@@ -23,6 +24,14 @@ export const sendTemplate = async (req, res) => {
         success: false,
         error: "phoneNumber, customer_id, and contact_id are required",
       });
+    }
+
+    const creditCheck = await checkCustomerCredit(customer_id);
+
+    if (!creditCheck.success) {
+      return res
+        .status(400)
+        .json({ success: false, error: creditCheck.message });
     }
 
     // Fetch Gupshup credentials from DB
@@ -49,6 +58,10 @@ export const sendTemplate = async (req, res) => {
     let conversation_id;
     if (existing.length > 0) {
       conversation_id = existing[0].conversation_id;
+      await pool.query(
+        `UPDATE conversations SET updated_at = CURRENT_TIMESTAMP, is_active = 1 WHERE conversation_id = ?`,
+        [conversation_id]
+      );
     } else {
       const [insertResult] = await pool.execute(
         `INSERT INTO conversations (customer_id, contact_id) VALUES (?, ?)`,
@@ -103,7 +116,7 @@ export const sendTemplate = async (req, res) => {
         [conversation_id, customer_id, message, freeFormMessageId]
       );
 
-      await updateCreditUsage(customer_id, 'sent');
+      await updateCreditUsage(customer_id, "sent");
 
       responses.push({
         type: "text",
@@ -163,7 +176,7 @@ export const sendTemplate = async (req, res) => {
         ]
       );
 
-      await updateCreditUsage(customer_id, 'sent');
+      await updateCreditUsage(customer_id, "sent");
 
       responses.push({
         type: "template",

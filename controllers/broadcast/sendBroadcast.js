@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { pool } from "../../config/db.js";
-import { updateCreditUsage } from "../updateCreditUsage.js";
+import { updateCreditUsage } from "../credit/updateCreditUsage.js";
+import { checkCustomerCredit } from "../credit/checkCustomerCredit.js";
+
 
 export const sendBroadcast = async (req, res) => {
   const {
@@ -27,6 +29,13 @@ export const sendBroadcast = async (req, res) => {
   }
 
   try {
+    const creditCheck = await checkCustomerCredit(customer_id);
+
+    if (!creditCheck.success) {
+      return res
+        .status(400)
+        .json({ success: false, error: creditCheck.message });
+    }
     // Fetch Gupshup credentials from the database
     const [configRows] = await pool.query(
       'SELECT gupshup_id, token FROM gupshup_configuration WHERE customer_id = ?',

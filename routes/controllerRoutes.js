@@ -26,7 +26,7 @@ import { returnContacts } from "../controllers/contact/returnContacts.js";
 import { returnConversationId } from "../controllers/chat/returnConversationId.js";
 import { returnConversations } from "../controllers/chat/returnConversations.js";
 import { markMessagesAsRead } from "../controllers/chat/markMessagesAsRead.js";
-import { returnCustomerCreditUsage } from "../controllers/returnCustomerCreditUsage.js";
+import { returnCustomerCreditUsage } from "../controllers/credit/returnCustomerCreditUsage.js";
 
 // Controllers you renamed with _ prefix (if needed)
 import { addSingleContact } from "../controllers/contact/addSingleContact.js";

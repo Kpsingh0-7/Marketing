@@ -1,6 +1,7 @@
 import axios from "axios";
 import { pool } from "../../config/db.js";
-import { updateCreditUsage } from "../updateCreditUsage.js";
+import { updateCreditUsage } from "../credit/updateCreditUsage.js";
+import { checkCustomerCredit } from "../credit/checkCustomerCredit.js";
 
 export const sendTemplates = async (req, res) => {
   const {
@@ -22,6 +23,14 @@ export const sendTemplates = async (req, res) => {
 
     const customer_id = shop_id;
     const first_name = name;
+
+    const creditCheck = await checkCustomerCredit(customer_id);
+
+    if (!creditCheck.success) {
+      return res
+        .status(400)
+        .json({ success: false, error: creditCheck.message });
+    }
 
     // ✅ Fetch Gupshup credentials
     const [configRows] = await pool.query(
@@ -52,6 +61,10 @@ export const sendTemplates = async (req, res) => {
     let contact_id;
     if (existingCustomer.length > 0) {
       contact_id = existingCustomer[0].contact_id;
+       await pool.query(
+        `UPDATE conversations SET updated_at = CURRENT_TIMESTAMP, is_active = 1 WHERE conversation_id = ?`,
+        [conversation_id]
+      );
     } else {
       const [insertResult] = await pool.execute(
         `INSERT INTO contact (mobile_no, first_name, customer_id, country_code) VALUES (?, ?, ?, ?)`,
@@ -129,7 +142,7 @@ export const sendTemplates = async (req, res) => {
       ]
     );
 
-    await updateCreditUsage(customer_id, 'sent');
+    await updateCreditUsage(customer_id, "sent");
 
     return res.status(200).json({
       success: true,
@@ -137,9 +150,11 @@ export const sendTemplates = async (req, res) => {
       conversation_id,
       response: templateResponse.data,
     });
-
   } catch (error) {
-    console.error("Error sending WhatsApp template message:", error.response?.data || error.message);
+    console.error(
+      "Error sending WhatsApp template message:",
+      error.response?.data || error.message
+    );
     return res.status(error.response?.status || 500).json({
       success: false,
       error: error.response?.data?.message || error.message,
