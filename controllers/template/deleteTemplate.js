@@ -4,23 +4,38 @@ import axios from 'axios';
 dotenv.config();
 
 export const deleteTemplate = async (req, res) => {
-  const { templateName } = req.body; // Get template name from URL params
+  const { elementName, customer_id } = req.body; // Get template name from URL params
 
   try {
     // Validate input
-    if (!templateName) {
+    if (!elementName) {
       return res.status(400).json({
         success: false,
-        error: "Template name is required",
+        error: "elementName and customer_id are required fields",
       });
     }
 
+        // ✅ Fetch gupshup credentials
+        const [configRows] = await pool.query(
+          "SELECT gupshup_id, token FROM gupshup_configuration WHERE customer_id = ?",
+          [customer_id]
+        );
+    
+        if (configRows.length === 0) {
+          return res.status(404).json({
+            success: false,
+            error: "Gupshup configuration not found for this customer",
+          });
+        }
+    
+        const { gupshup_id, token } = configRows[0];
+
     const response = await axios.delete(
-      `https://partner.gupshup.io/partner/app/e6fc2b8d-6e8d-4713-8d91-da5323e400da/template/${templateName}`,
+      `https://partner.gupshup.io/partner/${gupshup_id}/template/${elementName}`,
       {
         headers: {
           accept: "application/json",
-          Authorization: "sk_4830e6e27ce44be5af5892c5913396b8",
+          Authorization: token,
         },
       }
     );

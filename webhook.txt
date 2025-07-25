@@ -1202,3 +1202,29 @@
   "gs_app_id": "e6fc2b8d-6e8d-4713-8d91-da5323e400da",
   "object": "whatsapp_business_account"
 }
+
+
+=== Webhook Received at 2025-07-25T11:34:04.767Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "message_template_status_update",
+          "value": {
+            "event": "APPROVED",
+            "gs_template_id": "c8441a39-2851-486c-8b46-06da905fa6ed",
+            "message_template_id": 739762688833079,
+            "message_template_language": "en",
+            "message_template_name": "aries_1",
+            "reason": "NONE"
+          }
+        }
+      ],
+      "id": "2581172495559206",
+      "time": 1753443245
+    }
+  ],
+  "gs_app_id": "e6fc2b8d-6e8d-4713-8d91-da5323e400da",
+  "object": "whatsapp_business_account"
+}
