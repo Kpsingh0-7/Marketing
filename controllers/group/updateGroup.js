@@ -5,21 +5,26 @@ import { parse } from "csv-parse/sync";
 import mammoth from "mammoth";
 
 export const updateGroup = async (req, res) => {
-  const group_id = parseInt(req.body.group_id, 10);
-  const customer_id = parseInt(req.body.customer_id, 10);
-  const group_name = req.body.group_name?.trim();
-  const file = req.file;
-
-  if (!group_id || !customer_id) {
-    return res.status(400).json({
-      success: false,
-      message: "Missing required fields: group_id or customer_id",
-    });
-  }
-
-  const connection = await pool.getConnection();
-
+  let connection;
   try {
+    const group_id = parseInt(req.body.group_id, 10);
+    const customer_id = parseInt(req.body.customer_id, 10);
+    const group_name_raw = req.body.group_name;
+    const description_raw = req.body.description;
+    const file = req.file;
+
+    const group_name = typeof group_name_raw === "string" ? group_name_raw.trim() : null;
+    const description = typeof description_raw === "string" ? description_raw.trim() : null;
+
+    if (!group_id || !customer_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: group_id or customer_id",
+      });
+    }
+
+    connection = await pool.getConnection();
+
     // Fetch existing group details
     const [rows] = await connection.execute(
       `SELECT file_path, file_name FROM contact_group WHERE group_id = ? AND customer_id = ?`,
@@ -38,28 +43,35 @@ export const updateGroup = async (req, res) => {
     let updatedFileName = existing.file_name;
     let total_contacts = null;
 
-    // If new file is uploaded
     if (file) {
       const extension = path.extname(file.originalname).toLowerCase();
+      const mimeType = file.mimetype;
+
+      if (
+        ![".csv", ".docx"].includes(extension) ||
+        !["text/csv", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"].includes(mimeType)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Unsupported file format or MIME type",
+        });
+      }
+
       const tempPath = file.path;
       const targetDir = path.join("uploads", "contacts");
       const targetFileName = `${Date.now()}_${customer_id}_${file.originalname}`;
       const targetPath = path.join(targetDir, targetFileName);
 
-      // Make sure target directory exists
-      fs.mkdirSync(targetDir, { recursive: true });
+      await fs.promises.mkdir(targetDir, { recursive: true });
+      await fs.promises.rename(tempPath, targetPath);
 
-      // Move file
-      fs.renameSync(tempPath, targetPath);
-
-      // Count contacts
       if (extension === ".csv") {
-        const content = fs.readFileSync(targetPath, "utf-8");
+        const content = await fs.promises.readFile(targetPath, "utf-8");
         const records = parse(content, {
           skip_empty_lines: true,
           relax_column_count: true,
         });
-        records.splice(0, 1);
+        if (records.length > 0) records.splice(0, 1);
         total_contacts = records.length;
       } else if (extension === ".docx") {
         const { value } = await mammoth.extractRawText({ path: targetPath });
@@ -69,29 +81,31 @@ export const updateGroup = async (req, res) => {
           .map((line) => line.trim())
           .filter(Boolean);
         total_contacts = Math.max(0, lines.length - 1);
-      } else {
-        return res.status(400).json({
-          success: false,
-          message: "Unsupported file format",
-        });
       }
 
       // Delete old file
       if (existing.file_path && fs.existsSync(existing.file_path)) {
-        fs.unlinkSync(existing.file_path);
+        fs.unlink(existing.file_path, (err) => {
+          if (err) console.error("❌ Error deleting old file:", err);
+        });
       }
 
-      updatedFilePath = targetPath;
+      updatedFilePath = path.join("uploads", "contacts", targetFileName); // relative path
       updatedFileName = file.originalname;
     }
 
-    // Build dynamic update query
+    // Build update fields
     const fields = [];
     const values = [];
 
     if (group_name) {
       fields.push("group_name = ?");
       values.push(group_name);
+    }
+
+    if (description !== undefined) {
+      fields.push("description = ?");
+      values.push(description);
     }
 
     if (file) {
@@ -119,12 +133,19 @@ export const updateGroup = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Failed to update group:", error);
+
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error("❌ Failed to clean up temp file:", err);
+      });
+    }
+
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
       error: error.message,
     });
   } finally {
-    connection.release();
+    if (connection) connection.release();
   }
 };

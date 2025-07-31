@@ -80,42 +80,51 @@ export const getBroadcastCustomers = async (req, res) => {
     const extension = path.extname(file_path).toLowerCase();
     let phoneNumbers = [];
 
-    if (extension === ".csv" || extension === ".tsv") {
-      const content = fs.readFileSync(file_path, "utf-8");
-      const delimiter = content.includes("\t") ? "\t" : ",";
+    try {
+      if (extension === ".csv" || extension === ".tsv") {
+        const content = fs.readFileSync(file_path, "utf-8");
+        const delimiter = content.includes("\t") ? "\t" : ",";
 
-      const records = parse(content, {
-        delimiter,
-        skip_empty_lines: true,
-      });
-
-      const headers = records[0].map((h) => h.toLowerCase());
-      const countryIndex = headers.findIndex((h) => h.includes("country"));
-      const phoneIndex = headers.findIndex((h) => h.includes("phone"));
-
-      if (countryIndex === -1 || phoneIndex === -1) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "CSV/TSV file must contain 'CountryCode' and 'Phone' columns.",
+        const records = parse(content, {
+          delimiter,
+          skip_empty_lines: true,
         });
-      }
 
-      phoneNumbers = records
-        .slice(1)
-        .map((row) => {
-          const country = row[countryIndex]?.trim();
-          const phone = row[phoneIndex]?.trim();
-          return country && phone ? `${country}${phone}` : null;
-        })
-        .filter(Boolean);
-    } else if (extension === ".docx") {
-      const { value } = await mammoth.extractRawText({ path: file_path });
-      const lines = value.split("\n").slice(1); // skip header
-      phoneNumbers = lines
-        .map((line) => line.split(","))
-        .map((fields) => `${fields[0]?.trim() || ""}${fields[1]?.trim() || ""}`)
-        .filter((num) => num.length > 6);
+        const headers = records[0].map((h) => h.toLowerCase());
+        const countryIndex = headers.findIndex((h) => h.includes("country"));
+        const phoneIndex = headers.findIndex((h) => h.includes("phone"));
+
+        if (countryIndex === -1 || phoneIndex === -1) {
+          return res.status(400).json({
+            success: false,
+            message:
+              "CSV/TSV file must contain 'CountryCode' and 'Phone' columns.",
+          });
+        }
+
+        phoneNumbers = records
+          .slice(1)
+          .map((row) => {
+            const country = row[countryIndex]?.trim();
+            const phone = row[phoneIndex]?.trim();
+            return country && phone ? `${country}${phone}` : null;
+          })
+          .filter(Boolean);
+      } else if (extension === ".docx") {
+        const { value } = await mammoth.extractRawText({ path: file_path });
+        const lines = value.split("\n").slice(1); // skip header
+        phoneNumbers = lines
+          .map((line) => line.split(","))
+          .map((fields) => `${fields[0]?.trim() || ""}${fields[1]?.trim() || ""}`)
+          .filter((num) => num.length > 6);
+      }
+    } catch (fileError) {
+      console.error("❌ Error reading file:", fileError);
+      return res.status(500).json({
+        success: false,
+        message: "Error reading contact file",
+        error: fileError.message,
+      });
     }
 
     phoneNumbers = phoneNumbers.filter((n) => n.length > 6); // Simple filter for invalid rows
@@ -163,11 +172,15 @@ export const getBroadcastCustomers = async (req, res) => {
         console.log("📥 messageValues:", messageValues);
 
         if (messageValues.length > 0) {
+          // ✅ Fix for MySQL2 bulk insert syntax
+          const placeholders = messageValues.map(() => "(?,?,?,?,?,?)").join(",");
+          const flatValues = messageValues.flat();
+          
           await pool.query(
             `INSERT INTO broadcast_messages 
              (broadcast_id, message_id, recipient_id, status, timestamp, error_message)
-             VALUES ?`,
-            [messageValues]
+             VALUES ${placeholders}`,
+            flatValues
           );
           console.log("✅ Message logs inserted into broadcast_messages");
         }

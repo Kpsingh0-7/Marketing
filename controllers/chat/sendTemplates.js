@@ -14,6 +14,7 @@ export const sendTemplates = async (req, res) => {
   } = req.body;
 
   try {
+    // 1. Basic validations
     if (!phoneNumber || !name || !shop_id || !element_name) {
       return res.status(400).json({
         success: false,
@@ -24,35 +25,34 @@ export const sendTemplates = async (req, res) => {
     const customer_id = shop_id;
     const first_name = name;
 
+    // 2. Check credit
     const creditCheck = await checkCustomerCredit(customer_id);
-
     if (!creditCheck.success) {
-      return res
-        .status(400)
-        .json({ success: false, error: creditCheck.message });
+      return res.status(400).json({
+        success: false,
+        error: creditCheck.message,
+      });
     }
 
-    // ✅ Fetch Gupshup credentials
+    // 3. Fetch Gupshup credentials
     const [configRows] = await pool.query(
       `SELECT gupshup_id, token FROM gupshup_configuration WHERE customer_id = ?`,
       [customer_id]
     );
-
     if (configRows.length === 0) {
       return res.status(404).json({
         success: false,
         error: "Gupshup configuration not found for this customer",
       });
     }
-
     const { gupshup_id, token } = configRows[0];
 
-    // Normalize phone number
+    // 4. Normalize phone
     const normalizedPhone = phoneNumber.replace(/\D/g, "");
     const mobileNo = normalizedPhone.slice(-10);
     const userCountryCode = normalizedPhone.slice(0, -10);
 
-    // Check or insert contact
+    // 5. Get or insert contact
     const [existingCustomer] = await pool.execute(
       `SELECT contact_id FROM contact WHERE mobile_no = ? AND customer_id = ?`,
       [mobileNo, customer_id]
@@ -61,10 +61,6 @@ export const sendTemplates = async (req, res) => {
     let contact_id;
     if (existingCustomer.length > 0) {
       contact_id = existingCustomer[0].contact_id;
-       await pool.query(
-        `UPDATE conversations SET updated_at = CURRENT_TIMESTAMP, is_active = 1 WHERE conversation_id = ?`,
-        [conversation_id]
-      );
     } else {
       const [insertResult] = await pool.execute(
         `INSERT INTO contact (mobile_no, first_name, customer_id, country_code) VALUES (?, ?, ?, ?)`,
@@ -73,7 +69,7 @@ export const sendTemplates = async (req, res) => {
       contact_id = insertResult.insertId;
     }
 
-    // Check or insert conversation
+    // 6. Get or insert conversation
     const [existingConversation] = await pool.execute(
       `SELECT conversation_id FROM conversations WHERE customer_id = ? AND contact_id = ?`,
       [customer_id, contact_id]
@@ -82,9 +78,15 @@ export const sendTemplates = async (req, res) => {
     let conversation_id;
     if (existingConversation.length > 0) {
       conversation_id = existingConversation[0].conversation_id;
+
+      // ✅ Now safe to update conversation
+      await pool.query(
+        `UPDATE conversations SET updated_at = CURRENT_TIMESTAMP, is_active = 1 WHERE conversation_id = ?`,
+        [conversation_id]
+      );
     } else {
       const [insertConversation] = await pool.execute(
-        `INSERT INTO conversations (customer_id, contact_id) VALUES (?, ?)`,
+        `INSERT INTO conversations (customer_id, contact_id, is_active) VALUES (?, ?, 1)`,
         [customer_id, contact_id]
       );
       conversation_id = insertConversation.insertId;

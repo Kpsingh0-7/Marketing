@@ -1,0 +1,694 @@
+{
+  "screens": [
+    {
+      "data": {},
+      "id": "WELCOME_SCREEN",
+      "title": "Welcome to FoodExpress",
+      "layout": {
+        "children": [
+          {
+            "children": [
+              {
+                "height": 120,
+                "scale-type": "contain",
+                "src": "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
+                "type": "image"
+              },
+              {
+                "text": "🍕 Welcome to FoodExpress! 🍕",
+                "type": "TextHeading"
+              },
+              {
+                "text": "Order delicious food from your favorite restaurants.\n\nWhat would you like to do today?",
+                "type": "TextBody"
+              },
+              {
+                "data-source": [
+                  {
+                    "id": "browse_menu",
+                    "title": "🍽️ Browse Menu"
+                  },
+                  {
+                    "id": "quick_order",
+                    "title": "⚡ Quick Order"
+                  },
+                  {
+                    "id": "track_order",
+                    "title": "📦 Track Order"
+                  },
+                  {
+                    "id": "support",
+                    "title": "📞 Customer Support"
+                  }
+                ],
+                "label": "Select Option",
+                "name": "main_menu_selection",
+                "required": true,
+                "type": "radiobuttongroup"
+              },
+              {
+                "label": "Continue",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "name": "TERMS_AND_CONDITIONS",
+                    "type": "screen"
+                  },
+                  "payload": {
+                    "selected_option": "${form.main_menu_selection}"
+                  }
+                },
+                "type": "footer"
+              }
+            ],
+            "name": "welcome_form",
+            "type": "form"
+          }
+        ],
+        "type": "SingleColumnLayout"
+      },
+      "title": "Welcome to FoodExpress"
+    },
+    {
+      "data": {
+        "selected_option": {
+          "__example__": "browse_menu",
+          "type": "string"
+        }
+      },
+      "id": "TERMS_AND_CONDITIONS",
+      "title": "Terms & Conditions",
+      "layout": {
+        "children": [
+          {
+            "type": "RichText",
+            "text": [
+              "# FoodExpress Terms & Conditions",
+              "## 1. Service Description",
+              "FoodExpress provides food delivery and pickup services from partner restaurants. By using our service, you agree to these terms.",
+              "## 2. Order & Payment",
+              "• All prices are in **local currency** and include applicable taxes",
+              "• Payment is processed at the time of order confirmation",
+              "• We accept **cash on delivery**, **credit cards**, and **digital wallets**",
+              "## 3. Delivery & Pickup",
+              "• **Delivery time**: 30-45 minutes (may vary based on location)",
+              "• **Free delivery** on orders above $25",
+              "• **Pickup orders** must be collected within 30 minutes",
+              "## 4. Cancellation Policy",
+              "• Orders can be cancelled within **5 minutes** of placement",
+              "• Cancellations after 5 minutes may incur a **cancellation fee**",
+              "## 5. Quality Assurance",
+              "• We partner with **certified restaurants**",
+              "• **100% satisfaction guarantee** or full refund",
+              "• Report issues within **24 hours** of delivery",
+              "## 6. Privacy & Data",
+              "Your personal information is protected under our [Privacy Policy](https://foodexpress.com/privacy)",
+              "## 7. Contact Information",
+              "For support: **📞 1-800-FOOD-EX** or **📧 support@foodexpress.com**"
+            ]
+          },
+          {
+            "label": "I Accept Terms & Conditions",
+            "on-click-action": {
+              "name": "navigate",
+              "next": {
+                "name": "RESTAURANT_SELECTION",
+                "type": "screen"
+              },
+              "payload": {
+                "selected_option": "${data.selected_option}"
+              }
+            },
+            "type": "footer"
+          }
+        ],
+        "type": "SingleColumnLayout"
+      }
+    },
+    {
+      "data": {
+        "selected_option": {
+          "__example__": "browse_menu",
+          "type": "string"
+        }
+      },
+      "id": "RESTAURANT_SELECTION",
+      "title": "Select Restaurant",
+      "layout": {
+        "children": [
+          {
+            "children": [
+              {
+                "text": "🏪 Choose Your Restaurant",
+                "type": "TextHeading"
+              },
+              {
+                "text": "Select from our curated list of **premium restaurants** offering delicious cuisine:",
+                "type": "TextBody",
+                "markdown": true
+              },
+              {
+                "data-source": [
+                  {
+                    "id": "pizza_hut",
+                    "title": "🍕 Pizza Hut - Italian Cuisine"
+                  },
+                  {
+                    "id": "kfc",
+                    "title": "🍗 KFC - Fried Chicken"
+                  },
+                  {
+                    "id": "mcdonalds",
+                    "title": "🍔 McDonald's - Fast Food"
+                  },
+                  {
+                    "id": "subway",
+                    "title": "🥪 Subway - Healthy Sandwiches"
+                  },
+                  {
+                    "id": "dominos",
+                    "title": "🍕 Domino's - Pizza & Pasta"
+                  }
+                ],
+                "label": "Select Restaurant",
+                "name": "restaurant_choice",
+                "required": true,
+                "type": "radiobuttongroup"
+              },
+              {
+                "label": "Continue",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "name": "MENU_BROWSING",
+                    "type": "screen"
+                  },
+                  "payload": {
+                    "selected_option": "${data.selected_option}",
+                    "restaurant": "${form.restaurant_choice}"
+                  }
+                },
+                "type": "footer"
+              }
+            ],
+            "name": "restaurant_form",
+            "type": "form"
+          }
+        ],
+        "type": "SingleColumnLayout"
+      },
+      "title": "Select Restaurant"
+    },
+    {
+      "data": {
+        "selected_option": {
+          "__example__": "browse_menu",
+          "type": "string"
+        },
+        "restaurant": {
+          "__example__": "pizza_hut",
+          "type": "string"
+        }
+      },
+      "id": "MENU_BROWSING",
+      "title": "Browse Menu",
+      "layout": {
+        "children": [
+          {
+            "children": [
+              {
+                "text": "📋 Menu Items",
+                "type": "TextHeading"
+              },
+              {
+                "text": "**Select multiple items** from our delicious menu. Prices include taxes and delivery fees.",
+                "type": "TextBody",
+                "markdown": true
+              },
+              {
+                "data-source": [
+                  {
+                    "id": "margherita_pizza",
+                    "title": "🍕 Margherita Pizza - $12.99"
+                  },
+                  {
+                    "id": "pepperoni_pizza",
+                    "title": "🍕 Pepperoni Pizza - $14.99"
+                  },
+                  {
+                    "id": "chicken_pasta",
+                    "title": "🍝 Chicken Pasta - $11.99"
+                  },
+                  {
+                    "id": "garlic_bread",
+                    "title": "🥖 Garlic Bread - $4.99"
+                  },
+                  {
+                    "id": "caesar_salad",
+                    "title": "🥗 Caesar Salad - $8.99"
+                  },
+                  {
+                    "id": "chocolate_cake",
+                    "title": "🍰 Chocolate Cake - $6.99"
+                  }
+                ],
+                "label": "Select Items",
+                "name": "menu_selection",
+                "required": true,
+                "type": "checkboxgroup"
+              },
+              {
+                "label": "Continue",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "name": "ORDER_SUMMARY",
+                    "type": "screen"
+                  },
+                  "payload": {
+                    "selected_option": "${data.selected_option}",
+                    "restaurant": "${data.restaurant}",
+                    "selected_items": "${form.menu_selection}"
+                  }
+                },
+                "type": "footer"
+              }
+            ],
+            "name": "menu_form",
+            "type": "form"
+          }
+        ],
+        "type": "SingleColumnLayout"
+      },
+      "title": "Browse Menu"
+    },
+    {
+      "data": {
+        "selected_option": {
+          "__example__": "browse_menu",
+          "type": "string"
+        },
+        "restaurant": {
+          "__example__": "pizza_hut",
+          "type": "string"
+        },
+        "selected_items": {
+          "__example__": ["margherita_pizza", "garlic_bread"],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "id": "ORDER_SUMMARY",
+      "title": "Order Summary",
+      "layout": {
+        "children": [
+          {
+            "children": [
+              {
+                "text": "📋 Order Summary",
+                "type": "TextHeading"
+              },
+              {
+                "type": "RichText",
+                "text": [
+                  "## Order Details",
+                  "**Restaurant:** ${data.restaurant}",
+                  "**Selected Items:** ${data.selected_items}",
+                  "",
+                  "## Pricing Breakdown",
+                  "| Item | Price |",
+                  "|------|-------|",
+                  "| Margherita Pizza | **$12.99** |",
+                  "| Garlic Bread | **$4.99** |",
+                  "| **Subtotal** | **$17.98** |",
+                  "| Delivery Fee | **$3.99** |",
+                  "| Tax | **$1.80** |",
+                  "| **Total** | **$23.77** |",
+                  "",
+                  "## Delivery Information",
+                  "• **Estimated delivery time:** 30-45 minutes",
+                  "• **Free delivery** on orders above $25",
+                  "• **Real-time tracking** available"
+                ]
+              },
+              {
+                "data-source": [
+                  {
+                    "id": "delivery",
+                    "title": "🚚 Home Delivery"
+                  },
+                  {
+                    "id": "pickup",
+                    "title": "🏪 Pickup"
+                  }
+                ],
+                "label": "Delivery Option",
+                "name": "delivery_option",
+                "required": true,
+                "type": "radiobuttongroup"
+              },
+              {
+                "label": "Continue",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "name": "CUSTOMER_INFO",
+                    "type": "screen"
+                  },
+                  "payload": {
+                    "selected_option": "${data.selected_option}",
+                    "restaurant": "${data.restaurant}",
+                    "selected_items": "${data.selected_items}",
+                    "delivery_type": "${form.delivery_option}"
+                  }
+                },
+                "type": "footer"
+              }
+            ],
+            "name": "summary_form",
+            "type": "form"
+          }
+        ],
+        "type": "SingleColumnLayout"
+      },
+      "title": "Order Summary"
+    },
+    {
+      "data": {
+        "selected_option": {
+          "__example__": "browse_menu",
+          "type": "string"
+        },
+        "restaurant": {
+          "__example__": "pizza_hut",
+          "type": "string"
+        },
+        "selected_items": {
+          "__example__": ["margherita_pizza", "garlic_bread"],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "delivery_type": {
+          "__example__": "delivery",
+          "type": "string"
+        }
+      },
+      "id": "CUSTOMER_INFO",
+      "title": "Customer Information",
+      "layout": {
+        "children": [
+          {
+            "children": [
+              {
+                "text": "👤 Customer Information",
+                "type": "TextHeading"
+              },
+              {
+                "text": "Please provide your details for order processing and delivery:",
+                "type": "TextBody"
+              },
+              {
+                "label": "Full Name",
+                "name": "customer_name",
+                "required": true,
+                "type": "text"
+              },
+              {
+                "label": "Phone Number",
+                "name": "phone_number",
+                "required": true,
+                "type": "phone"
+              },
+              {
+                "label": "Email Address",
+                "name": "email_address",
+                "required": true,
+                "type": "email"
+              },
+              {
+                "label": "Delivery Address",
+                "name": "delivery_address",
+                "required": true,
+                "type": "text",
+                "helper-text": "Enter your complete delivery address including street, city, and postal code"
+              },
+              {
+                "label": "Continue",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "name": "PAYMENT_METHOD",
+                    "type": "screen"
+                  },
+                  "payload": {
+                    "selected_option": "${data.selected_option}",
+                    "restaurant": "${data.restaurant}",
+                    "selected_items": "${data.selected_items}",
+                    "delivery_type": "${data.delivery_type}",
+                    "customer_name": "${form.customer_name}",
+                    "phone_number": "${form.phone_number}",
+                    "email_address": "${form.email_address}",
+                    "delivery_address": "${form.delivery_address}"
+                  }
+                },
+                "type": "footer"
+              }
+            ],
+            "name": "customer_form",
+            "type": "form"
+          }
+        ],
+        "type": "SingleColumnLayout"
+      },
+      "title": "Customer Information"
+    },
+    {
+      "data": {
+        "selected_option": {
+          "__example__": "browse_menu",
+          "type": "string"
+        },
+        "restaurant": {
+          "__example__": "pizza_hut",
+          "type": "string"
+        },
+        "selected_items": {
+          "__example__": ["margherita_pizza", "garlic_bread"],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "delivery_type": {
+          "__example__": "delivery",
+          "type": "string"
+        },
+        "customer_name": {
+          "__example__": "John Doe",
+          "type": "string"
+        },
+        "phone_number": {
+          "__example__": "+1234567890",
+          "type": "string"
+        },
+        "email_address": {
+          "__example__": "john@example.com",
+          "type": "string"
+        },
+        "delivery_address": {
+          "__example__": "123 Main St, City, State 12345",
+          "type": "string"
+        }
+      },
+      "id": "PAYMENT_METHOD",
+      "title": "Payment Method",
+      "layout": {
+        "children": [
+          {
+            "children": [
+              {
+                "text": "💳 Payment Method",
+                "type": "TextHeading"
+              },
+              {
+                "text": "Choose your preferred payment method:",
+                "type": "TextBody"
+              },
+              {
+                "data-source": [
+                  {
+                    "id": "cash_on_delivery",
+                    "title": "💵 Cash on Delivery"
+                  },
+                  {
+                    "id": "credit_card",
+                    "title": "💳 Credit/Debit Card"
+                  },
+                  {
+                    "id": "digital_wallet",
+                    "title": "📱 Digital Wallet (PayPal, Apple Pay)"
+                  },
+                  {
+                    "id": "bank_transfer",
+                    "title": "🏦 Bank Transfer"
+                  }
+                ],
+                "label": "Select Payment Method",
+                "name": "payment_method",
+                "required": true,
+                "type": "radiobuttongroup"
+              },
+              {
+                "label": "Continue",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "name": "ORDER_CONFIRMATION",
+                    "type": "screen"
+                  },
+                  "payload": {
+                    "selected_option": "${data.selected_option}",
+                    "restaurant": "${data.restaurant}",
+                    "selected_items": "${data.selected_items}",
+                    "delivery_type": "${data.delivery_type}",
+                    "customer_name": "${data.customer_name}",
+                    "phone_number": "${data.phone_number}",
+                    "email_address": "${data.email_address}",
+                    "delivery_address": "${data.delivery_address}",
+                    "payment_method": "${form.payment_method}"
+                  }
+                },
+                "type": "footer"
+              }
+            ],
+            "name": "payment_form",
+            "type": "form"
+          }
+        ],
+        "type": "SingleColumnLayout"
+      },
+      "title": "Payment Method"
+    },
+    {
+      "data": {
+        "selected_option": {
+          "__example__": "browse_menu",
+          "type": "string"
+        },
+        "restaurant": {
+          "__example__": "pizza_hut",
+          "type": "string"
+        },
+        "selected_items": {
+          "__example__": ["margherita_pizza", "garlic_bread"],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "delivery_type": {
+          "__example__": "delivery",
+          "type": "string"
+        },
+        "customer_name": {
+          "__example__": "John Doe",
+          "type": "string"
+        },
+        "phone_number": {
+          "__example__": "+1234567890",
+          "type": "string"
+        },
+        "email_address": {
+          "__example__": "john@example.com",
+          "type": "string"
+        },
+        "delivery_address": {
+          "__example__": "123 Main St, City, State 12345",
+          "type": "string"
+        },
+        "payment_method": {
+          "__example__": "cash_on_delivery",
+          "type": "string"
+        }
+      },
+      "id": "ORDER_CONFIRMATION",
+      "title": "Order Confirmed",
+      "layout": {
+        "children": [
+          {
+            "children": [
+              {
+                "text": "✅ Order Confirmed!",
+                "type": "TextHeading"
+              },
+              {
+                "type": "RichText",
+                "text": [
+                  "## Order Details",
+                  "**Order ID:** #FOOD123456",
+                  "**Restaurant:** ${data.restaurant}",
+                  "**Customer:** ${data.customer_name}",
+                  "**Phone:** ${data.phone_number}",
+                  "**Address:** ${data.delivery_address}",
+                  "**Payment:** ${data.payment_method}",
+                  "",
+                  "## Delivery Information",
+                  "• **Estimated Delivery:** 30-45 minutes",
+                  "• **Real-time tracking** available via SMS",
+                  "• **Contact driver** for delivery updates",
+                  "",
+                  "## What's Next?",
+                  "1. **Order confirmation** sent to ${data.email_address}",
+                  "2. **SMS updates** on order status",
+                  "3. **Track your order** in real-time",
+                  "4. **Rate your experience** after delivery",
+                  "",
+                  "**Thank you for choosing FoodExpress! 🍕**"
+                ]
+              },
+              {
+                "label": "Track Order",
+                "on-click-action": {
+                  "name": "complete",
+                  "payload": {
+                    "order_id": "FOOD123456",
+                    "restaurant": "${data.restaurant}",
+                    "customer_name": "${data.customer_name}",
+                    "phone_number": "${data.phone_number}",
+                    "email_address": "${data.email_address}",
+                    "delivery_address": "${data.delivery_address}",
+                    "payment_method": "${data.payment_method}",
+                    "selected_items": "${data.selected_items}",
+                    "delivery_type": "${data.delivery_type}"
+                  }
+                },
+                "type": "footer"
+              }
+            ],
+            "name": "confirmation_form",
+            "type": "form"
+          }
+        ],
+        "type": "SingleColumnLayout"
+      },
+      "terminal": true,
+      "title": "Order Confirmed"
+    }
+  ],
+  "version": "7.2",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "WELCOME_SCREEN": ["TERMS_AND_CONDITIONS"],
+    "TERMS_AND_CONDITIONS": ["RESTAURANT_SELECTION"],
+    "RESTAURANT_SELECTION": ["MENU_BROWSING"],
+    "MENU_BROWSING": ["ORDER_SUMMARY"],
+    "ORDER_SUMMARY": ["CUSTOMER_INFO"],
+    "CUSTOMER_INFO": ["PAYMENT_METHOD"],
+    "PAYMENT_METHOD": ["ORDER_CONFIRMATION"],
+    "ORDER_CONFIRMATION": []
+  }
+} 

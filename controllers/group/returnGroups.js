@@ -16,6 +16,7 @@ export const returnGroups = async (req, res) => {
       `
       SELECT 
         group_id,
+        description,
         group_name,
         file_name,
         file_path,

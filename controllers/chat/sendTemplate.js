@@ -70,23 +70,11 @@ export const sendTemplate = async (req, res) => {
       conversation_id = insertResult.insertId;
     }
 
-    const [rows] = await pool.execute(
-      `SELECT sent_at FROM messages 
-       WHERE conversation_id = ? 
-       ORDER BY sent_at DESC 
-       LIMIT 1`,
-      [conversation_id]
-    );
-
-    const lastMessageTimestamp = rows.length > 0 ? rows[0].sent_at : null;
-    const isWithin24Hours =
-      lastMessageTimestamp &&
-      moment().diff(moment.utc(lastMessageTimestamp), "hours") < 24;
-
+   
     let responses = [];
 
     // ✅ Free-form Message (within 24 hours)
-    if (isWithin24Hours && message) {
+    if (message) {
       const freeFormData = {
         messaging_product: "whatsapp",
         recipient_type: "individual",
@@ -146,6 +134,21 @@ export const sendTemplate = async (req, res) => {
             type: "text",
             text: param,
           })),
+        });
+      }
+
+      // 🆕 Add image header if provided
+      if (req.body.imageUrl) {
+        templateData.template.components.push({
+          type: "header",
+          parameters: [
+            {
+              type: "image",
+              image: {
+                link: req.body.imageUrl,
+              },
+            },
+          ],
         });
       }
 
