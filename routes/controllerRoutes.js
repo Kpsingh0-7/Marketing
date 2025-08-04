@@ -10,6 +10,7 @@ import { createWebhookHandler } from "../webhooks/webhook.js";
 import { getTemplate } from "../controllers/template/getTemplate.js";
 import { sendTemplate } from "../controllers/chat/sendTemplate.js";
 import { sendTemplates } from "../controllers/chat/sendTemplates.js";
+import { sendOTPTemplate } from "../controllers/chat/sendOTPTemplate.js";
 import { createTemplate } from "../controllers/template/createTemplate.js";
 import { deleteTemplate } from "../controllers/template/deleteTemplate.js";
 import { updateTemplate } from "../controllers/template/editTemplate.js";
@@ -51,8 +52,8 @@ import {
 import { deleteGroup } from "../controllers/group/deleteGroup.js";
 import { updateGroup } from "../controllers/group/updateGroup.js";
 import { returnAllCustomer } from "../controllers/admin/returnAllCustomer.js";
-import { sendFlowTemplates } from "../controllers/chat/sendFlowTemplate.js"
-import { webhook1 } from "../webhooks/webhook1.js"
+import { sendFlowTemplates } from "../controllers/chat/sendFlowTemplate.js";
+import { webhook1 } from "../webhooks/webhook1.js";
 
 const router = Router();
 const upload = multer({ dest: "uploads/" });
@@ -68,6 +69,7 @@ export default function createRouter(io) {
   router.post("/verify-payment", verifyRazorpayPayment);
   router.post("/send", sendTemplate);
   router.post("/sendTemplates", sendTemplates);
+  router.post("/sendOTPTemplate", sendOTPTemplate);
   router.post("/subscription", setupSubscription);
   router.post("/createtemplate", createTemplate);
   router.post("/sendmessage", processConversationMessage);
@@ -161,96 +163,99 @@ export default function createRouter(io) {
   // });
 
   router.post("/create-template", async (req, res) => {
-  const {
-    element_name,
-    template_type,
-    category,
-    language = "en",
-    body_text,
-    footer,
-    media_url,
-    media_id,
-    sample_text,
-    location,
-    product
-  } = req.body;
-
-  try {
-    const containerMeta = {
-      appId: "e6fc2b8d-6e8d-4713-8d91-da5323e400da",
-    };
-
-    // TEXT Template
-    if (template_type === "TEXT") {
-      containerMeta.data = body_text;
-      if (footer) containerMeta.footer = footer;
-
-    // IMAGE Template with advanced fields
-    } else if (template_type === "IMAGE") {
-      containerMeta.data = body_text;
-      containerMeta.footer = footer || "";
-      containerMeta.mediaUrl = media_url;
-      containerMeta.mediaId = media_id;
-
-      containerMeta.enableSample = true;
-      containerMeta.sampleText = sample_text || body_text;
-
-      containerMeta.editTemplate = false;
-      containerMeta.allowTemplateCategoryChange = false;
-      containerMeta.addSecurityRecommendation = false;
-      containerMeta.isCPR = false;
-      containerMeta.cpr = false;
-
-    // VIDEO Template
-    } else if (template_type === "VIDEO") {
-      containerMeta.data = body_text;
-      containerMeta.footer = footer || "";
-      containerMeta.url = media_url;
-
-    // LOCATION Template
-    } else if (template_type === "LOCATION") {
-      if (!location || !location.longitude || !location.latitude) {
-        return res.status(400).json({ error: "Location coordinates are required" });
-      }
-      containerMeta.location = location;
-
-    // PRODUCT Template
-    } else if (template_type === "PRODUCT") {
-      if (!product || !product.catalogId || !product.productRetailerId) {
-        return res.status(400).json({ error: "Product info is required" });
-      }
-      containerMeta.product = product;
-
-    } else {
-      return res.status(400).json({ error: "Invalid template_type" });
-    }
-
-    const payload = {
-      elementName: element_name,
-      templateType: template_type,
+    const {
+      element_name,
+      template_type,
       category,
-      language,
-      containerMeta: JSON.stringify(containerMeta)
-    };
+      language = "en",
+      body_text,
+      footer,
+      media_url,
+      media_id,
+      sample_text,
+      location,
+      product,
+    } = req.body;
 
-    const response = await axios.post(
-      "https://partner.gupshup.io/partner/app/template",
-      payload,
-      {
-        headers: {
-          accept: 'application/json',
-          Authorization: 'sk_4830e6e27ce44be5af5892c5913396b8', // Use 'Bearer' if needed
-          'Content-Type': 'application/json'
+    try {
+      const containerMeta = {
+        appId: "e6fc2b8d-6e8d-4713-8d91-da5323e400da",
+      };
+
+      // TEXT Template
+      if (template_type === "TEXT") {
+        containerMeta.data = body_text;
+        if (footer) containerMeta.footer = footer;
+
+        // IMAGE Template with advanced fields
+      } else if (template_type === "IMAGE") {
+        containerMeta.data = body_text;
+        containerMeta.footer = footer || "";
+        containerMeta.mediaUrl = media_url;
+        containerMeta.mediaId = media_id;
+
+        containerMeta.enableSample = true;
+        containerMeta.sampleText = sample_text || body_text;
+
+        containerMeta.editTemplate = false;
+        containerMeta.allowTemplateCategoryChange = false;
+        containerMeta.addSecurityRecommendation = false;
+        containerMeta.isCPR = false;
+        containerMeta.cpr = false;
+
+        // VIDEO Template
+      } else if (template_type === "VIDEO") {
+        containerMeta.data = body_text;
+        containerMeta.footer = footer || "";
+        containerMeta.url = media_url;
+
+        // LOCATION Template
+      } else if (template_type === "LOCATION") {
+        if (!location || !location.longitude || !location.latitude) {
+          return res
+            .status(400)
+            .json({ error: "Location coordinates are required" });
         }
-      }
-    );
+        containerMeta.location = location;
 
-    res.status(200).json({ success: true, data: response.data });
-  } catch (err) {
-    console.error("Error creating template:", err.message);
-    res.status(500).json({ error: "Failed to create template", details: err.message });
-  }
-});
+        // PRODUCT Template
+      } else if (template_type === "PRODUCT") {
+        if (!product || !product.catalogId || !product.productRetailerId) {
+          return res.status(400).json({ error: "Product info is required" });
+        }
+        containerMeta.product = product;
+      } else {
+        return res.status(400).json({ error: "Invalid template_type" });
+      }
+
+      const payload = {
+        elementName: element_name,
+        templateType: template_type,
+        category,
+        language,
+        containerMeta: JSON.stringify(containerMeta),
+      };
+
+      const response = await axios.post(
+        "https://partner.gupshup.io/partner/app/template",
+        payload,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: "sk_4830e6e27ce44be5af5892c5913396b8", // Use 'Bearer' if needed
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      res.status(200).json({ success: true, data: response.data });
+    } catch (err) {
+      console.error("Error creating template:", err.message);
+      res
+        .status(500)
+        .json({ error: "Failed to create template", details: err.message });
+    }
+  });
 
   return router;
 }

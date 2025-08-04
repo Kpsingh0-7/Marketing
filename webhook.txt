@@ -1,0 +1,35 @@
+
+
+=== Webhook Received at 2025-07-31T11:16:19.591Z ===
+{
+  "entry": [
+    {
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "919274334248",
+              "phone_number_id": "637004486154788"
+            },
+            "statuses": [
+              {
+                "biz_opaque_callback_data": "ee2418eb-1025-4cb4-a6d5-c3f2b0143610",
+                "gs_id": "abbb17ab-1b0d-461c-adb0-07aa6bb80d06",
+                "id": "ee2418eb-1025-4cb4-a6d5-c3f2b0143610",
+                "meta_msg_id": "wamid.HBgMOTE3MDE2NzE1NzQyFQIAERgSRTVERDY3RTgxNUY2RDc5RENFAA==",
+                "recipient_id": "917016715742",
+                "status": "read",
+                "timestamp": "1753960137"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "110171975093525"
+    }
+  ],
+  "gs_app_id": "7f97d76e-d64a-4c7b-b589-7b607dce5b45",
+  "object": "whatsapp_business_account"
+}

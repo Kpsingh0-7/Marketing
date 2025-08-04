@@ -3,18 +3,18 @@ import { pool } from "../../config/db.js";
 import { updateCreditUsage } from "../credit/updateCreditUsage.js";
 import { checkCustomerCredit } from "../credit/checkCustomerCredit.js";
 
-export const sendTemplates = async (req, res) => {
+export const sendOTPTemplate = async (req, res) => {
   const {
     phoneNumber,
     name,
     element_name,
     languageCode = "en",
     parameters = [],
+    urlButtonText = "", // OTP or value for button parameter
     shop_id,
   } = req.body;
 
   try {
-    // 1. Basic validations
     if (!phoneNumber || !name || !shop_id || !element_name) {
       return res.status(400).json({
         success: false,
@@ -25,16 +25,11 @@ export const sendTemplates = async (req, res) => {
     const customer_id = shop_id;
     const first_name = name;
 
-    // 2. Check credit
     const creditCheck = await checkCustomerCredit(customer_id);
     if (!creditCheck.success) {
-      return res.status(400).json({
-        success: false,
-        error: creditCheck.message,
-      });
+      return res.status(400).json({ success: false, error: creditCheck.message });
     }
 
-    // 3. Fetch Gupshup credentials
     const [configRows] = await pool.query(
       `SELECT gupshup_id, token FROM gupshup_configuration WHERE customer_id = ?`,
       [customer_id]
@@ -45,14 +40,13 @@ export const sendTemplates = async (req, res) => {
         error: "Gupshup configuration not found for this customer",
       });
     }
+
     const { gupshup_id, token } = configRows[0];
 
-    // 4. Normalize phone
     const normalizedPhone = phoneNumber.replace(/\D/g, "");
     const mobileNo = normalizedPhone.slice(-10);
     const userCountryCode = normalizedPhone.slice(0, -10);
 
-    // 5. Get or insert contact
     const [existingCustomer] = await pool.execute(
       `SELECT contact_id FROM contact WHERE mobile_no = ? AND customer_id = ?`,
       [mobileNo, customer_id]
@@ -69,7 +63,6 @@ export const sendTemplates = async (req, res) => {
       contact_id = insertResult.insertId;
     }
 
-    // 6. Get or insert conversation
     const [existingConversation] = await pool.execute(
       `SELECT conversation_id FROM conversations WHERE customer_id = ? AND contact_id = ?`,
       [customer_id, contact_id]
@@ -78,8 +71,6 @@ export const sendTemplates = async (req, res) => {
     let conversation_id;
     if (existingConversation.length > 0) {
       conversation_id = existingConversation[0].conversation_id;
-
-      // ✅ Now safe to update conversation
       await pool.query(
         `UPDATE conversations SET updated_at = CURRENT_TIMESTAMP, is_active = 1 WHERE conversation_id = ?`,
         [conversation_id]
@@ -92,7 +83,6 @@ export const sendTemplates = async (req, res) => {
       conversation_id = insertConversation.insertId;
     }
 
-    // Build template data
     const templateData = {
       messaging_product: "whatsapp",
       recipient_type: "individual",
@@ -108,14 +98,25 @@ export const sendTemplates = async (req, res) => {
     if (parameters.length > 0) {
       templateData.template.components.push({
         type: "body",
-        parameters: parameters.map((param) => ({
-          type: "text",
-          text: param,
-        })),
+        parameters: parameters.map((text) => ({ type: "text", text })),
       });
     }
 
-    // Send message using dynamic gupshup_id & token
+    // Add button with OTP or dynamic text
+    if (urlButtonText) {
+      templateData.template.components.push({
+        type: "button",
+        sub_type: "url",
+        index: "0",
+        parameters: [
+          {
+            type: "text",
+            text: urlButtonText,
+          },
+        ],
+      });
+    }
+
     const templateResponse = await axios.post(
       `https://partner.gupshup.io/partner/app/${gupshup_id}/v3/message`,
       templateData,
@@ -130,7 +131,6 @@ export const sendTemplates = async (req, res) => {
 
     const templateMessageId = templateResponse.data.messages?.[0]?.id || null;
 
-    // Log the sent message
     await pool.execute(
       `INSERT INTO messages 
         (conversation_id, sender_type, sender_id, message_type, element_name, template_data, status, external_message_id, sent_at) 
@@ -164,4 +164,3 @@ export const sendTemplates = async (req, res) => {
     });
   }
 };
-
