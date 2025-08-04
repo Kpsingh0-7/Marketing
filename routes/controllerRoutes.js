@@ -54,7 +54,7 @@ import { updateGroup } from "../controllers/group/updateGroup.js";
 import { returnAllCustomer } from "../controllers/admin/returnAllCustomer.js";
 import { sendFlowTemplates } from "../controllers/chat/sendFlowTemplate.js";
 import { webhook1 } from "../webhooks/webhook1.js";
-
+import { createGupshupApp } from "../controllers/createGupshupApp.js";
 const router = Router();
 const upload = multer({ dest: "uploads/" });
 
@@ -80,6 +80,7 @@ export default function createRouter(io) {
   router.post("/markMessagesAsRead", markMessagesAsRead);
   router.post("/createSubUser", createSubUser);
   router.post("/sendFlowTemplates", sendFlowTemplates);
+  router.post("/createGupshupApp", createGupshupApp);
 
   router.post("/logout", logoutUser);
 
