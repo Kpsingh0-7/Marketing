@@ -105,19 +105,21 @@
 //   return res.json({ success: true, message: "Logged out successfully" });
 // };
 
-// authController.js
 import jwt from "jsonwebtoken";
 import { pool } from "../config/db.js";
 
 const SECRET = "super_secret_key_12345";
 
+const isProd = process.env.NODE_ENV === "production";
+
 const cookieOptions = {
   httpOnly: true,
-  secure: true, // false in dev
-  sameSite: "None",
+  secure: isProd, // Set to false in local development
+  sameSite: isProd ? "None" : "Lax",
   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
 };
 
+// LOGIN Route
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -126,9 +128,9 @@ export const loginUser = async (req, res) => {
   }
 
   try {
-    // 1. Try logging in as main customer
+    // 1. Try main user login
     const [mainRows] = await pool.query(
-      `SELECT customer_id, email_id AS email, password FROM customer WHERE email_id = ?`,
+      `SELECT customer_id, email_id AS email, password, first_name, last_name FROM customer WHERE email_id = ?`,
       [email]
     );
 
@@ -148,7 +150,10 @@ export const loginUser = async (req, res) => {
         : [];
 
       const token = jwt.sign(
-        { customer_id: user.customer_id, email: user.email },
+        {
+          customer_id: user.customer_id,
+          email: user.email,
+        },
         SECRET,
         { expiresIn: "30d" }
       );
@@ -161,15 +166,16 @@ export const loginUser = async (req, res) => {
         user: {
           customer_id: user.customer_id,
           email: user.email,
-          role: "main", // fixed value for backward compatibility
+          name: [user.first_name, user.last_name].filter(Boolean).join(" "),
+          role: "main",
           allowed_routes,
         },
       });
     }
 
-    // 2. Try logging in as sub-user
+    // 2. Try sub-user login
     const [subRows] = await pool.query(
-      `SELECT user_id, customer_id, email, password FROM customer_users WHERE email = ?`,
+      `SELECT user_id, customer_id, email, password, name FROM customer_users WHERE email = ?`,
       [email]
     );
 
@@ -206,13 +212,16 @@ export const loginUser = async (req, res) => {
         user: {
           customer_id: user.customer_id,
           email: user.email,
-          role: "sub_user", // to keep return data same shape
+          name:
+            user.name ||
+            [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+            "",
+          role: "sub_user",
           allowed_routes,
         },
       });
     }
 
-    // If no match
     return res.status(401).json({ error: "Invalid email or password." });
   } catch (err) {
     console.error("Login error:", err.message);
