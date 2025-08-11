@@ -20,7 +20,7 @@ export const getBroadcastCustomers = async (req, res) => {
 
   const element_name = selectedTemplate?.element_name || "";
   const template_id = selectedTemplate?.id;
-  console.log(group_id);
+  console.log(req.body);
 
   try {
     if (!broadcastName || !group_id || !element_name) {
@@ -45,6 +45,8 @@ export const getBroadcastCustomers = async (req, res) => {
     }
 
     const { group_name, file_path } = groupRows[0];
+
+    console.log(file_path);
 
     // ✅ Save broadcast
     const [insertResult] = await pool.execute(
@@ -145,7 +147,8 @@ export const getBroadcastCustomers = async (req, res) => {
         customer_id,
       },
     };
-    
+        console.log(fakeRequest);
+
 
     // ✅ Trigger the broadcast but don't wait for DB update
     await sendBroadcast(fakeRequest, {

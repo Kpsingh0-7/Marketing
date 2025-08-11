@@ -149,7 +149,6 @@ export const sendTemplates = async (req, res) => {
     return res.status(200).json({
       success: true,
       messageId: templateMessageId,
-      conversation_id,
       response: templateResponse.data,
     });
   } catch (error) {

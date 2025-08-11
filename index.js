@@ -5,6 +5,8 @@ import cookieParser from 'cookie-parser';
 import cookie from 'cookie';
 import jwt from 'jsonwebtoken';
 import { Server as SocketIO } from 'socket.io';
+import fs from 'fs';
+import axios from 'axios';
 
 import createRouter from './routes/controllerRoutes.js';
 
@@ -78,6 +80,10 @@ io.on('connection', (socket) => {
   });
 });
 
+
+
+
+ 
 // === Start Unified Server ===
 const PORT = 3000;
 server.listen(PORT, () => {

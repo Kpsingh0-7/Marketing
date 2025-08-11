@@ -130,7 +130,7 @@ export const loginUser = async (req, res) => {
   try {
     // 1. Try main user login
     const [mainRows] = await pool.query(
-      `SELECT customer_id, email_id AS email, password, first_name, last_name FROM customer WHERE email_id = ?`,
+      `SELECT customer_id, email_id AS email, password, first_name, last_name, status FROM customer WHERE email_id = ?`,
       [email]
     );
 
@@ -166,6 +166,7 @@ export const loginUser = async (req, res) => {
         user: {
           customer_id: user.customer_id,
           email: user.email,
+          status: user.status,
           name: [user.first_name, user.last_name].filter(Boolean).join(" "),
           role: "main",
           allowed_routes,
