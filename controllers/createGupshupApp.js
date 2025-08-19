@@ -89,7 +89,7 @@ const generateOnboardingLink = async (
   lang = "English"
 ) => {
   const response = await axios.get(
-    `${BASE_URL}/app/${appId}/onboarding/embed/link?regenerate=true&user=${encodeURIComponent(
+    `${BASE_URL}/app/${appId}/onboarding/embed/link?regenerate=false&user=${encodeURIComponent(
       user
     )}&lang=${encodeURIComponent(lang)}`,
     {

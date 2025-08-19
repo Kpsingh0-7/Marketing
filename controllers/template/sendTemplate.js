@@ -1,4 +1,6 @@
-router.post("/send-template", async (req, res) => {
+import axios from "axios";
+
+export const sendtesttemplate = async (req, res) => {
   const {
     phoneNumber,
     element_name,
@@ -26,8 +28,8 @@ router.post("/send-template", async (req, res) => {
         type: "header",
         parameters: [
           {
-            type: "image",
-            image: {
+            type: "document",
+            document: {
               link: imageUrl,
             },
           },
@@ -101,4 +103,4 @@ router.post("/send-template", async (req, res) => {
       error: error.response?.data?.message || error.message,
     });
   }
-});
+};

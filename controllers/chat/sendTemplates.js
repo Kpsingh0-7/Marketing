@@ -114,6 +114,7 @@ export const sendTemplates = async (req, res) => {
         })),
       });
     }
+console.log(JSON.stringify(templateData, null, 2));
 
     // Send message using dynamic gupshup_id & token
     const templateResponse = await axios.post(

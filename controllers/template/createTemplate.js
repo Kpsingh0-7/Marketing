@@ -21,7 +21,7 @@ export const createTemplate = async (req, res) => {
     allowTemplateCategoryChange = true,
     addSecurityRecommendation = true,
   } = req.body;
-
+console.log(buttons);
   try {
     // ✅ Validate required fields
     if (!elementName || !content || !customer_id) {
@@ -93,7 +93,7 @@ export const createTemplate = async (req, res) => {
         content.replace(/\{\{1\}\}/g, "4").replace(/\{\{2\}\}/g, "2025-04-25");
       encodedParams.set("example", generatedExample);
     }
-
+console.log(encodedParams);
     // ✅ Send request to Gupshup
     const response = await axios.post(
       `https://partner.gupshup.io/partner/app/${gupshup_id}/templates`,

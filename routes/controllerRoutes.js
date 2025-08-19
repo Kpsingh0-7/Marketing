@@ -55,12 +55,19 @@ import { returnAllCustomer } from "../controllers/admin/returnAllCustomer.js";
 import { sendFlowTemplates } from "../controllers/chat/sendFlowTemplate.js";
 import { webhook1 } from "../webhooks/webhook1.js";
 import { createGupshupApp } from "../controllers/createGupshupApp.js";
+import { sendtesttemplate } from "../controllers/template/sendTemplate.js";
+import { createMediaTemplate } from "../controllers/template/createMediaTemplate.js";
+import { uploadMedia } from "../controllers/template/uploadMedia.js";
+
+
+
+
 const router = Router();
 const upload = multer({ dest: "uploads/" });
 
 export default function createRouter(io) {
   // Public Routes
-  router.post("/webhook1", webhook1);
+
   router.post("/webhook", createWebhookHandler(io));
 
   // Protected Routes (Requires JWT)
@@ -81,6 +88,9 @@ export default function createRouter(io) {
   router.post("/createSubUser", createSubUser);
   router.post("/sendFlowTemplates", sendFlowTemplates);
   router.post("/createGupshupApp", createGupshupApp);
+  router.post("/send-template", sendtesttemplate);
+  router.post("/createMediaTemplate", createMediaTemplate);
+  router.post("/uploadMedia", upload.single("file"), uploadMedia);
 
   router.post("/logout", logoutUser);
 
@@ -110,153 +120,6 @@ export default function createRouter(io) {
 
   router.get("/returnAllMessage", returnAllMessage);
   router.get("/returnAllCustomer", returnAllCustomer);
-
-  // POST /create-media-template
-  // router.post("/create-media-template", async (req, res) => {
-  //   const {
-  //     appId,
-  //     elementName,
-  //     languageCode = "en_US",
-  //     content,
-  //     footer,
-  //     category = "MARKETING",
-  //     templateType = "TEXT", // must be TEXT when using image in header
-  //     vertical = "Food",
-  //     example,
-  //     exampleHeader, // this is your media handle (image)
-  //     enableSample = true,
-  //     allowTemplateCategoryChange = false,
-  //   } = req.body;
-
-  //   const token = "sk_4830e6e27ce44be5af5892c5913396b8"; // Ideally from .env
-
-  //   const url = `https://partner.gupshup.io/partner/app/${appId}/templates`;
-
-  //   const data = {
-  //     appId,
-  //     elementName,
-  //     languageCode,
-  //     content,
-  //     footer,
-  //     category,
-  //     templateType,
-  //     vertical,
-  //     example,
-  //     header: "IMAGE", // <-- image in header
-  //     exampleHeader, // <-- media handle for image
-  //     enableSample,
-  //     allowTemplateCategoryChange,
-  //   };
-
-  //   try {
-  //     const response = await axios.post(url, qs.stringify(data), {
-  //       headers: {
-  //         Authorization: token,
-  //         "Content-Type": "application/x-www-form-urlencoded",
-  //       },
-  //     });
-
-  //     res.status(200).json(response.data);
-  //   } catch (error) {
-  //     const errRes = error.response?.data || error.message;
-  //     res.status(error.response?.status || 500).json({ error: errRes });
-  //   }
-  // });
-
-  router.post("/create-template", async (req, res) => {
-    const {
-      element_name,
-      template_type,
-      category,
-      language = "en",
-      body_text,
-      footer,
-      media_url,
-      media_id,
-      sample_text,
-      location,
-      product,
-    } = req.body;
-
-    try {
-      const containerMeta = {
-        appId: "e6fc2b8d-6e8d-4713-8d91-da5323e400da",
-      };
-
-      // TEXT Template
-      if (template_type === "TEXT") {
-        containerMeta.data = body_text;
-        if (footer) containerMeta.footer = footer;
-
-        // IMAGE Template with advanced fields
-      } else if (template_type === "IMAGE") {
-        containerMeta.data = body_text;
-        containerMeta.footer = footer || "";
-        containerMeta.mediaUrl = media_url;
-        containerMeta.mediaId = media_id;
-
-        containerMeta.enableSample = true;
-        containerMeta.sampleText = sample_text || body_text;
-
-        containerMeta.editTemplate = false;
-        containerMeta.allowTemplateCategoryChange = false;
-        containerMeta.addSecurityRecommendation = false;
-        containerMeta.isCPR = false;
-        containerMeta.cpr = false;
-
-        // VIDEO Template
-      } else if (template_type === "VIDEO") {
-        containerMeta.data = body_text;
-        containerMeta.footer = footer || "";
-        containerMeta.url = media_url;
-
-        // LOCATION Template
-      } else if (template_type === "LOCATION") {
-        if (!location || !location.longitude || !location.latitude) {
-          return res
-            .status(400)
-            .json({ error: "Location coordinates are required" });
-        }
-        containerMeta.location = location;
-
-        // PRODUCT Template
-      } else if (template_type === "PRODUCT") {
-        if (!product || !product.catalogId || !product.productRetailerId) {
-          return res.status(400).json({ error: "Product info is required" });
-        }
-        containerMeta.product = product;
-      } else {
-        return res.status(400).json({ error: "Invalid template_type" });
-      }
-
-      const payload = {
-        elementName: element_name,
-        templateType: template_type,
-        category,
-        language,
-        containerMeta: JSON.stringify(containerMeta),
-      };
-
-      const response = await axios.post(
-        "https://partner.gupshup.io/partner/app/template",
-        payload,
-        {
-          headers: {
-            accept: "application/json",
-            Authorization: "sk_4830e6e27ce44be5af5892c5913396b8", // Use 'Bearer' if needed
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      res.status(200).json({ success: true, data: response.data });
-    } catch (err) {
-      console.error("Error creating template:", err.message);
-      res
-        .status(500)
-        .json({ error: "Failed to create template", details: err.message });
-    }
-  });
 
   return router;
 }

@@ -3,8 +3,8 @@ import crypto from 'crypto';
 import { pool } from '../../config/db.js'; // adjust this if needed
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
+  key_id: "rzp_live_MoWUoTrGF0woCD",
+  key_secret: "hgSs9kIn7SPdKxgKBQy7nI4t",
 });
 
 // Create Razorpay Order
