@@ -21,7 +21,6 @@ export const createTemplate = async (req, res) => {
     allowTemplateCategoryChange = true,
     addSecurityRecommendation = true,
   } = req.body;
-console.log(buttons);
   try {
     // ✅ Validate required fields
     if (!elementName || !content || !customer_id) {
@@ -59,9 +58,18 @@ console.log(buttons);
 
     // ✅ Category-specific logic
     if (category === "AUTHENTICATION") {
-      encodedParams.set("allowTemplateCategoryChange", allowTemplateCategoryChange.toString());
-      encodedParams.set("addSecurityRecommendation", addSecurityRecommendation.toString());
-      encodedParams.set("codeExpirationMinutes", codeExpirationMinutes.toString());
+      encodedParams.set(
+        "allowTemplateCategoryChange",
+        allowTemplateCategoryChange.toString()
+      );
+      encodedParams.set(
+        "addSecurityRecommendation",
+        addSecurityRecommendation.toString()
+      );
+      encodedParams.set(
+        "codeExpirationMinutes",
+        codeExpirationMinutes.toString()
+      );
 
       // Set default example if not provided
       encodedParams.set("example", example || "111 is your verification code.");
@@ -93,7 +101,7 @@ console.log(buttons);
         content.replace(/\{\{1\}\}/g, "4").replace(/\{\{2\}\}/g, "2025-04-25");
       encodedParams.set("example", generatedExample);
     }
-console.log(encodedParams);
+    console.log(encodedParams);
     // ✅ Send request to Gupshup
     const response = await axios.post(
       `https://partner.gupshup.io/partner/app/${gupshup_id}/templates`,
@@ -112,7 +120,7 @@ console.log(encodedParams);
     // ✅ Save to whatsapp_templates
     const insertQuery = `
       INSERT INTO whatsapp_templates (
-        id, external_id, app_id, waba_id,
+        id, customer_id, app_id, waba_id,
         element_name, category, language_code, template_type,
         status, data, container_meta, created_on, modified_on
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -120,7 +128,7 @@ console.log(encodedParams);
 
     const values = [
       template.id,
-      null,
+      customer_id,
       template.appId,
       template.wabaId,
       template.elementName,
@@ -135,12 +143,6 @@ console.log(encodedParams);
     ];
 
     await pool.execute(insertQuery, values);
-
-    // ✅ Map template to customer
-    await pool.execute(
-      `INSERT INTO customer_template_map (customer_id, template_id) VALUES (?, ?)`,
-      [customer_id, template.id]
-    );
 
     return res.status(200).json({
       success: true,

@@ -10,26 +10,19 @@ export const returnTemplates = async (req, res) => {
   try {
     const connection = await pool.getConnection();
 
-    const [templateRows] = await connection.query(
-      `SELECT template_id FROM customer_template_map WHERE customer_id = ?`,
-      [customer_id]
-    );
-
-    const templateIds = templateRows.map(row => row.template_id);
-
-    if (templateIds.length === 0) {
-      connection.release();
-      return res.status(404).json({ message: 'No templates found for this customer_id' });
-    }
-
+    // ✅ Directly query whatsapp_templates using customer_id
     const [templates] = await connection.query(
       `SELECT id, created_on, element_name, template_type, category, status, data, container_meta
        FROM whatsapp_templates
-       WHERE id IN (?)`,
-      [templateIds]
+       WHERE customer_id = ?`,
+      [customer_id]
     );
 
     connection.release();
+
+    if (templates.length === 0) {
+      return res.status(404).json({ message: 'No templates found for this customer_id' });
+    }
 
     const safeJSONParse = (value) => {
       try {

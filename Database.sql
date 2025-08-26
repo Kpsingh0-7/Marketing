@@ -137,7 +137,6 @@ CREATE TABLE `broadcasts` (
 -- WHATSAPP TEMPLATES
 CREATE TABLE `whatsapp_templates` (
     `id` VARCHAR(50) PRIMARY KEY,
-    `external_id` VARCHAR(50),
     `app_id` VARCHAR(50),
     `waba_id` VARCHAR(50),
     `element_name` VARCHAR(100),
@@ -148,17 +147,10 @@ CREATE TABLE `whatsapp_templates` (
     `data` TEXT,
     `container_meta` JSON,
     `created_on` BIGINT,
-    `modified_on` BIGINT
-);
-
--- CUSTOMER TEMPLATE MAP
-CREATE TABLE `customer_template_map` (
-    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `customer_id` BIGINT NOT NULL,
-    `template_id` VARCHAR(50) NOT NULL,
-    FOREIGN KEY (`customer_id`) REFERENCES `customer`(`customer_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (`template_id`) REFERENCES `whatsapp_templates`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
-);
+    `modified_on` BIGINT,
+    `customer_id` BIGINT NOT NULL,                -- ✅ added directly
+    FOREIGN KEY (`customer_id`) REFERENCES `customer`(`customer_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- GUPSHUP CONFIGURATION
 CREATE TABLE `gupshup_configuration` (

@@ -187,6 +187,7 @@ export const sendTemplate = async (req, res) => {
         response: templateResponse.data,
       });
     }
+console.log(JSON.stringify(responses, null, 2));
 
     return res.status(200).json({
       success: true,

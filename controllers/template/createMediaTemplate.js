@@ -50,13 +50,18 @@ export const createMediaTemplate = async (req, res) => {
     if (footer) encodedParams.set("footer", footer);
     if (category) encodedParams.set("category", category);
     if (templateType) encodedParams.set("templateType", templateType);
-    if (buttons?.length > 0) encodedParams.set("buttons", JSON.stringify(buttons));
+    if (buttons?.length > 0)
+      encodedParams.set("buttons", JSON.stringify(buttons));
     if (vertical) encodedParams.set("vertical", vertical);
     if (example) encodedParams.set("example", example);
     if (exampleMedia) encodedParams.set("exampleMedia", exampleMedia);
-    if (enableSample !== undefined) encodedParams.set("enableSample", String(enableSample));
+    if (enableSample !== undefined)
+      encodedParams.set("enableSample", String(enableSample));
     if (allowTemplateCategoryChange !== undefined)
-      encodedParams.set("allowTemplateCategoryChange", String(allowTemplateCategoryChange));
+      encodedParams.set(
+        "allowTemplateCategoryChange",
+        String(allowTemplateCategoryChange)
+      );
 
     // ✅ Call Gupshup API
     const response = await axios.post(
@@ -76,13 +81,13 @@ export const createMediaTemplate = async (req, res) => {
     // ✅ Save into DB
     await pool.execute(
       `INSERT INTO whatsapp_templates (
-        id, external_id, app_id, waba_id,
+        id, customer_id, app_id, waba_id,
         element_name, category, language_code, template_type,
         status, data, container_meta, created_on, modified_on
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         template.id,
-        null,
+        customer_id,
         template.appId,
         template.wabaId,
         template.elementName,
@@ -97,18 +102,16 @@ export const createMediaTemplate = async (req, res) => {
       ]
     );
 
-    await pool.execute(
-      `INSERT INTO customer_template_map (customer_id, template_id) VALUES (?, ?)`,
-      [customer_id, template.id]
-    );
-
     return res.status(200).json({
       success: true,
       templateId: template.id,
       gupshupResponse: template,
     });
   } catch (error) {
-    console.error("❌ Error creating template:", error.response?.data || error.message);
+    console.error(
+      "❌ Error creating template:",
+      error.response?.data || error.message
+    );
     return res.status(error.response?.status || 500).json({
       success: false,
       error: error.response?.data?.message || error.message,
