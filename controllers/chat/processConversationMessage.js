@@ -2,7 +2,7 @@ import { pool } from "../../config/db.js";
 import { sendTemplate } from "./sendTemplate.js";
 
 export const processConversationMessage = async (req, res) => {
-  const { conversation_id, element_name, parameters = [], message } = req.body;
+  const { conversation_id, element_name, parameters = [], message, headerValue, headerType  } = req.body;
 
   if (!conversation_id || (!element_name && !message)) {
     return res.status(400).json({
@@ -52,8 +52,10 @@ const phoneNumber = `${country_code}${mobile_no}`; // e.g., "+91" + "9876543210"
         phoneNumber,
         element_name,
         customer_id,
+        headerType ,
+        headerValue,
         contact_id,
-        languageCode: "en",
+        languageCode,
         parameters,
       };
     } else if (message) {

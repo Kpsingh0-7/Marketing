@@ -1,4 +1,5 @@
 import { pool } from "../../config/db.js";
+import md5 from "md5";
 
 // Create or update access
 const upsertUserAccess = async (customer_id, user_id, allowed_routes) => {
@@ -22,8 +23,7 @@ const upsertUserAccess = async (customer_id, user_id, allowed_routes) => {
 
 // Create Sub-User
 export const createSubUser = async (req, res) => {
-  const { customer_id, name, email, mobile_no, password, allowed_routes } =
-    req.body;
+  const { customer_id, name, email, mobile_no, password, allowed_routes } = req.body;
   if (!customer_id || !email || !password) {
     return res
       .status(400)
@@ -41,9 +41,13 @@ export const createSubUser = async (req, res) => {
         .status(409)
         .json({ success: false, error: "Email already in use." });
     }
+
+     // ✅ Hash password before saving
+    const hashedPassword = md5(password);
+
     const [result] = await pool.query(
       `INSERT INTO customer_users (customer_id, name, email, mobile_no, password) VALUES (?, ?, ?, ?, ?)`,
-      [customer_id, name, email, mobile_no, password]
+      [customer_id, name, email, mobile_no, hashedPassword]
     );
 
     const user_id = result.insertId;

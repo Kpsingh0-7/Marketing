@@ -106,7 +106,8 @@
 // };
 
 import jwt from "jsonwebtoken";
-import { pool } from "../config/db.js";
+import md5 from "md5";
+import { pool } from "../../config/db.js";
 
 const SECRET = "super_secret_key_12345";
 
@@ -128,13 +129,17 @@ export const loginUser = async (req, res) => {
   }
 
   try {
+
+    // Hash entered password
+    const hashedPassword = md5(password);
+
     // 1. Try main user login
     const [mainRows] = await pool.query(
       `SELECT customer_id, email_id AS email, password, first_name, last_name, status FROM customer WHERE email_id = ?`,
       [email]
     );
 
-    if (mainRows.length > 0 && mainRows[0].password === password) {
+    if (mainRows.length > 0 && mainRows[0].password === hashedPassword) {
       const user = mainRows[0];
 
       const [accessRows] = await pool.query(
@@ -180,7 +185,7 @@ export const loginUser = async (req, res) => {
       [email]
     );
 
-    if (subRows.length > 0 && subRows[0].password === password) {
+    if (subRows.length > 0 && subRows[0].password === hashedPassword) {
       const user = subRows[0];
 
       const [accessRows] = await pool.query(

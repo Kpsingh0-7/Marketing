@@ -1,23 +1,74 @@
 import axios from "axios";
 import dotenv from "dotenv";
-import moment from "moment";
 import { pool } from "../../config/db.js";
 import { updateCreditUsage } from "../credit/updateCreditUsage.js";
 import { checkCustomerCredit } from "../credit/checkCustomerCredit.js";
 
 dotenv.config();
 
+/**
+ * ===== Helpers =====
+ */
+function formatBodyParams(params) {
+  return params.map((p) => {
+    if (typeof p === "string") {
+      return { type: "text", text: p };
+    } else if (p.type === "currency") {
+      return {
+        type: "currency",
+        currency: {
+          fallback_value: p.fallback || "0 USD",
+          code: p.code || "USD",
+          amount_1000: p.amount_1000 || "0",
+        },
+      };
+    } else if (p.type === "date_time") {
+      return {
+        type: "date_time",
+        date_time: {
+          fallback_value: p.fallback || "January 1, 2025",
+        },
+      };
+    }
+    return p;
+  });
+}
+
+function headerBuilder(type, value, isId = false) {
+  const key = isId ? "id" : "link";
+  switch (type?.toLowerCase()) {
+    case "text":
+      return null;
+    case "image":
+      return { type: "image", image: { [key]: value } };
+    case "video":
+      return { type: "video", video: { [key]: value } };
+    case "document":
+      return { type: "document", document: { [key]: value } };
+    default:
+      return null;
+  }
+}
+
+/**
+ * ===== Controller: Send WhatsApp Message =====
+ */
 export const sendTemplate = async (req, res) => {
   const {
     phoneNumber,
-    message,
-    element_name,
+    message,                // free-form text
+    element_name,           // template name
     languageCode = "en",
+    headerType,
+    headerValue,
+    headerIsId = false,
     parameters = [],
+    buttons = [],
     customer_id,
     contact_id,
   } = req.body;
 
+  const bodyValues = parameters;
   try {
     if (!phoneNumber || !customer_id || !contact_id) {
       return res.status(400).json({
@@ -26,30 +77,28 @@ export const sendTemplate = async (req, res) => {
       });
     }
 
+    // ✅ Credit check
     const creditCheck = await checkCustomerCredit(customer_id);
-
     if (!creditCheck.success) {
       return res
         .status(400)
         .json({ success: false, error: creditCheck.message });
     }
 
-    // Fetch Gupshup credentials from DB
+    // ✅ Fetch Gupshup credentials
     const [configRows] = await pool.query(
       `SELECT gupshup_id, token FROM gupshup_configuration WHERE customer_id = ?`,
       [customer_id]
     );
-
     if (configRows.length === 0) {
       return res.status(404).json({
         success: false,
         error: "Gupshup configuration not found for this customer",
       });
     }
-
     const { gupshup_id, token } = configRows[0];
 
-    // Ensure conversation exists
+    // ✅ Ensure conversation exists
     const [existing] = await pool.execute(
       `SELECT conversation_id FROM conversations WHERE customer_id = ? AND contact_id = ?`,
       [customer_id, contact_id]
@@ -59,7 +108,9 @@ export const sendTemplate = async (req, res) => {
     if (existing.length > 0) {
       conversation_id = existing[0].conversation_id;
       await pool.query(
-        `UPDATE conversations SET updated_at = CURRENT_TIMESTAMP, is_active = 1 WHERE conversation_id = ?`,
+        `UPDATE conversations 
+         SET updated_at = CURRENT_TIMESTAMP, is_active = 1 
+         WHERE conversation_id = ?`,
         [conversation_id]
       );
     } else {
@@ -70,10 +121,11 @@ export const sendTemplate = async (req, res) => {
       conversation_id = insertResult.insertId;
     }
 
-   
     let responses = [];
 
-    // ✅ Free-form Message (within 24 hours)
+    /**
+     * ✅ Free-form message (within 24 hours window)
+     */
     if (message) {
       const freeFormData = {
         messaging_product: "whatsapp",
@@ -95,7 +147,8 @@ export const sendTemplate = async (req, res) => {
         }
       );
 
-      const freeFormMessageId = freeFormResponse.data.messages?.[0]?.id || null;
+      const freeFormMessageId =
+        freeFormResponse.data.messages?.[0]?.id || null;
 
       await pool.execute(
         `INSERT INTO messages 
@@ -113,8 +166,23 @@ export const sendTemplate = async (req, res) => {
       });
     }
 
-    // ✅ Template Message
+    /**
+     * ✅ Template message
+     */
     if (element_name) {
+      const components = [];
+      const header = headerBuilder(headerType, headerValue, headerIsId);
+      if (header) components.push({ type: "header", parameters: [header] });
+      if (bodyValues.length)
+        components.push({ type: "body", parameters: formatBodyParams(bodyValues) });
+      if (buttons.length)
+        components.push({
+          type: "button",
+          sub_type: "quick_reply",
+          index: "0",
+          parameters: buttons,
+        });
+
       const templateData = {
         messaging_product: "whatsapp",
         recipient_type: "individual",
@@ -123,34 +191,9 @@ export const sendTemplate = async (req, res) => {
         template: {
           name: element_name,
           language: { code: languageCode },
-          components: [],
+          components,
         },
       };
-
-      if (parameters.length > 0) {
-        templateData.template.components.push({
-          type: "body",
-          parameters: parameters.map((param) => ({
-            type: "text",
-            text: param,
-          })),
-        });
-      }
-
-      // 🆕 Add image header if provided
-      if (req.body.imageUrl) {
-        templateData.template.components.push({
-          type: "header",
-          parameters: [
-            {
-              type: "image",
-              image: {
-                link: req.body.imageUrl,
-              },
-            },
-          ],
-        });
-      }
 
       const templateResponse = await axios.post(
         `https://partner.gupshup.io/partner/app/${gupshup_id}/v3/message`,
@@ -164,7 +207,8 @@ export const sendTemplate = async (req, res) => {
         }
       );
 
-      const templateMessageId = templateResponse.data.messages?.[0]?.id || null;
+      const templateMessageId =
+        templateResponse.data.messages?.[0]?.id || null;
 
       await pool.execute(
         `INSERT INTO messages 
@@ -187,7 +231,6 @@ export const sendTemplate = async (req, res) => {
         response: templateResponse.data,
       });
     }
-console.log(JSON.stringify(responses, null, 2));
 
     return res.status(200).json({
       success: true,

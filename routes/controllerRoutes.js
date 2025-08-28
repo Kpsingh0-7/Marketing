@@ -1,7 +1,5 @@
 import { Router } from "express";
 import multer from "multer";
-import axios from "axios";
-import qs from "qs";
 
 import { authenticateToken } from "../middleware/authenticateToken.js";
 import { createWebhookHandler } from "../webhooks/webhook.js";
@@ -20,7 +18,8 @@ import { sendBroadcast } from "../controllers/broadcast/sendBroadcast.js";
 import { getBroadcastCustomers } from "../controllers/broadcast/getBroadcastCustomers.js";
 import { getBroadcasts } from "../controllers/broadcast/getBroadcasts.js";
 import { getTemplateAnalytics } from "../controllers/template/getTemplateAnalytics.js";
-import { loginUser, getMe, logoutUser } from "../controllers/login.js";
+import { loginUser, getMe, logoutUser } from "../controllers/user/login.js";
+import { register } from "../controllers/user/register.js";
 
 // Controllers that require io passed (factories)
 import { returnTemplates } from "../controllers/chat/returnTemplates.js";
@@ -53,7 +52,6 @@ import { deleteGroup } from "../controllers/group/deleteGroup.js";
 import { updateGroup } from "../controllers/group/updateGroup.js";
 import { returnAllCustomer } from "../controllers/admin/returnAllCustomer.js";
 import { sendFlowTemplates } from "../controllers/chat/sendFlowTemplate.js";
-import { webhook1 } from "../webhooks/webhook1.js";
 import { createGupshupApp } from "../controllers/createGupshupApp.js";
 import { sendtesttemplate } from "../controllers/template/sendTemplate.js";
 import { createMediaTemplate } from "../controllers/template/createMediaTemplate.js";
@@ -71,6 +69,7 @@ export default function createRouter(io) {
   router.post("/webhook", createWebhookHandler(io));
 
   // Protected Routes (Requires JWT)
+  router.post("/register", register);
   router.post("/login", loginUser);
   router.post("/create-payment", createRazorpayOrder);
   router.post("/verify-payment", verifyRazorpayPayment);
