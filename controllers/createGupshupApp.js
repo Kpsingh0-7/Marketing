@@ -106,7 +106,7 @@ export const createGupshupApp = async (req, res) => {
   const {
     customer_id,
     name,
-    user = "Foodchow Client",
+    user,
     lang = "English",
   } = req.body;
 

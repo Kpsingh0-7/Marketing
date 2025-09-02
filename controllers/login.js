@@ -107,7 +107,7 @@
 
 import jwt from "jsonwebtoken";
 import md5 from "md5";
-import { pool } from "../../config/db.js";
+import { pool } from "../config/db.js";
 
 const SECRET = "super_secret_key_12345";
 

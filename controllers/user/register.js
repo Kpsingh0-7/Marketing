@@ -52,7 +52,7 @@ export const register = async (req, res) => {
       mobile_no || null,
       profile_image || null,
       email_id,
-      password, // 🔑 plain text (no hashing)
+      password.toLowerCase(), // 🔑 plain text (no hashing)
       address || null,
       status,
     ]);

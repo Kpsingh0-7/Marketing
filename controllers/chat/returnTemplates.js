@@ -12,7 +12,7 @@ export const returnTemplates = async (req, res) => {
 
     // ✅ Directly query whatsapp_templates using customer_id
     const [templates] = await connection.query(
-      `SELECT id, created_on, element_name, template_type, category, status, data, container_meta
+      `SELECT id, created_on, element_name, language_code, template_type, category, status, data, container_meta
        FROM whatsapp_templates
        WHERE customer_id = ?`,
       [customer_id]

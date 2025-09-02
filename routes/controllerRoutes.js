@@ -18,7 +18,7 @@ import { sendBroadcast } from "../controllers/broadcast/sendBroadcast.js";
 import { getBroadcastCustomers } from "../controllers/broadcast/getBroadcastCustomers.js";
 import { getBroadcasts } from "../controllers/broadcast/getBroadcasts.js";
 import { getTemplateAnalytics } from "../controllers/template/getTemplateAnalytics.js";
-import { loginUser, getMe, logoutUser } from "../controllers/user/login.js";
+import { loginUser, getMe, logoutUser } from "../controllers/login.js";
 import { register } from "../controllers/user/register.js";
 
 // Controllers that require io passed (factories)

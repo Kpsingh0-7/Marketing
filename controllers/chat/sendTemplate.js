@@ -58,7 +58,7 @@ export const sendTemplate = async (req, res) => {
     phoneNumber,
     message,                // free-form text
     element_name,           // template name
-    languageCode = "en",
+    language_code,
     headerType,
     headerValue,
     headerIsId = false,
@@ -190,11 +190,11 @@ export const sendTemplate = async (req, res) => {
         type: "template",
         template: {
           name: element_name,
-          language: { code: languageCode },
+          language: { code: language_code },
           components,
         },
       };
-
+console.log(templateData);
       const templateResponse = await axios.post(
         `https://partner.gupshup.io/partner/app/${gupshup_id}/v3/message`,
         templateData,

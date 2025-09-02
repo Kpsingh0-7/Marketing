@@ -219,3 +219,149 @@ export const getBroadcastCustomers = async (req, res) => {
     });
   }
 };
+
+
+// 🔁 Scheduled Broadcast Sender (File-based groups)
+const sendBroadcastById = async (broadcast_id) => {
+  try {
+    // 1️⃣ Get broadcast details
+    const [rows] = await pool.execute(
+      `SELECT * FROM broadcasts WHERE broadcast_id = ?`,
+      [broadcast_id]
+    );
+    if (!rows.length) return;
+    const broadcast = rows[0];
+
+    // 2️⃣ Get group file path
+    const [groupRows] = await pool.execute(
+      `SELECT group_name, file_path FROM contact_group WHERE group_id = ? AND customer_id = ?`,
+      [broadcast.group_id, broadcast.customer_id]
+    );
+    if (!groupRows.length) return;
+
+    const { group_name, file_path } = groupRows[0];
+
+    // 3️⃣ Extract phone numbers from file
+    const extension = path.extname(file_path).toLowerCase();
+    let phoneNumbers = [];
+
+    if (extension === ".csv" || extension === ".tsv") {
+      const content = fs.readFileSync(file_path, "utf-8");
+      const delimiter = content.includes("\t") ? "\t" : ",";
+      const records = parse(content, { delimiter, skip_empty_lines: true });
+
+      const headers = records[0].map((h) => h.toLowerCase());
+      const countryIndex = headers.findIndex((h) => h.includes("country"));
+      const phoneIndex = headers.findIndex((h) => h.includes("phone"));
+
+      if (countryIndex !== -1 && phoneIndex !== -1) {
+        phoneNumbers = records
+          .slice(1)
+          .map((row) => {
+            const country = row[countryIndex]?.trim();
+            const phone = row[phoneIndex]?.trim();
+            return country && phone ? `${country}${phone}` : null;
+          })
+          .filter(Boolean);
+      }
+    } else if (extension === ".docx") {
+      const { value } = await mammoth.extractRawText({ path: file_path });
+      const lines = value.split("\n").slice(1);
+      phoneNumbers = lines
+        .map((line) => line.split(","))
+        .map((fields) => `${fields[0]?.trim() || ""}${fields[1]?.trim() || ""}`)
+        .filter((num) => num.length > 6);
+    }
+
+    phoneNumbers = phoneNumbers.filter((n) => n.length > 6);
+    if (!phoneNumbers.length) return;
+
+    // 4️⃣ Fake request/response to trigger sendBroadcast
+    const fakeRequest = {
+      body: {
+        phoneNumbers,
+        element_name: broadcast.selected_template,
+        customer_id: broadcast.customer_id,
+      },
+    };
+
+    const fakeResponse = {
+      status: (code) => ({
+        json: async (data) => {
+          try {
+            console.log(`Scheduled Response (${code}):`, JSON.stringify(data, null, 2));
+
+            // ✅ Log successful messages
+            const successResults = data.results.filter((r) => r.success);
+            const successCount = successResults.length;
+
+            const messageValues = successResults
+              .filter((r) => r.response?.messages?.[0]?.id)
+              .map((r) => [
+                broadcast_id,
+                r.response.messages[0].id,
+                r.response.contacts?.[0]?.wa_id || r.phoneNumber,
+                "sent",
+                Math.floor(Date.now() / 1000),
+                null,
+              ]);
+
+            if (messageValues.length > 0) {
+              const placeholders = messageValues.map(() => "(?,?,?,?,?,?)").join(",");
+              const flatValues = messageValues.flat();
+
+              await pool.query(
+                `INSERT INTO broadcast_messages 
+                 (broadcast_id, message_id, recipient_id, status, timestamp, error_message)
+                 VALUES ${placeholders}`,
+                flatValues
+              );
+            }
+
+            await pool.execute(
+              `UPDATE broadcasts SET status = ?, sent = ? WHERE broadcast_id = ?`,
+              ["Sent", successCount, broadcast_id]
+            );
+          } catch (err) {
+            console.error("❌ Error in scheduled fakeResponse.json():", err);
+          }
+        },
+      }),
+    };
+
+    await sendBroadcast(fakeRequest, fakeResponse);
+  } catch (error) {
+    console.error("❌ sendBroadcastById (file-based) error:", error);
+  }
+};
+
+// 🔁 Background Scheduler (runs every 60 seconds)
+setInterval(async () => {
+  try {
+    const [scheduledBroadcasts] = await pool.execute(`
+      SELECT * FROM broadcasts
+      WHERE schedule = 'Yes'
+        AND status = 'Scheduled'
+        AND schedule_date <= NOW()
+    `);
+
+    for (const broadcast of scheduledBroadcasts) {
+      try {
+        await pool.execute(`UPDATE broadcasts SET status = 'Running' WHERE broadcast_id = ?`, [
+          broadcast.broadcast_id,
+        ]);
+
+        await sendBroadcastById(broadcast.broadcast_id);
+
+        // ✅ Status update happens inside sendBroadcastById’s fakeResponse.json()
+      } catch (err) {
+        console.error("🔁 Scheduled broadcast failed:", err);
+        await pool.execute(`UPDATE broadcasts SET status = 'Failed' WHERE broadcast_id = ?`, [
+          broadcast.broadcast_id,
+        ]);
+      }
+    }
+  } catch (error) {
+    console.error("❌ Scheduler interval error:", error);
+  }
+}, 60 * 1000);

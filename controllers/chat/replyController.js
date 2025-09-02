@@ -14,12 +14,12 @@ export async function handleReply(message) {
     //   element_name = "google_review";
     //   parameters = ["25"];
     //   break;
-    case ["hii", "hi", "hiii", "hello", "helo", "helloo"].some((word) =>
-      messageText.includes(word)
-    ):
-      element_name = "start";
-      parameters = ["Sir/Ma'am", "FOODCHOW"];
-      break;
+    // case ["hii", "hi", "hiii", "hello", "helo", "helloo"].some((word) =>
+    //   messageText.includes(word)
+    // ):
+    //   element_name = "start";
+    //   parameters = ["Sir/Ma'am", "FOODCHOW"];
+    //   break;
     // case messageText.includes("help"):
     //   element_name = "customer_support";
     //   break;
