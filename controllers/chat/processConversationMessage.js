@@ -3,7 +3,7 @@ import { sendTemplate } from "./sendTemplate.js";
 
 export const processConversationMessage = async (req, res) => {
   const { conversation_id, element_name, parameters = [], message, headerValue, headerType, language_code  } = req.body;
-
+console.log(language_code);
   if (!conversation_id || (!element_name && !message)) {
     return res.status(400).json({
       error: "conversation_id and either element_name or message are required.",

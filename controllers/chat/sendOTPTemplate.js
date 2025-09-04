@@ -116,7 +116,7 @@ export const sendOTPTemplate = async (req, res) => {
         ],
       });
     }
-
+console.log(JSON.stringify(templateData,null, 2));
     const templateResponse = await axios.post(
       `https://partner.gupshup.io/partner/app/${gupshup_id}/v3/message`,
       templateData,

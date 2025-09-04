@@ -56,14 +56,14 @@ function headerBuilder(type, value, isId = false) {
 export const sendTemplate = async (req, res) => {
   const {
     phoneNumber,
-    message,                // free-form text
-    element_name,           // template name
+    message, // free-form text
+    element_name, // template name
     language_code,
     headerType,
     headerValue,
     headerIsId = false,
     parameters = [],
-    buttons = [],
+    buttons = ["123456"],
     customer_id,
     contact_id,
   } = req.body;
@@ -147,8 +147,7 @@ export const sendTemplate = async (req, res) => {
         }
       );
 
-      const freeFormMessageId =
-        freeFormResponse.data.messages?.[0]?.id || null;
+      const freeFormMessageId = freeFormResponse.data.messages?.[0]?.id || null;
 
       await pool.execute(
         `INSERT INTO messages 
@@ -174,14 +173,22 @@ export const sendTemplate = async (req, res) => {
       const header = headerBuilder(headerType, headerValue, headerIsId);
       if (header) components.push({ type: "header", parameters: [header] });
       if (bodyValues.length)
-        components.push({ type: "body", parameters: formatBodyParams(bodyValues) });
-      if (buttons.length)
+        components.push({
+          type: "body",
+          parameters: formatBodyParams(bodyValues),
+        });
+      // ✅ Handle OTP/dynamic URL button
+      if (buttons.length) {
         components.push({
           type: "button",
-          sub_type: "quick_reply",
+          sub_type: "url",
           index: "0",
-          parameters: buttons,
+          parameters: buttons.map((b) => ({
+            type: "text",
+            text: b.text || b, // Support simple string or object
+          })),
         });
+      }
 
       const templateData = {
         messaging_product: "whatsapp",
@@ -194,7 +201,7 @@ export const sendTemplate = async (req, res) => {
           components,
         },
       };
-console.log(templateData);
+console.log(JSON.stringify(templateData,null, 2));
       const templateResponse = await axios.post(
         `https://partner.gupshup.io/partner/app/${gupshup_id}/v3/message`,
         templateData,
@@ -207,8 +214,7 @@ console.log(templateData);
         }
       );
 
-      const templateMessageId =
-        templateResponse.data.messages?.[0]?.id || null;
+      const templateMessageId = templateResponse.data.messages?.[0]?.id || null;
 
       await pool.execute(
         `INSERT INTO messages 

@@ -56,6 +56,7 @@ import { createGupshupApp } from "../controllers/createGupshupApp.js";
 import { sendtesttemplate } from "../controllers/template/sendTemplate.js";
 import { createMediaTemplate } from "../controllers/template/createMediaTemplate.js";
 import { uploadMedia } from "../controllers/template/uploadMedia.js";
+import { sendMedia } from "../controllers/chat/sendMedia.js"
 
 
 
@@ -90,6 +91,7 @@ export default function createRouter(io) {
   router.post("/send-template", sendtesttemplate);
   router.post("/createMediaTemplate", createMediaTemplate);
   router.post("/uploadMedia", upload.single("file"), uploadMedia);
+  router.post("/sendMedia", upload.single("file"), sendMedia);
 
   router.post("/logout", logoutUser);
 

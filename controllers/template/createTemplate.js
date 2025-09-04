@@ -75,13 +75,7 @@ export const createTemplate = async (req, res) => {
       encodedParams.set("example", example || "111 is your verification code.");
 
       // Set default button: COPY_CODE
-      const otpButtons = [
-        {
-          type: "OTP",
-          otp_type: "COPY_CODE",
-          text: "Copy OTP",
-        },
-      ];
+      const otpButtons = [{ "type":"OTP","otp_type": "COPY_CODE", "text": "Copy Code"}];
       encodedParams.set("buttons", JSON.stringify(otpButtons));
     } else {
       // For MARKETING, UTILITY, etc.
