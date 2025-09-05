@@ -21,7 +21,7 @@ export const returnAllMessage = async (req, res) => {
     const [messages] = await connection.query(
       `SELECT 
         message_id,
-        conversation_id,
+        contact_id,
         sender_type,
         sender_id,
         message_type,

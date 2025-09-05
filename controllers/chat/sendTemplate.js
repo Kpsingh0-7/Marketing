@@ -63,12 +63,14 @@ export const sendTemplate = async (req, res) => {
     headerValue,
     headerIsId = false,
     parameters = [],
-    buttons = ["123456"],
+    buttons = [],
     customer_id,
     contact_id,
+    media_url,
   } = req.body;
 
   const bodyValues = parameters;
+
   try {
     if (!phoneNumber || !customer_id || !contact_id) {
       return res.status(400).json({
@@ -98,29 +100,6 @@ export const sendTemplate = async (req, res) => {
     }
     const { gupshup_id, token } = configRows[0];
 
-    // ✅ Ensure conversation exists
-    const [existing] = await pool.execute(
-      `SELECT conversation_id FROM conversations WHERE customer_id = ? AND contact_id = ?`,
-      [customer_id, contact_id]
-    );
-
-    let conversation_id;
-    if (existing.length > 0) {
-      conversation_id = existing[0].conversation_id;
-      await pool.query(
-        `UPDATE conversations 
-         SET updated_at = CURRENT_TIMESTAMP, is_active = 1 
-         WHERE conversation_id = ?`,
-        [conversation_id]
-      );
-    } else {
-      const [insertResult] = await pool.execute(
-        `INSERT INTO conversations (customer_id, contact_id) VALUES (?, ?)`,
-        [customer_id, contact_id]
-      );
-      conversation_id = insertResult.insertId;
-    }
-
     let responses = [];
 
     /**
@@ -149,11 +128,12 @@ export const sendTemplate = async (req, res) => {
 
       const freeFormMessageId = freeFormResponse.data.messages?.[0]?.id || null;
 
+      // ✅ Save only in messages (no conversation)
       await pool.execute(
         `INSERT INTO messages 
-          (conversation_id, sender_type, sender_id, message_type, content, status, external_message_id, sent_at) 
-         VALUES (?, 'shop', ?, 'text', ?, 'sent', ?, NOW())`,
-        [conversation_id, customer_id, message, freeFormMessageId]
+          (sender_type, message_type, content, status, external_message_id, media_url, sent_at, contact_id, customer_id) 
+         VALUES ('shop', 'text', ?, 'sent', ?, ?, NOW(), ?, ?)`,
+        [message, freeFormMessageId, media_url, contact_id, customer_id]
       );
 
       await updateCreditUsage(customer_id, "sent");
@@ -177,7 +157,6 @@ export const sendTemplate = async (req, res) => {
           type: "body",
           parameters: formatBodyParams(bodyValues),
         });
-      // ✅ Handle OTP/dynamic URL button
       if (buttons.length) {
         components.push({
           type: "button",
@@ -185,7 +164,7 @@ export const sendTemplate = async (req, res) => {
           index: "0",
           parameters: buttons.map((b) => ({
             type: "text",
-            text: b.text || b, // Support simple string or object
+            text: b.text || b,
           })),
         });
       }
@@ -201,7 +180,9 @@ export const sendTemplate = async (req, res) => {
           components,
         },
       };
-console.log(JSON.stringify(templateData,null, 2));
+
+      console.log(JSON.stringify(templateData, null, 2));
+
       const templateResponse = await axios.post(
         `https://partner.gupshup.io/partner/app/${gupshup_id}/v3/message`,
         templateData,
@@ -216,16 +197,17 @@ console.log(JSON.stringify(templateData,null, 2));
 
       const templateMessageId = templateResponse.data.messages?.[0]?.id || null;
 
+      // ✅ Save only in messages (no conversation)
       await pool.execute(
         `INSERT INTO messages 
-          (conversation_id, sender_type, sender_id, message_type, element_name, template_data, status, external_message_id, sent_at) 
-         VALUES (?, 'shop', ?, 'template', ?, ?, 'sent', ?, NOW())`,
+          (sender_type, message_type, element_name, template_data, status, external_message_id, sent_at, contact_id, customer_id) 
+         VALUES ('shop', 'template', ?, ?, 'sent', ?, NOW(), ?, ?)`,
         [
-          conversation_id,
-          customer_id,
           element_name,
           JSON.stringify(templateData),
           templateMessageId,
+          contact_id,
+          customer_id,
         ]
       );
 

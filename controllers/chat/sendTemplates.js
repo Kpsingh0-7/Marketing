@@ -69,30 +69,7 @@ export const sendTemplates = async (req, res) => {
       contact_id = insertResult.insertId;
     }
 
-    // 6. Get or insert conversation
-    const [existingConversation] = await pool.execute(
-      `SELECT conversation_id FROM conversations WHERE customer_id = ? AND contact_id = ?`,
-      [customer_id, contact_id]
-    );
-
-    let conversation_id;
-    if (existingConversation.length > 0) {
-      conversation_id = existingConversation[0].conversation_id;
-
-      // ✅ Now safe to update conversation
-      await pool.query(
-        `UPDATE conversations SET updated_at = CURRENT_TIMESTAMP, is_active = 1 WHERE conversation_id = ?`,
-        [conversation_id]
-      );
-    } else {
-      const [insertConversation] = await pool.execute(
-        `INSERT INTO conversations (customer_id, contact_id, is_active) VALUES (?, ?, 1)`,
-        [customer_id, contact_id]
-      );
-      conversation_id = insertConversation.insertId;
-    }
-
-    // Build template data
+    // 6. Build template data
     const templateData = {
       messaging_product: "whatsapp",
       recipient_type: "individual",
@@ -114,9 +91,9 @@ export const sendTemplates = async (req, res) => {
         })),
       });
     }
-console.log(JSON.stringify(templateData, null, 2));
+    console.log(JSON.stringify(templateData, null, 2));
 
-    // Send message using dynamic gupshup_id & token
+    // 7. Send message using dynamic gupshup_id & token
     const templateResponse = await axios.post(
       `https://partner.gupshup.io/partner/app/${gupshup_id}/v3/message`,
       templateData,
@@ -131,20 +108,21 @@ console.log(JSON.stringify(templateData, null, 2));
 
     const templateMessageId = templateResponse.data.messages?.[0]?.id || null;
 
-    // Log the sent message
+    // 8. Log the sent message (with your required column order)
     await pool.execute(
       `INSERT INTO messages 
-        (conversation_id, sender_type, sender_id, message_type, element_name, template_data, status, external_message_id, sent_at) 
-       VALUES (?, 'shop', ?, 'template', ?, ?, 'sent', ?, NOW())`,
+        (sender_type, message_type, element_name, template_data, status, external_message_id, sent_at, contact_id, customer_id) 
+       VALUES ('shop', 'template', ?, ?, 'sent', ?, NOW(), ?, ?)`,
       [
-        conversation_id,
-        customer_id,
         element_name,
         JSON.stringify(templateData),
         templateMessageId,
+        contact_id,
+        customer_id,
       ]
     );
 
+    // 9. Update credit usage
     await updateCreditUsage(customer_id, "sent");
 
     return res.status(200).json({
@@ -164,4 +142,3 @@ console.log(JSON.stringify(templateData, null, 2));
     });
   }
 };
-

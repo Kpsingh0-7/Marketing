@@ -26,14 +26,12 @@ import { returnTemplates } from "../controllers/chat/returnTemplates.js";
 import { returnMessages } from "../controllers/chat/returnMessages.js";
 import { returnGroups } from "../controllers/group/returnGroups.js";
 import { returnContacts } from "../controllers/contact/returnContacts.js";
-import { returnConversationId } from "../controllers/chat/returnConversationId.js";
 import { returnConversations } from "../controllers/chat/returnConversations.js";
 import { markMessagesAsRead } from "../controllers/chat/markMessagesAsRead.js";
 import { returnCustomerCreditUsage } from "../controllers/credit/returnCustomerCreditUsage.js";
 
 // Controllers you renamed with _ prefix (if needed)
 import { addSingleContact } from "../controllers/contact/addSingleContact.js";
-import { processConversationMessage } from "../controllers/chat/processConversationMessage.js";
 import { updateContact } from "../controllers/contact/updateContact.js";
 import { deleteContact } from "../controllers/contact/deleteContact.js";
 import { deleteConversations } from "../controllers/chat/deleteConversations.js";
@@ -74,12 +72,11 @@ export default function createRouter(io) {
   router.post("/login", loginUser);
   router.post("/create-payment", createRazorpayOrder);
   router.post("/verify-payment", verifyRazorpayPayment);
-  router.post("/send", sendTemplate);
+  router.post("/sendmessage", sendTemplate);
   router.post("/sendTemplates", sendTemplates);
   router.post("/sendOTPTemplate", sendOTPTemplate);
   router.post("/subscription", setupSubscription);
   router.post("/createtemplate", createTemplate);
-  router.post("/sendmessage", processConversationMessage);
   router.post("/addcustomer", addSingleContact);
   router.post("/addcustomers", upload.single("file"), addGroup);
   router.post("/sendBroadcast", sendBroadcast);
@@ -112,7 +109,6 @@ export default function createRouter(io) {
   router.get("/templates", authenticateToken, returnTemplates);
   router.get("/conversations", authenticateToken, returnConversations);
   router.get("/messages", returnMessages);
-  router.get("/conversationid", authenticateToken, returnConversationId);
   router.get("/returnGroups", authenticateToken, returnGroups);
   router.get("/getBroadcasts", authenticateToken, getBroadcasts);
   router.get("/getTemplateAnalytics", getTemplateAnalytics);

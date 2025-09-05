@@ -1,15 +1,15 @@
 import { pool } from "../../config/db.js";
 
 export const deleteConversations = async (req, res) => {
-  const { conversation_ids, customer_id } = req.body;
+  const { contact_ids, customer_id } = req.body;
 
-  console.log("Received conversation_ids:", conversation_ids);
+  console.log("Received contact_ids:", contact_ids);
   console.log("Received customer_id:", customer_id);
 
-  if (!Array.isArray(conversation_ids) || conversation_ids.length === 0 || !customer_id) {
+  if (!Array.isArray(contact_ids) || contact_ids.length === 0 || !customer_id) {
     return res.status(400).json({
       success: false,
-      message: "Missing or invalid fields: conversation_ids (array) and customer_id are required",
+      message: "Missing or invalid fields: contact_ids (array) and customer_id are required",
     });
   }
 
@@ -17,10 +17,10 @@ export const deleteConversations = async (req, res) => {
   try {
     await connection.beginTransaction();
 
-    for (const conversation_id of conversation_ids) {
+    for (const contact_id of contact_ids) {
       await connection.execute(
-        `DELETE FROM conversations WHERE conversation_id = ? AND customer_id = ?`,
-        [conversation_id, customer_id]
+        `DELETE FROM conversations WHERE contact_id = ? AND customer_id = ?`,
+        [contact_id, customer_id]
       );
     }
 

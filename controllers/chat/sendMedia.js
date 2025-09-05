@@ -48,9 +48,7 @@ export const sendMedia = async (req, res) => {
       }
     );
 
-    // ✅ Cleanup local file after upload
-    fs.unlinkSync(req.file.path);
-
+    
     // ✅ Use mediaId instead of handleId
     const mediaId = response.data?.mediaId;
     if (!mediaId) {

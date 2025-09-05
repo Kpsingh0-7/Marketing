@@ -161,41 +161,27 @@ CREATE TABLE `gupshup_configuration` (
     FOREIGN KEY (`customer_id`) REFERENCES `customer`(`customer_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- CONVERSATIONS
-CREATE TABLE `conversations` (
-    `conversation_id` BIGINT NOT NULL AUTO_INCREMENT,
-    `customer_id` BIGINT NOT NULL,
-    `contact_id` BIGINT NOT NULL,
-    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `last_message_time` TIMESTAMP NULL DEFAULT NULL,
-    `is_active` TINYINT(1) NOT NULL DEFAULT 1,
-    PRIMARY KEY (`conversation_id`),
-    UNIQUE KEY `shop_guest_unique` (`customer_id`, `contact_id`),
-    FOREIGN KEY (`customer_id`) REFERENCES `customer`(`customer_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (`contact_id`) REFERENCES `contact`(`contact_id`) ON DELETE CASCADE ON UPDATE CASCADE
+CREATE TABLE messages (
+    message_id BIGINT NOT NULL AUTO_INCREMENT,
+    customer_id BIGINT NOT NULL,
+    contact_id BIGINT NOT NULL,
+    sender_type ENUM('shop', 'guest', 'system') NOT NULL,
+    message_type ENUM('text', 'image', 'template', 'location', 'document', 'audio', 'video', 'button') NOT NULL DEFAULT 'text',
+    content TEXT,
+    element_name VARCHAR(100),
+    template_data JSON DEFAULT NULL,
+    media_url VARCHAR(255) DEFAULT NULL,
+    sent_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    delivered_at TIMESTAMP NULL DEFAULT NULL,
+    read_at TIMESTAMP NULL DEFAULT NULL,
+    received_at TIMESTAMP NULL DEFAULT NULL,
+    status ENUM('sent', 'delivered', 'read', 'failed', 'received') NOT NULL DEFAULT 'sent',
+    external_message_id VARCHAR(100) DEFAULT NULL,
+    PRIMARY KEY (message_id),
+    FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- MESSAGES
-CREATE TABLE `messages` (
-    `message_id` BIGINT NOT NULL AUTO_INCREMENT,
-    `conversation_id` BIGINT,
-    `sender_type` ENUM('shop', 'guest', 'system') NOT NULL,
-    `sender_id` BIGINT NOT NULL,
-    `message_type` ENUM('text', 'image', 'template', 'location', 'document', 'audio', 'video', 'button') NOT NULL DEFAULT 'text',
-    `content` TEXT,
-    `element_name` VARCHAR(100),
-    `template_data` JSON DEFAULT NULL,
-    `media_url` VARCHAR(255) DEFAULT NULL,
-    `sent_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `delivered_at` TIMESTAMP NULL DEFAULT NULL,
-    `read_at` TIMESTAMP NULL DEFAULT NULL,
-    `received_at` TIMESTAMP NULL DEFAULT NULL,
-    `status` ENUM('sent', 'delivered', 'read', 'failed', 'received') NOT NULL DEFAULT 'sent',
-    `external_message_id` VARCHAR(100) DEFAULT NULL,
-    PRIMARY KEY (`message_id`),
-    FOREIGN KEY (`conversation_id`) REFERENCES `conversations`(`conversation_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 CREATE TABLE `payments` (

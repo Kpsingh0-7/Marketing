@@ -57,9 +57,9 @@
 // io.on("connection", (socket) => {
 //   console.log("Socket connected:", socket.id);
 
-//   socket.on("join_conversation", (conversation_id) => {
-//     socket.join(conversation_id);
-//     console.log(`Socket ${socket.id} joined conversation: ${conversation_id}`);
+//   socket.on("join_conversation", (contact_id) => {
+//     socket.join(contact_id);
+//     console.log(`Socket ${socket.id} joined conversation: ${contact_id}`);
 //   });
 
 //   socket.on("join_customer_room", (customer_id) => {
@@ -162,9 +162,9 @@ io.use((socket, next) => {
 io.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);
 
-  socket.on("join_conversation", (conversation_id) => {
-    socket.join(conversation_id);
-    console.log(`Socket ${socket.id} joined conversation: ${conversation_id}`);
+  socket.on("join_conversation", (contact_id) => {
+    socket.join(contact_id);
+    console.log(`Socket ${socket.id} joined conversation: ${contact_id}`);
   });
 
   // ✅ Join a customer-wide room for global notifications

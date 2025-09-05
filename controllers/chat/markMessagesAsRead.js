@@ -2,26 +2,26 @@
 import { pool } from "../../config/db.js";
 
 export const markMessagesAsRead = async (req, res) => {
-  const { conversation_id } = req.body;
+  const { contact_id } = req.body;
 
-  if (!conversation_id) {
-    return res.status(400).json({ error: "conversation_id is required" });
+  if (!contact_id) {
+    return res.status(400).json({ error: "contact_id is required" });
   }
 
   try {
     const [result] = await pool.execute(
   `UPDATE messages
    SET read_at = CURRENT_TIMESTAMP
-   WHERE conversation_id = ? AND status = 'received'`,
-  [conversation_id]
+   WHERE contact_id = ? AND status = 'received'`,
+  [contact_id]
 );
 
     // Optionally emit a socket event here if needed
-    // req.app.get("io").to(conversation_id.toString()).emit("message_read", { conversation_id });
+    // req.app.get("io").to(contact_id.toString()).emit("message_read", { contact_id });
 
     return res.json({
       success: true,
-      conversation_id,
+      contact_id,
       updated_rows: result.affectedRows,
     });
   } catch (error) {

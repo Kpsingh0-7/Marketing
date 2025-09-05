@@ -1,46 +1,67 @@
-import { pool } from '../../config/db.js';
+import { pool } from "../../config/db.js";
 
 export const returnConversations = async (req, res) => {
-  const { customer_id } = req.query;
+  const { customer_id, limit = 10, cursor } = req.query;
 
   if (!customer_id) {
-    return res
-      .status(400)
-      .json({ error: "Missing required parameter: customer_id" });
+    return res.status(400).json({ error: "Missing required parameter: customer_id" });
   }
 
-  try {
-    const [rows] = await pool.execute(
-      `
-      SELECT 
-        c.contact_id, 
-        c.conversation_id, 
-        wp.country_code,
-        c.updated_at,
-        wp.first_name,
-        wp.last_name,
-        wp.profile_image,
-        wp.mobile_no,
-        COALESCE(unread.unread_count, 0) AS unread_count
-      FROM conversations c
-      JOIN contact wp 
-        ON c.contact_id = wp.contact_id
-      LEFT JOIN (
-        SELECT conversation_id, COUNT(*) AS unread_count
-        FROM messages
-        WHERE received_at IS NOT NULL AND read_at IS NULL
-        GROUP BY conversation_id
-      ) unread
-        ON c.conversation_id = unread.conversation_id
-      WHERE c.customer_id = ?
-      ORDER BY c.updated_at DESC
-      `,
-      [customer_id]
-    );
+  const lim = Number(limit) || 10;
 
-    res.json(rows);
-  } catch (error) {
-    console.error("Error fetching conversations:", error);
+  try {
+    let sql = `
+      SELECT 
+        ct.contact_id,
+        ct.updated_at,
+        ct.first_name,
+        ct.last_name,
+        ct.country_code,
+        ct.mobile_no,
+        ct.profile_image,
+        COALESCE(m.content, m.element_name) AS last_message,
+        m.message_type AS last_message_type,
+        m.sent_at AS last_message_time
+      FROM contact ct
+      INNER JOIN (
+        SELECT m1.*
+        FROM messages m1
+        INNER JOIN (
+          SELECT contact_id, MAX(sent_at) AS max_sent
+          FROM messages
+          WHERE customer_id = ?
+          GROUP BY contact_id
+        ) latest 
+          ON latest.contact_id = m1.contact_id 
+         AND latest.max_sent = m1.sent_at
+      ) m ON ct.contact_id = m.contact_id
+      WHERE ct.customer_id = ?
+    `;
+
+    const params = [customer_id, customer_id];
+
+    // 👉 If cursor exists, only fetch OLDER conversations
+    if (cursor) {
+      sql += ` AND m.sent_at < ?`;
+      params.push(cursor);
+    }
+
+    sql += ` ORDER BY m.sent_at DESC LIMIT ${lim}`;
+
+    console.log("Executing with:", params, "limit:", lim);
+
+    const [rows] = await pool.execute(sql, params);
+
+    // 👉 next cursor = last row’s message_time
+    const nextCursor = rows.length > 0 ? rows[rows.length - 1].last_message_time : null;
+
+    res.json({
+      data: rows,
+      nextCursor,
+      hasMore: !!nextCursor
+    });
+  } catch (err) {
+    console.error("Error fetching conversations:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

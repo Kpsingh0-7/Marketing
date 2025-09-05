@@ -15,6 +15,7 @@ export const sendOTPTemplate = async (req, res) => {
   } = req.body;
 
   try {
+    // 1. Basic validation
     if (!phoneNumber || !name || !shop_id || !element_name) {
       return res.status(400).json({
         success: false,
@@ -25,11 +26,13 @@ export const sendOTPTemplate = async (req, res) => {
     const customer_id = shop_id;
     const first_name = name;
 
+    // 2. Check credit
     const creditCheck = await checkCustomerCredit(customer_id);
     if (!creditCheck.success) {
       return res.status(400).json({ success: false, error: creditCheck.message });
     }
 
+    // 3. Fetch Gupshup credentials
     const [configRows] = await pool.query(
       `SELECT gupshup_id, token FROM gupshup_configuration WHERE customer_id = ?`,
       [customer_id]
@@ -43,10 +46,12 @@ export const sendOTPTemplate = async (req, res) => {
 
     const { gupshup_id, token } = configRows[0];
 
+    // 4. Normalize phone
     const normalizedPhone = phoneNumber.replace(/\D/g, "");
     const mobileNo = normalizedPhone.slice(-10);
     const userCountryCode = normalizedPhone.slice(0, -10);
 
+    // 5. Get or insert contact
     const [existingCustomer] = await pool.execute(
       `SELECT contact_id FROM contact WHERE mobile_no = ? AND customer_id = ?`,
       [mobileNo, customer_id]
@@ -63,26 +68,7 @@ export const sendOTPTemplate = async (req, res) => {
       contact_id = insertResult.insertId;
     }
 
-    const [existingConversation] = await pool.execute(
-      `SELECT conversation_id FROM conversations WHERE customer_id = ? AND contact_id = ?`,
-      [customer_id, contact_id]
-    );
-
-    let conversation_id;
-    if (existingConversation.length > 0) {
-      conversation_id = existingConversation[0].conversation_id;
-      await pool.query(
-        `UPDATE conversations SET updated_at = CURRENT_TIMESTAMP, is_active = 1 WHERE conversation_id = ?`,
-        [conversation_id]
-      );
-    } else {
-      const [insertConversation] = await pool.execute(
-        `INSERT INTO conversations (customer_id, contact_id, is_active) VALUES (?, ?, 1)`,
-        [customer_id, contact_id]
-      );
-      conversation_id = insertConversation.insertId;
-    }
-
+    // 6. Build template data
     const templateData = {
       messaging_product: "whatsapp",
       recipient_type: "individual",
@@ -116,7 +102,10 @@ export const sendOTPTemplate = async (req, res) => {
         ],
       });
     }
-console.log(JSON.stringify(templateData,null, 2));
+
+    console.log(JSON.stringify(templateData, null, 2));
+
+    // 7. Send message
     const templateResponse = await axios.post(
       `https://partner.gupshup.io/partner/app/${gupshup_id}/v3/message`,
       templateData,
@@ -131,30 +120,31 @@ console.log(JSON.stringify(templateData,null, 2));
 
     const templateMessageId = templateResponse.data.messages?.[0]?.id || null;
 
+    // 8. Log message ( with new structure)
     await pool.execute(
       `INSERT INTO messages 
-        (conversation_id, sender_type, sender_id, message_type, element_name, template_data, status, external_message_id, sent_at) 
-       VALUES (?, 'shop', ?, 'template', ?, ?, 'sent', ?, NOW())`,
+        (sender_type, message_type, element_name, template_data, status, external_message_id, sent_at, contact_id, customer_id) 
+       VALUES ('shop', 'template', ?, ?, 'sent', ?, NOW(), ?, ?)`,
       [
-        conversation_id,
-        customer_id,
         element_name,
         JSON.stringify(templateData),
         templateMessageId,
+        contact_id,
+        customer_id,
       ]
     );
 
+    // 9. Update credit usage
     await updateCreditUsage(customer_id, "sent");
 
     return res.status(200).json({
       success: true,
       messageId: templateMessageId,
-      conversation_id,
       response: templateResponse.data,
     });
   } catch (error) {
     console.error(
-      "Error sending WhatsApp template message:",
+      "Error sending WhatsApp OTP template message:",
       error.response?.data || error.message
     );
     return res.status(error.response?.status || 500).json({
