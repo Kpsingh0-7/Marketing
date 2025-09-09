@@ -1,7 +1,7 @@
 import { pool } from "../../config/db.js";
 
 export const returnContacts = async (req, res) => {
-  const { customer_id, page = 1, limit = 10 } = req.query;
+  const { customer_id, page = 1, limit = 10, search = "" } = req.query;
 
   if (!customer_id) {
     return res
@@ -15,7 +15,15 @@ export const returnContacts = async (req, res) => {
   const offset = (pageNum - 1) * limitNum;
 
   try {
-    // ✅ Use string interpolation for LIMIT/OFFSET
+    let whereClause = `WHERE customer_id = ?`;
+    let params = [customer_id];
+
+    if (search) {
+      whereClause += ` AND (first_name LIKE ? OR last_name LIKE ? OR mobile_no LIKE ?)`;
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    }
+
+    // ✅ Main query with search + pagination
     const [rows] = await pool.query(
       `
         SELECT 
@@ -25,22 +33,21 @@ export const returnContacts = async (req, res) => {
           mobile_no,
           contact_id,
           country_code,
-          is_active
+          is_active,
         FROM 
           contact
-        WHERE 
-          customer_id = ?
+        ${whereClause}
         ORDER BY 
           created_at DESC
         LIMIT ${limitNum} OFFSET ${offset}
       `,
-      [customer_id]
+      params
     );
 
-    // ✅ Fetch total count
-    const [[{ total }]] = await pool.execute(
-      `SELECT COUNT(*) AS total FROM contact WHERE customer_id = ?`,
-      [customer_id]
+    // ✅ Total count (for pagination)
+    const [[{ total }]] = await pool.query(
+      `SELECT COUNT(*) AS total FROM contact ${whereClause}`,
+      params
     );
 
     res.json({

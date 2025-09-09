@@ -40,22 +40,22 @@ export function authenticateToken(req, res, next) {
 // });
 
 
-// const runTask = async () => {
-//   try {
-//     const [result] = await pool.execute(`
-//       UPDATE conversations
-//       SET is_active = 0
-//       WHERE is_active = 1
-//         AND updated_at <= NOW() - INTERVAL 23 HOUR
-//     `);
-//     console.log(`Deactivated ${result.affectedRows} conversations`);
-//   } catch (err) {
-//     console.error("Interval job error:", err);
-//   }
-// };
+const runTask = async () => {
+  try {
+    const [result] = await pool.execute(`
+      UPDATE contact
+      SET is_active = 0
+      WHERE is_active = 1
+        AND updated_at <= NOW() - INTERVAL 23 HOUR
+    `);
+    console.log(`Deactivated ${result.affectedRows} conversations`);
+  } catch (err) {
+    console.error("Interval job error:", err);
+  }
+};
 
-// // Run once per hour (60 * 60 * 1000)
-// setInterval(runTask, 3600000);
+// Run once per hour (60 * 60 * 1000)
+setInterval(runTask, 3600000);
 
-// // Run immediately on startup
-// runTask();
+// Run immediately on startup
+runTask();

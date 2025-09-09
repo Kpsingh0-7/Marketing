@@ -19,6 +19,7 @@ export const returnConversations = async (req, res) => {
         ct.country_code,
         ct.mobile_no,
         ct.profile_image,
+        ct.unread_count,
         COALESCE(m.content, m.element_name) AS last_message,
         m.message_type AS last_message_type,
         m.sent_at AS last_message_time

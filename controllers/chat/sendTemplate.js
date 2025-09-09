@@ -66,10 +66,11 @@ export const sendTemplate = async (req, res) => {
     buttons = [],
     customer_id,
     contact_id,
-    media_url,
+    media_url = null,
   } = req.body;
 
   const bodyValues = parameters;
+  console.log(req.body);
 
   try {
     if (!phoneNumber || !customer_id || !contact_id) {
@@ -113,7 +114,7 @@ export const sendTemplate = async (req, res) => {
         type: "text",
         text: { body: message },
       };
-
+console.log(freeFormData);
       const freeFormResponse = await axios.post(
         `https://partner.gupshup.io/partner/app/${gupshup_id}/v3/message`,
         freeFormData,
@@ -128,12 +129,12 @@ export const sendTemplate = async (req, res) => {
 
       const freeFormMessageId = freeFormResponse.data.messages?.[0]?.id || null;
 
-      // ✅ Save only in messages (no conversation)
+      // ✅ Save only in messages
       await pool.execute(
         `INSERT INTO messages 
-          (sender_type, message_type, content, status, external_message_id, media_url, sent_at, contact_id, customer_id) 
-         VALUES ('shop', 'text', ?, 'sent', ?, ?, NOW(), ?, ?)`,
-        [message, freeFormMessageId, media_url, contact_id, customer_id]
+          (sender_type, message_type, content, status, external_message_id, sent_at, contact_id, customer_id) 
+         VALUES ('shop', 'text', ?, 'sent', ?, NOW(), ?, ?)`,
+        [message, freeFormMessageId, contact_id, customer_id]
       );
 
       await updateCreditUsage(customer_id, "sent");
@@ -197,14 +198,15 @@ export const sendTemplate = async (req, res) => {
 
       const templateMessageId = templateResponse.data.messages?.[0]?.id || null;
 
-      // ✅ Save only in messages (no conversation)
+      // ✅ Save only in messages 
       await pool.execute(
         `INSERT INTO messages 
-          (sender_type, message_type, element_name, template_data, status, external_message_id, sent_at, contact_id, customer_id) 
-         VALUES ('shop', 'template', ?, ?, 'sent', ?, NOW(), ?, ?)`,
+          (sender_type, message_type, element_name, template_data, media_url, status, external_message_id, sent_at, contact_id, customer_id) 
+         VALUES ('shop', 'template', ?, ?, ?, 'sent', ?, NOW(), ?, ?)`,
         [
           element_name,
           JSON.stringify(templateData),
+          media_url,
           templateMessageId,
           contact_id,
           customer_id,

@@ -104,6 +104,7 @@ import cookieParser from "cookie-parser";
 import cookie from "cookie";
 import jwt from "jsonwebtoken";
 import { Server as SocketIO } from "socket.io";
+import path from "path";
 
 import createRouter from "./routes/controllerRoutes.js";
 
@@ -141,6 +142,10 @@ app.use((err, req, res, next) => {
 });
 
 const SECRET = "super_secret_key_12345";
+
+
+// Serve "uploads" folder statically
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 io.use((socket, next) => {
   try {

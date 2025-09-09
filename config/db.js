@@ -24,7 +24,10 @@ export const pool = mysql.createPool({
   port: '3306',
   password: 'z*4QO2HFfEsR4YM%',
   database: 'testmarketing',
-  timezone: 'Z' // "Z" means UTC
+  timezone: 'Z', // "Z" means UTC
+  waitForConnections: true,
+  connectionLimit: 10,   // adjust based on load
+  queueLimit: 0
 });
 
 // Force UTC for MySQL session too

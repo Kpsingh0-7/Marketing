@@ -9,15 +9,28 @@ export const markMessagesAsRead = async (req, res) => {
   }
 
   try {
+    // 1. Update messages from 'received' → 'read'
     const [result] = await pool.execute(
-  `UPDATE messages
-   SET read_at = CURRENT_TIMESTAMP
-   WHERE contact_id = ? AND status = 'received'`,
-  [contact_id]
-);
+      `UPDATE messages
+       SET status = 'read', read_at = CURRENT_TIMESTAMP
+       WHERE contact_id = ? AND status = 'received'`,
+      [contact_id]
+    );
 
-    // Optionally emit a socket event here if needed
-    // req.app.get("io").to(contact_id.toString()).emit("message_read", { contact_id });
+    // 2. Reset unread counter in contact
+    await pool.execute(
+      `UPDATE contact
+       SET unread_count = 0
+       WHERE contact_id = ?`,
+      [contact_id]
+    );
+
+    // // 3. Emit socket event so UI updates instantly
+    // const io = req.app.get("io");
+    // io.to(String(contact_id)).emit("unreadUpdate", {
+    //   contact_id,
+    //   unread_count: 0,
+    // });
 
     return res.json({
       success: true,
@@ -25,7 +38,7 @@ export const markMessagesAsRead = async (req, res) => {
       updated_rows: result.affectedRows,
     });
   } catch (error) {
-    console.error("Error marking messages as read:", error);
+    console.error("❌ Error marking messages as read:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };

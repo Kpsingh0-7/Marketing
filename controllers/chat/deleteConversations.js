@@ -19,7 +19,7 @@ export const deleteConversations = async (req, res) => {
 
     for (const contact_id of contact_ids) {
       await connection.execute(
-        `DELETE FROM conversations WHERE contact_id = ? AND customer_id = ?`,
+        `DELETE FROM messages WHERE contact_id = ? AND customer_id = ?`,
         [contact_id, customer_id]
       );
     }

@@ -114,7 +114,6 @@ async function handleStatusUpdates(statuses = []) {
   }
 }
 
-
 async function handleIncomingMessage(value, gsAppId, io) {
   const msg = value?.messages?.[0];
   if (!msg) return;
@@ -149,7 +148,7 @@ async function handleIncomingMessage(value, gsAppId, io) {
   } else {
     contact_id = guestRows[0].contact_id;
     await pool.query(
-      `UPDATE contact SET updated_at = CURRENT_TIMESTAMP, is_active = 1 WHERE contact_id = ?`,
+      `UPDATE contact SET unread_count = COALESCE(unread_count, 0) + 1, updated_at = CURRENT_TIMESTAMP, is_active = 1 WHERE contact_id = ?`,
       [contact_id]
     );
   }
@@ -229,10 +228,15 @@ async function handleIncomingMessage(value, gsAppId, io) {
     );
 
     await updateCreditUsage(customer_id, "received");
-
+    // Emit unread count update to UI
+    const [[{ unread_count }]] = await pool.query(
+      `SELECT unread_count FROM contact WHERE contact_id = ? AND customer_id = ?`,
+      [contact_id, customer_id]
+    );
     const newMessage = {
       contact_id,
       customer_id,
+      unread_count,
       sender_type: "guest",
       message_type: msg.type,
       content: messageText,
@@ -284,7 +288,9 @@ async function handleTemplateStatusUpdate(value, gsAppId) {
       [newStatus, gs_template_id, gsAppId]
     );
     if (result.affectedRows > 0) {
-      console.log(`✅ Template ${gs_template_id} updated to status "${newStatus}"`);
+      console.log(
+        `✅ Template ${gs_template_id} updated to status "${newStatus}"`
+      );
     }
   } catch (err) {
     console.error("❌ Error updating template status:", err);
