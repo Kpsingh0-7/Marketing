@@ -84,7 +84,7 @@ export const getBroadcastCustomers = async (req, res) => {
 
     try {
       if (extension === ".csv" || extension === ".tsv") {
-        const content = fs.readFileSync(file_path, "utf-8");
+        const content = await fs.promises.readFile(file_path, "utf-8");
         const delimiter = content.includes("\t") ? "\t" : ",";
 
         const records = parse(content, {
@@ -92,32 +92,44 @@ export const getBroadcastCustomers = async (req, res) => {
           skip_empty_lines: true,
         });
 
-        const headers = records[0].map((h) => h.toLowerCase());
-        const countryIndex = headers.findIndex((h) => h.includes("country"));
-        const phoneIndex = headers.findIndex((h) => h.includes("phone"));
+        const headers = records[0].map((h) => h.toLowerCase().trim());
+
+        // Look for both variations
+        const countryIndex = headers.findIndex(
+          (h) => h.includes("country") || h.includes("countrycode")
+        );
+        const phoneIndex = headers.findIndex(
+          (h) => h.includes("phone") || h.includes("mobile")
+        );
 
         if (countryIndex === -1 || phoneIndex === -1) {
           return res.status(400).json({
             success: false,
             message:
-              "CSV/TSV file must contain 'CountryCode' and 'Phone' columns.",
+              "CSV/TSV must contain 'CountryCode' (or countrycode) and 'Mobile' (or phone).",
+            foundHeaders: headers,
           });
         }
 
         phoneNumbers = records
           .slice(1)
           .map((row) => {
-            const country = row[countryIndex]?.trim();
+            const country = row[countryIndex]?.trim().replace("+", "");
             const phone = row[phoneIndex]?.trim();
             return country && phone ? `${country}${phone}` : null;
           })
           .filter(Boolean);
+
+        // ✅ Deduplicate numbers
+        phoneNumbers = [...new Set(phoneNumbers)];
       } else if (extension === ".docx") {
         const { value } = await mammoth.extractRawText({ path: file_path });
         const lines = value.split("\n").slice(1); // skip header
         phoneNumbers = lines
           .map((line) => line.split(","))
-          .map((fields) => `${fields[0]?.trim() || ""}${fields[1]?.trim() || ""}`)
+          .map(
+            (fields) => `${fields[0]?.trim() || ""}${fields[1]?.trim() || ""}`
+          )
           .filter((num) => num.length > 6);
       }
     } catch (fileError) {
@@ -147,59 +159,59 @@ export const getBroadcastCustomers = async (req, res) => {
         customer_id,
       },
     };
-        console.log(fakeRequest);
-
+    console.log(fakeRequest);
 
     // ✅ Trigger the broadcast but don't wait for DB update
     await sendBroadcast(fakeRequest, {
-  status: (code) => ({
-    json: async (data) => {
-      try {
-        console.log("🚀 sendBroadcast response json() triggered!");
-        console.log(`Response (${code}):`, JSON.stringify(data, null, 2));
+      status: (code) => ({
+        json: async (data) => {
+          try {
+            console.log("🚀 sendBroadcast response json() triggered!");
+            console.log(`Response (${code}):`, JSON.stringify(data, null, 2));
 
-        const successResults = data.results.filter((r) => r.success);
-        const successCount = successResults.length;
+            const successResults = data.results.filter((r) => r.success);
+            const successCount = successResults.length;
 
-        const messageValues = successResults
-          .filter((r) => r.response?.messages?.[0]?.id)
-          .map((r) => [
-            broadcast_id,
-            r.response.messages[0].id,
-            r.response.contacts?.[0]?.wa_id || r.phoneNumber,
-            "sent",
-            Math.floor(Date.now() / 1000),
-            null,
-          ]);
+            const messageValues = successResults
+              .filter((r) => r.response?.messages?.[0]?.id)
+              .map((r) => [
+                broadcast_id,
+                r.response.messages[0].id,
+                r.response.contacts?.[0]?.wa_id || r.phoneNumber,
+                "sent",
+                Math.floor(Date.now() / 1000),
+                null,
+              ]);
 
-        console.log("📥 messageValues:", messageValues);
+            console.log("📥 messageValues:", messageValues);
 
-        if (messageValues.length > 0) {
-          // ✅ Fix for MySQL2 bulk insert syntax
-          const placeholders = messageValues.map(() => "(?,?,?,?,?,?)").join(",");
-          const flatValues = messageValues.flat();
-          
-          await pool.query(
-            `INSERT INTO broadcast_messages 
+            if (messageValues.length > 0) {
+              // ✅ Fix for MySQL2 bulk insert syntax
+              const placeholders = messageValues
+                .map(() => "(?,?,?,?,?,?)")
+                .join(",");
+              const flatValues = messageValues.flat();
+
+              await pool.query(
+                `INSERT INTO broadcast_messages 
              (broadcast_id, message_id, recipient_id, status, timestamp, error_message)
              VALUES ${placeholders}`,
-            flatValues
-          );
-          console.log("✅ Message logs inserted into broadcast_messages");
-        }
+                flatValues
+              );
+              console.log("✅ Message logs inserted into broadcast_messages");
+            }
 
-        await pool.execute(
-          `UPDATE broadcasts SET status = ?, sent = ? WHERE broadcast_id = ?`,
-          ["Sent", successCount, broadcast_id]
-        );
-        console.log("✅ Broadcast status updated in DB");
-      } catch (err) {
-        console.error("❌ Error in fakeResponse.json():", err);
-      }
-    },
-  }),
-});
-
+            await pool.execute(
+              `UPDATE broadcasts SET status = ?, sent = ? WHERE broadcast_id = ?`,
+              ["Sent", successCount, broadcast_id]
+            );
+            console.log("✅ Broadcast status updated in DB");
+          } catch (err) {
+            console.error("❌ Error in fakeResponse.json():", err);
+          }
+        },
+      }),
+    });
 
     // ✅ Send response immediately
     return res.status(200).json({
@@ -219,7 +231,6 @@ export const getBroadcastCustomers = async (req, res) => {
     });
   }
 };
-
 
 // 🔁 Scheduled Broadcast Sender (File-based groups)
 const sendBroadcastById = async (broadcast_id) => {
@@ -246,24 +257,44 @@ const sendBroadcastById = async (broadcast_id) => {
     let phoneNumbers = [];
 
     if (extension === ".csv" || extension === ".tsv") {
-      const content = fs.readFileSync(file_path, "utf-8");
+      const content = await fs.promises.readFile(file_path, "utf-8");
       const delimiter = content.includes("\t") ? "\t" : ",";
-      const records = parse(content, { delimiter, skip_empty_lines: true });
 
-      const headers = records[0].map((h) => h.toLowerCase());
-      const countryIndex = headers.findIndex((h) => h.includes("country"));
-      const phoneIndex = headers.findIndex((h) => h.includes("phone"));
+      const records = parse(content, {
+        delimiter,
+        skip_empty_lines: true,
+      });
 
-      if (countryIndex !== -1 && phoneIndex !== -1) {
-        phoneNumbers = records
-          .slice(1)
-          .map((row) => {
-            const country = row[countryIndex]?.trim();
-            const phone = row[phoneIndex]?.trim();
-            return country && phone ? `${country}${phone}` : null;
-          })
-          .filter(Boolean);
+      const headers = records[0].map((h) => h.toLowerCase().trim());
+
+      // Look for both variations
+      const countryIndex = headers.findIndex(
+        (h) => h.includes("country") || h.includes("countrycode")
+      );
+      const phoneIndex = headers.findIndex(
+        (h) => h.includes("phone") || h.includes("mobile")
+      );
+
+      if (countryIndex === -1 || phoneIndex === -1) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "CSV/TSV must contain 'CountryCode' (or countrycode) and 'Mobile' (or phone).",
+          foundHeaders: headers,
+        });
       }
+
+      phoneNumbers = records
+        .slice(1)
+        .map((row) => {
+          const country = row[countryIndex]?.trim().replace("+", "");
+          const phone = row[phoneIndex]?.trim();
+          return country && phone ? `${country}${phone}` : null;
+        })
+        .filter(Boolean);
+
+      // ✅ Deduplicate numbers
+      phoneNumbers = [...new Set(phoneNumbers)];
     } else if (extension === ".docx") {
       const { value } = await mammoth.extractRawText({ path: file_path });
       const lines = value.split("\n").slice(1);
@@ -289,7 +320,10 @@ const sendBroadcastById = async (broadcast_id) => {
       status: (code) => ({
         json: async (data) => {
           try {
-            console.log(`Scheduled Response (${code}):`, JSON.stringify(data, null, 2));
+            console.log(
+              `Scheduled Response (${code}):`,
+              JSON.stringify(data, null, 2)
+            );
 
             // ✅ Log successful messages
             const successResults = data.results.filter((r) => r.success);
@@ -307,7 +341,9 @@ const sendBroadcastById = async (broadcast_id) => {
               ]);
 
             if (messageValues.length > 0) {
-              const placeholders = messageValues.map(() => "(?,?,?,?,?,?)").join(",");
+              const placeholders = messageValues
+                .map(() => "(?,?,?,?,?,?)")
+                .join(",");
               const flatValues = messageValues.flat();
 
               await pool.query(
@@ -347,18 +383,20 @@ setInterval(async () => {
 
     for (const broadcast of scheduledBroadcasts) {
       try {
-        await pool.execute(`UPDATE broadcasts SET status = 'Running' WHERE broadcast_id = ?`, [
-          broadcast.broadcast_id,
-        ]);
+        await pool.execute(
+          `UPDATE broadcasts SET status = 'Running' WHERE broadcast_id = ?`,
+          [broadcast.broadcast_id]
+        );
 
         await sendBroadcastById(broadcast.broadcast_id);
 
         // ✅ Status update happens inside sendBroadcastById’s fakeResponse.json()
       } catch (err) {
         console.error("🔁 Scheduled broadcast failed:", err);
-        await pool.execute(`UPDATE broadcasts SET status = 'Failed' WHERE broadcast_id = ?`, [
-          broadcast.broadcast_id,
-        ]);
+        await pool.execute(
+          `UPDATE broadcasts SET status = 'Failed' WHERE broadcast_id = ?`,
+          [broadcast.broadcast_id]
+        );
       }
     }
   } catch (error) {

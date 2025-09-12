@@ -19,26 +19,7 @@ export function authenticateToken(req, res, next) {
 }
 
 
-
-// import cron from "node-cron";
- import { pool } from "../config/db.js"; 
-
-// // Run every minute
-// cron.schedule("0 * * * *", async () => {
-//   try {
-//     const [result] = await pool.execute(`
-//       UPDATE conversations
-//       SET is_active = 0
-//       WHERE is_active = 1
-//         AND updated_at <= NOW() - INTERVAL 23 HOUR
-//     `);
-
-//     console.log(`Deactivated ${result.affectedRows} conversations`);
-//   } catch (err) {
-//     console.error("Cron job error:", err);
-//   }
-// });
-
+import { pool } from "../config/db.js"; 
 
 const runTask = async () => {
   try {
