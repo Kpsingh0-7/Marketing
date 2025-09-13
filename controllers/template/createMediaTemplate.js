@@ -16,6 +16,7 @@ export const createMediaTemplate = async (req, res) => {
     enableSample = true,
     allowTemplateCategoryChange = true,
     customer_id,
+    media_url = null,
   } = req.body;
 
   // ✅ Validate required fields
@@ -83,8 +84,8 @@ export const createMediaTemplate = async (req, res) => {
       `INSERT INTO whatsapp_templates (
         id, customer_id, app_id, waba_id,
         element_name, category, language_code, template_type,
-        status, data, container_meta, created_on, modified_on
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        status, data, container_meta, created_on, modified_on, media_url
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         template.id,
         customer_id,
@@ -99,6 +100,7 @@ export const createMediaTemplate = async (req, res) => {
         template.containerMeta,
         template.createdOn,
         template.modifiedOn,
+        media_url,
       ]
     );
 

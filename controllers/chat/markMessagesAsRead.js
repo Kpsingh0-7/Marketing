@@ -12,7 +12,7 @@ export const markMessagesAsRead = async (req, res) => {
     // 1. Update messages from 'received' → 'read'
     const [result] = await pool.execute(
       `UPDATE messages
-       SET status = 'read', read_at = CURRENT_TIMESTAMP
+       SET read_at = CURRENT_TIMESTAMP
        WHERE contact_id = ? AND status = 'received'`,
       [contact_id]
     );
