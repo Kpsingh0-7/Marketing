@@ -49,7 +49,8 @@ export const returnTemplates = async (req, res) => {
         category,
         status,
         data,
-        container_meta
+        container_meta,
+        media_url
       FROM whatsapp_templates
       ${whereClause}
       ORDER BY created_on DESC
