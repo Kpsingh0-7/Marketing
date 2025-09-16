@@ -1,7 +1,11 @@
 import fs from "fs";
 import FormData from "form-data";
 import axios from "axios";
-import { pool } from "../../config/db.js"; // adjust path as needed
+import { pool } from "../../config/db.js";
+import path from "path";
+
+const uploadDir = path.join(process.cwd(), "uploads", "media");
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 export const sendMedia = async (req, res) => {
   const { customer_id, fileType } = req.body;
@@ -14,14 +18,23 @@ export const sendMedia = async (req, res) => {
   }
 
   try {
-    // ✅ Fetch Gupshup credentials from DB
+    // Generate safe filename
+    const ext = path.extname(req.file.originalname);
+    const safeName = req.file.originalname.replace(/\s+/g, "_");
+    const fileName = `${customer_id}_${Date.now()}_${safeName}`;
+    const newPath = path.join(uploadDir, fileName);
+
+    // Move uploaded file
+    fs.renameSync(req.file.path, newPath);
+
+    // Fetch Gupshup credentials
     const [configRows] = await pool.query(
       "SELECT gupshup_id AS appId, token FROM gupshup_configuration WHERE customer_id = ? LIMIT 1",
       [customer_id]
     );
 
     if (configRows.length === 0) {
-      fs.unlinkSync(req.file.path); // cleanup
+      if (fs.existsSync(newPath)) fs.unlinkSync(newPath);
       return res.status(404).json({
         success: false,
         message: "Gupshup configuration not found for this customer",
@@ -30,28 +43,27 @@ export const sendMedia = async (req, res) => {
 
     const { appId, token } = configRows[0];
 
-    // ✅ Prepare form data
+    // Prepare form data
     const form = new FormData();
     form.append("file_type", fileType || req.file.mimetype);
-    form.append("file", fs.createReadStream(req.file.path), req.file.originalname);
+    form.append("file", fs.createReadStream(newPath), req.file.originalname);
 
-    // ✅ Upload to Gupshup
+    // Upload to Gupshup
     const response = await axios.post(
       `https://partner.gupshup.io/partner/app/${appId}/media`,
       form,
       {
         headers: {
-          token, // Gupshup expects "token"
+          token,
           accept: "application/json",
           ...form.getHeaders(),
         },
       }
     );
 
-    
-    // ✅ Use mediaId instead of handleId
     const mediaId = response.data?.mediaId;
     if (!mediaId) {
+      if (fs.existsSync(newPath)) fs.unlinkSync(newPath);
       return res.status(500).json({
         success: false,
         message: "Failed to get mediaId from Gupshup",
@@ -62,11 +74,10 @@ export const sendMedia = async (req, res) => {
     return res.status(200).json({
       success: true,
       mediaId,
+      fileName,
     });
   } catch (error) {
-    if (req.file?.path && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
+    if (fs.existsSync(req.file?.path)) fs.unlinkSync(req.file.path);
     console.error("❌ Error uploading media:", error.response?.data || error.message);
     return res.status(error.response?.status || 500).json({
       success: false,

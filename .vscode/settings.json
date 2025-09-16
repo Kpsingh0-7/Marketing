@@ -1,6 +1,9 @@
 {
     "cSpell.words": [
         "conversationid",
+        "deletecontact",
+        "deleteconversations",
+        "deletetemplate",
         "getsubusers",
         "gettemplates"
     ]
