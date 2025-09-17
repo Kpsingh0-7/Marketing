@@ -198,7 +198,6 @@ console.log(freeFormData);
 
       const templateMessageId = templateResponse.data.messages?.[0]?.id || null;
 
-      // ✅ Save only in messages 
       await pool.execute(
         `INSERT INTO messages 
           (sender_type, message_type, element_name, template_data, media_url, status, external_message_id, sent_at, contact_id, customer_id) 

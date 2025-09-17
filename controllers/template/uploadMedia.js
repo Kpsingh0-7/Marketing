@@ -63,7 +63,7 @@ export const uploadMedia = async (req, res) => {
         },
       }
     );
-console.log(fileType);
+    console.log(fileType);
     const handleId = response.data?.handleId?.message;
     if (!handleId) {
       return res.status(500).json({
@@ -75,14 +75,17 @@ console.log(fileType);
     return res.status(200).json({
       success: true,
       handleId,
-      filePath: newPath, // store final file path if you want to keep it
+      filePath: newPath, // store final file path
       fileName,
     });
   } catch (error) {
     if (fs.existsSync(req.file?.path)) {
       fs.unlinkSync(req.file.path);
     }
-    console.error("❌ Error uploading media:", error.response?.data || error.message);
+    console.error(
+      "❌ Error uploading media:",
+      error.response?.data || error.message
+    );
     return res.status(error.response?.status || 500).json({
       success: false,
       error: error.response?.data?.message || error.message,
