@@ -3,7 +3,8 @@ import jwt from 'jsonwebtoken';
 const SECRET = 'super_secret_key_12345';
 
 export function authenticateToken(req, res, next) {
-  const token = req.cookies?.auth_token;
+  const token = req.cookies?.auth_token ||
+    req.headers["authorization"]?.split(" ")[1]; // "Bearer <token>"
 
   if (!token) {
     return res.status(401).json({ message: 'Access denied. Token missing.' });
