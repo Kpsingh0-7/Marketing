@@ -30,6 +30,7 @@ export const pool = mysql.createPool({
   queueLimit: 0
 });
 
+
 // Force UTC for MySQL session too
 pool.on('connection', function (connection) {
   connection.query("SET time_zone = '+00:00'");

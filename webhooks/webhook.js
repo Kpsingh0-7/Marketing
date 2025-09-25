@@ -214,14 +214,15 @@ async function handleIncomingMessage(value, gsAppId, io) {
   if (existingMessage.length === 0) {
     await pool.query(
       `INSERT INTO messages (
-        contact_id, customer_id, sender_type, message_type, content, media_url, received_at, status, external_message_id
-      ) VALUES (?, ?, 'guest', ?, ?, ?, FROM_UNIXTIME(?), 'received', ?)`,
+        contact_id, customer_id, sender_type, message_type, content, media_url, sent_at, received_at, status, external_message_id
+      ) VALUES (?, ?, 'guest', ?, ?, ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?), 'received', ?)`,
       [
         contact_id,
         customer_id,
         msg.type,
         messageText,
         mediaUrl,
+        timestamp,
         timestamp,
         messageId,
       ]

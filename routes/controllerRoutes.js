@@ -32,6 +32,7 @@ import { returnCustomerCreditUsage } from "../controllers/credit/returnCustomerC
 
 // Controllers you renamed with _ prefix (if needed)
 import { addSingleContact } from "../controllers/contact/addSingleContact.js";
+import { addBulkContact } from "../controllers/contact/addBulkContact.js";
 import { updateContact } from "../controllers/contact/updateContact.js";
 import { deleteContact } from "../controllers/contact/deleteContact.js";
 import { deleteConversations } from "../controllers/chat/deleteConversations.js";
@@ -78,6 +79,7 @@ export default function createRouter(io) {
   router.post("/subscription", setupSubscription);
   router.post("/createtemplate", createTemplate);
   router.post("/addcustomer", addSingleContact);
+  router.post("/addBulkContact", upload.single("file"), addBulkContact);
   router.post("/addcustomers", upload.single("file"), addGroup);
   router.post("/sendBroadcast", sendBroadcast);
   router.post("/getBroadcastCustomers", getBroadcastCustomers);
