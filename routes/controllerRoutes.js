@@ -16,6 +16,7 @@ import { setupSubscription } from "../controllers/template/setSubscription.js";
 import { addGroup } from "../controllers/group/addGroup.js";
 import { sendBroadcast } from "../controllers/broadcast/sendBroadcast.js";
 import { getBroadcastCustomers } from "../controllers/broadcast/getBroadcastCustomers.js";
+import { getContactCustomers } from "../controllers/broadcast/getContactCustomers.js";
 import { getBroadcasts } from "../controllers/broadcast/getBroadcasts.js";
 import { getTemplateAnalytics } from "../controllers/template/getTemplateAnalytics.js";
 import { loginUser, getMe, logoutUser } from "../controllers/login.js";
@@ -55,10 +56,7 @@ import { createGupshupApp } from "../controllers/createGupshupApp.js";
 import { sendtesttemplate } from "../controllers/template/sendTemplate.js";
 import { createMediaTemplate } from "../controllers/template/createMediaTemplate.js";
 import { uploadMedia } from "../controllers/template/uploadMedia.js";
-import { sendMedia } from "../controllers/chat/sendMedia.js"
-
-
-
+import { sendMedia } from "../controllers/chat/sendMedia.js";
 
 const router = Router();
 const upload = multer({ dest: "uploads/" });
@@ -80,9 +78,10 @@ export default function createRouter(io) {
   router.post("/createtemplate", createTemplate);
   router.post("/addcustomer", addSingleContact);
   router.post("/addBulkContact", upload.single("file"), addBulkContact);
-  router.post("/addcustomers", upload.single("file"), addGroup);
+  router.post("/addcustomers", addGroup);
   router.post("/sendBroadcast", sendBroadcast);
   router.post("/getBroadcastCustomers", getBroadcastCustomers);
+  router.post("/getContactCustomers", getContactCustomers);
   router.post("/markMessagesAsRead", markMessagesAsRead);
   router.post("/createSubUser", createSubUser);
   router.post("/sendFlowTemplates", sendFlowTemplates);
