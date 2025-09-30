@@ -4,7 +4,9 @@ export const returnConversations = async (req, res) => {
   const { customer_id, limit = 10, cursor } = req.query;
 
   if (!customer_id) {
-    return res.status(400).json({ error: "Missing required parameter: customer_id" });
+    return res
+      .status(400)
+      .json({ error: "Missing required parameter: customer_id" });
   }
 
   const lim = Number(limit) || 10;
@@ -25,17 +27,19 @@ export const returnConversations = async (req, res) => {
         m.sent_at AS last_message_time
       FROM contact ct
       INNER JOIN (
-        SELECT m1.*
-        FROM messages m1
-        INNER JOIN (
-          SELECT contact_id, MAX(sent_at) AS max_sent
-          FROM messages
-          WHERE customer_id = ?
-          GROUP BY contact_id
-        ) latest 
-          ON latest.contact_id = m1.contact_id 
-         AND latest.max_sent = m1.sent_at
-      ) m ON ct.contact_id = m.contact_id
+  SELECT *
+  FROM (
+    SELECT m.*,
+           ROW_NUMBER() OVER (
+             PARTITION BY contact_id 
+             ORDER BY sent_at DESC, message_id DESC
+           ) AS rn
+    FROM messages m
+    WHERE m.customer_id = ?
+  ) ranked
+  WHERE rn = 1
+) m ON ct.contact_id = m.contact_id
+
       WHERE ct.customer_id = ?
     `;
 
@@ -54,12 +58,13 @@ export const returnConversations = async (req, res) => {
     const [rows] = await pool.execute(sql, params);
 
     // 👉 next cursor = last row’s message_time
-    const nextCursor = rows.length > 0 ? rows[rows.length - 1].last_message_time : null;
+    const nextCursor =
+      rows.length > 0 ? rows[rows.length - 1].last_message_time : null;
 
     res.json({
       data: rows,
       nextCursor,
-      hasMore: !!nextCursor
+      hasMore: !!nextCursor,
     });
   } catch (err) {
     console.error("Error fetching conversations:", err);

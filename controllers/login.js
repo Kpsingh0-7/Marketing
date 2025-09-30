@@ -108,6 +108,7 @@
 import jwt from "jsonwebtoken";
 import md5 from "md5";
 import { pool } from "../config/db.js";
+import axios from "axios";
 
 const SECRET = "super_secret_key_12345";
 
@@ -120,6 +121,99 @@ const cookieOptions = {
   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
 };
 
+const BASE_URL = "https://partner.gupshup.io/partner";
+export const getWabaInfoByCustomer = async (customer_id) => {
+  try {
+    // 1️⃣ Get gupshup_id and token from DB
+    const [rows] = await pool.query(
+      "SELECT gupshup_id, token FROM gupshup_configuration WHERE customer_id = ?",
+      [customer_id]
+    );
+
+    if (rows.length === 0) {
+      throw new Error("No Gupshup configuration found for this customer");
+    }
+
+    const { gupshup_id, token } = rows[0];
+
+    // 2️⃣ Call Gupshup API
+    const response = await axios.get(
+      `${BASE_URL}/app/${gupshup_id}/waba/info/`,
+      {
+        headers: {
+          accept: "application/json",
+          token,
+        },
+      }
+    );
+
+    const wabaInfo = response.data?.wabaInfo;
+    if (!wabaInfo) return response.data;
+
+    // 3️⃣ Insert or update wabainfo table
+    await pool.query(
+      `
+      INSERT INTO wabainfo (
+        customer_id,
+        accountStatus,
+        dockerStatus,
+        messagingLimit,
+        mmLiteStatus,
+        ownershipType,
+        phone,
+        phoneQuality,
+        throughput,
+        verifiedName,
+        wabaId,
+        canSendMessage,
+        timezone,
+        errors,
+        additionalInfo,
+        created_at,
+        updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+      ON DUPLICATE KEY UPDATE
+        accountStatus = VALUES(accountStatus),
+        dockerStatus = VALUES(dockerStatus),
+        messagingLimit = VALUES(messagingLimit),
+        mmLiteStatus = VALUES(mmLiteStatus),
+        ownershipType = VALUES(ownershipType),
+        phone = VALUES(phone),
+        phoneQuality = VALUES(phoneQuality),
+        throughput = VALUES(throughput),
+        verifiedName = VALUES(verifiedName),
+        canSendMessage = VALUES(canSendMessage),
+        timezone = VALUES(timezone),
+        errors = VALUES(errors),
+        additionalInfo = VALUES(additionalInfo),
+        updated_at = NOW()
+      `,
+      [
+        customer_id,
+        wabaInfo.accountStatus,
+        wabaInfo.dockerStatus,
+        wabaInfo.messagingLimit,
+        wabaInfo.mmLiteStatus,
+        wabaInfo.ownershipType,
+        wabaInfo.phone,
+        wabaInfo.phoneQuality,
+        wabaInfo.throughput,
+        wabaInfo.verifiedName,
+        wabaInfo.wabaId,
+        wabaInfo.canSendMessage,
+        wabaInfo.timezone,
+        JSON.stringify(wabaInfo.errors || []),
+        JSON.stringify(wabaInfo.additionalInfo || []),
+      ]
+    );
+
+    return response.data;
+  } catch (err) {
+    console.error("Error fetching WABA info:", err.message, err.response?.data);
+    throw err;
+  }
+};
+
 // LOGIN Route
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -129,7 +223,6 @@ export const loginUser = async (req, res) => {
   }
 
   try {
-
     // Hash entered password
     const hashedPassword = md5(password);
 
@@ -141,6 +234,27 @@ export const loginUser = async (req, res) => {
 
     if (mainRows.length > 0 && mainRows[0].password === hashedPassword) {
       const user = mainRows[0];
+      // ✅ Check status
+      if (user.status === "inactive") {
+        try {
+          const wabaInfo = await getWabaInfoByCustomer(user.customer_id);
+          console.log("WABA Info:", wabaInfo);
+
+          if (wabaInfo?.wabaInfo?.accountStatus === "ACTIVE") {
+            await pool.query(
+              `UPDATE customer SET status = 'active' WHERE customer_id = ?`,
+              [user.customer_id]
+            );
+            user.status = "active"; // update local object too
+          }
+        } catch (err) {
+          console.error(
+            "Failed to fetch WABA info for customer",
+            user.customer_id,
+            err.message
+          );
+        }
+      }
 
       const [accessRows] = await pool.query(
         `SELECT allowed_routes FROM customer_user_access 

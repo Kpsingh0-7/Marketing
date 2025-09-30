@@ -57,6 +57,7 @@ import { sendtesttemplate } from "../controllers/template/sendTemplate.js";
 import { createMediaTemplate } from "../controllers/template/createMediaTemplate.js";
 import { uploadMedia } from "../controllers/template/uploadMedia.js";
 import { sendMedia } from "../controllers/chat/sendMedia.js";
+import { getWabaInfo } from "../controllers/user/getWabaInfo.js"
 
 const router = Router();
 const upload = multer({ dest: "uploads/" });
@@ -115,6 +116,8 @@ export default function createRouter(io) {
   router.get("/getTemplateAnalytics", getTemplateAnalytics);
   router.get("/creditUsage", authenticateToken, returnCustomerCreditUsage);
   router.get("/getsubusers", getSubUser);
+  router.get("/getWabaInfo/:customer_id", getWabaInfo);
+
 
   router.get("/returnAllMessage", returnAllMessage);
   router.get("/returnAllCustomer", returnAllCustomer);

@@ -5,7 +5,6 @@ import { pool } from "../config/db.js";
 dotenv.config();
 
 const BASE_URL = "https://partner.gupshup.io/partner";
-const CALLBACK_URL = "https://marketing.foodchow.co.uk/webhook"; // static
 
 const loginToGupshup = async (email, password) => {
   const response = await axios.post(
@@ -41,7 +40,8 @@ const createGupshupAppByName = async (token, name) => {
     return { appId: response.data.appId };
   } catch (err) {
     if (err.response?.data?.message === "Bot Already Exists") {
-      const apps = await axios.get(`${BASE_URL}/app/list`, { // <-- FIXED HERE
+      const apps = await axios.get(`${BASE_URL}/app/list`, {
+        // <-- FIXED HERE
         headers: { accept: "application/json", token },
       });
       const existingApp = apps.data?.apps?.find((app) => app.name === name);
@@ -52,25 +52,22 @@ const createGupshupAppByName = async (token, name) => {
   }
 };
 
+const setGupshupCallback = async (token, appId) => {
+  const params = new URLSearchParams();
+  params.set("modes", "SENT, READ, DELIVERED, ALL, TEMPLATE");
+  params.set("tag", "FoodChowApp_v1"); // Optional tag, adjust if needed
+  params.set("url", CALLBACK_URL); // Use your callback URL
+  params.set("version", "1");
+  params.set("showOnUI", "false");
 
-// const setGupshupCallback = async (token, appId) => {
-//   await axios.put(
-//     `${BASE_URL}/app/${appId}/callback`,
-//     new URLSearchParams({
-//       url: CALLBACK_URL,
-//       directForwarding: 'true',
-//       notifyWithPhone: 'true',
-//       modes: 'SENT, READ, DELIVERED, ALL, TEMPLATE',
-//     }),
-//     {
-//       headers: {
-//         accept: 'application/json',
-//         'content-type': 'application/x-www-form-urlencoded',
-//         token,
-//       },
-//     }
-//   );
-// };
+  await axios.post(`${BASE_URL}/app/${appId}/subscription`, params, {
+    headers: {
+      accept: "application/json",
+      "content-type": "application/x-www-form-urlencoded",
+      Authorization: token, // or 'token' if Gupshup expects the token header as in your old code
+    },
+  });
+};
 
 const getAppToken = async (partnerToken, appId) => {
   const response = await axios.get(`${BASE_URL}/app/${appId}/token`, {
@@ -103,12 +100,7 @@ const generateOnboardingLink = async (
 };
 
 export const createGupshupApp = async (req, res) => {
-  const {
-    customer_id,
-    name,
-    user,
-    lang = "English",
-  } = req.body;
+  const { customer_id, name, user, lang = "English" } = req.body;
 
   if (!customer_id || !name) {
     return res.status(400).json({
@@ -152,6 +144,12 @@ export const createGupshupApp = async (req, res) => {
          VALUES (?, ?, ?)
          ON DUPLICATE KEY UPDATE gupshup_id = VALUES(gupshup_id), token = VALUES(token)`,
         [customer_id, gupshup_id, token]
+      );
+
+      // Step 5b: Set customer status to inactive
+      await pool.query(
+        `UPDATE customer SET status = 'inactive' WHERE customer_id = ?`,
+        [customer_id]
       );
 
       // Step 6: Set Callback

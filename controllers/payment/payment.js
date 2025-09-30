@@ -32,7 +32,7 @@ export const createRazorpayOrder = async (req, res) => {
         amount,
         order.currency,
         order.receipt,
-        order.status || 'created',
+        order.status || 'failed',
       ]
     );
 
@@ -73,7 +73,7 @@ export const verifyRazorpayPayment = async (req, res) => {
 
     const { amount, customer_id, status } = paymentResult[0];
 
-    if (status === 'paid') {
+    if (status === 'Success') {
       return res.status(200).json({ success: true, message: 'Payment already verified' });
     }
 

@@ -112,9 +112,9 @@ const app = express();
 
 // === CORS config ===
 const corsOptions = {
-  //origin: "http://localhost:5173", // Adjust in production
-  //origin: "https://kpw-iu7e.onrender.com",
-   origin: "https://marketing.foodchow.app",
+  // origin: "http://localhost:5173", // Adjust in production
+  origin: "https://kpw-iu7e.onrender.com",
+ //  origin: "https://marketing.foodchow.app",
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 };

@@ -15,7 +15,16 @@ export const sendTemplates = async (req, res) => {
 
   try {
     // 1. Basic validations
-    if (!phoneNumber || !name || !shop_id || !element_name) {
+    if (
+      !phoneNumber ||
+      !phoneNumber.trim() ||
+      !name ||
+      !name.trim() ||
+      !shop_id ||
+      !shop_id.toString().trim() ||
+      !element_name ||
+      !element_name.trim()
+    ) {
       return res.status(400).json({
         success: false,
         error: "phoneNumber, name, shop_id, and element_name are required",

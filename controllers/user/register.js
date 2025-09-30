@@ -10,7 +10,7 @@ export const register = async (req, res) => {
     email_id,
     password,
     address,
-    status = "inactive",
+    status = "suspended",
   } = req.body;
 
   try {
