@@ -243,6 +243,12 @@ export const getBroadcastCustomers = async (req, res) => {
     template_id,
     status,
     type,
+    parameters = [], // per-recipient body parameters
+    languageCode = "en",
+    headerType,
+    headerValue,
+    headerIsId = false,
+    buttons = [], // optional buttons
   } = req.body;
 
   console.log(req.body);
@@ -337,7 +343,7 @@ export const getBroadcastCustomers = async (req, res) => {
     }
 
     // 🚀 Immediate broadcast using contacts_json
-    const fakeRequest = { body: { phoneNumbers, element_name, customer_id } };
+    const fakeRequest = { body: { phoneNumbers, element_name, customer_id, parameters, languageCode, headerType, headerValue, headerIsId, buttons }};
 
     await sendBroadcast(fakeRequest, {
       status: (code) => ({

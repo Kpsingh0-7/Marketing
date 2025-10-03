@@ -114,7 +114,7 @@ export const sendTemplate = async (req, res) => {
         type: "text",
         text: { body: message },
       };
-console.log(freeFormData);
+      console.log(freeFormData);
       const freeFormResponse = await axios.post(
         `https://partner.gupshup.io/partner/app/${gupshup_id}/v3/message`,
         freeFormData,
