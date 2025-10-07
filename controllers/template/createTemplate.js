@@ -7,7 +7,8 @@ export const createTemplate = async (req, res) => {
   const {
     elementName,
     content,
-    category = "MARKETING", // Default to MARKETING if not provided
+    category = "MARKETING",
+    sub_category,
     templateType = "TEXT",
     languageCode = "en",
     header,
@@ -115,9 +116,9 @@ export const createTemplate = async (req, res) => {
     const insertQuery = `
       INSERT INTO whatsapp_templates (
         id, customer_id, app_id, waba_id,
-        element_name, category, language_code, template_type,
+        element_name, category, sub_category, language_code, template_type,
         status, data, container_meta, created_on, modified_on
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -127,6 +128,7 @@ export const createTemplate = async (req, res) => {
       template.wabaId,
       template.elementName,
       template.category,
+      sub_category,
       template.languageCode,
       template.templateType,
       template.status,

@@ -251,7 +251,7 @@ export const getBroadcastCustomers = async (req, res) => {
     buttons = [], // optional buttons
   } = req.body;
 
-  console.log(req.body);
+  console.log(req.body.element_name);
   if (!broadcastName || !group_id || !element_name) {
     return res.status(400).json({
       success: false,

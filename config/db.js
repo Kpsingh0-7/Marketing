@@ -19,15 +19,16 @@
 import mysql from "mysql2/promise";
 
 export const pool = mysql.createPool({ 
-  host: '195.201.175.72',
-  user: 'kpremote',
+  host: '192.168.1.85',
+  user: 'KPSINGH',
   port: '3306',
-  password: 'z*4QO2HFfEsR4YM%',
-  database: 'testmarketing',
+  password: 'Kpsingh@1234',
+  database: 'markcouk_marketing',
   timezone: 'Z', // "Z" means UTC
   waitForConnections: true,
   connectionLimit: 10,   // adjust based on load
-  queueLimit: 0
+  queueLimit: 0,
+   charset: 'utf8mb4_general_ci'
 });
 
 

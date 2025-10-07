@@ -8,6 +8,7 @@ export const createMediaTemplate = async (req, res) => {
     content,
     footer,
     category = "MARKETING",
+    sub_category,
     templateType = "TEXT",
     buttons = [],
     vertical = "Ticket update",
@@ -83,9 +84,9 @@ export const createMediaTemplate = async (req, res) => {
     await pool.execute(
       `INSERT INTO whatsapp_templates (
         id, customer_id, app_id, waba_id,
-        element_name, category, language_code, template_type,
+        element_name, category, sub_category, language_code, template_type,
         status, data, container_meta, created_on, modified_on, media_url
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         template.id,
         customer_id,
@@ -93,6 +94,7 @@ export const createMediaTemplate = async (req, res) => {
         template.wabaId,
         template.elementName,
         template.category,
+        sub_category,
         template.languageCode,
         template.templateType,
         template.status,
