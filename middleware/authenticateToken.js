@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const SECRET = 'super_secret_key_12345';
+const SECRET = 'super_secret_key_123451256';
 
 export function authenticateToken(req, res, next) {
   const token = req.cookies?.auth_token ||

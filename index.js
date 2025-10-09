@@ -142,7 +142,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal Server Error" });
 });
 
-const SECRET = "super_secret_key_12345";
+const SECRET = "super_secret_key_123451256";
 
 // Serve "uploads" folder statically
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
