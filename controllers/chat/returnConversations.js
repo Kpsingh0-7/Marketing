@@ -1,7 +1,7 @@
 import { pool } from "../../config/db.js";
 
 export const returnConversations = async (req, res) => {
-  const { customer_id, limit = 10, cursor } = req.query;
+  const { customer_id, limit = 10, cursor, search = "" } = req.query;
 
   if (!customer_id) {
     return res
@@ -44,6 +44,20 @@ export const returnConversations = async (req, res) => {
     `;
 
     const params = [customer_id, customer_id];
+
+    // �� Add search filter if provided
+    if (search && search.trim() !== "") {
+      sql += `
+        AND (
+          ct.first_name LIKE ? OR
+          ct.last_name LIKE ? OR
+          ct.mobile_no LIKE ? OR
+          CONCAT(ct.first_name, ' ', ct.last_name) LIKE ?
+        )
+      `;
+      const searchPattern = `%${search.trim()}%`;
+      params.push(searchPattern, searchPattern, searchPattern, searchPattern);
+    }
 
     // 👉 If cursor exists, only fetch OLDER conversations
     if (cursor) {

@@ -110,7 +110,7 @@ import md5 from "md5";
 import { pool } from "../config/db.js";
 import axios from "axios";
 
-const SECRET = "super_secret_key_12345";
+const SECRET = "super_secret_key_123451256";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -276,7 +276,6 @@ export const loginUser = async (req, res) => {
         SECRET,
         { expiresIn: "30d" }
       );
-
       res.cookie("auth_token", token, cookieOptions);
 
       return res.json({
@@ -286,9 +285,10 @@ export const loginUser = async (req, res) => {
           customer_id: user.customer_id,
           email: user.email,
           status: user.status,
-          name: [user.first_name, user.last_name].filter(Boolean).join(" "),
+          name: [user.first_name, user.last_name].filter(Boolean).join(""),
           role: "main",
           allowed_routes,
+          plan: "basic",
         },
       });
     }
