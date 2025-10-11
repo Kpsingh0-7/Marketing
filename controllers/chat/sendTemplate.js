@@ -63,13 +63,18 @@ export const sendTemplate = async (req, res) => {
     headerValue,
     headerIsId = false,
     parameters = [],
-    buttons = [],
+    category,
     customer_id,
     contact_id,
     media_url = null,
   } = req.body;
 
   const bodyValues = parameters;
+  let buttons = [];
+
+  if (category === "AUTHENTICATION") {
+    buttons = parameters;
+  }
   console.log(req.body);
 
   try {

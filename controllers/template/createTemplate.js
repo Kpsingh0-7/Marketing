@@ -8,7 +8,7 @@ export const createTemplate = async (req, res) => {
     elementName,
     content,
     category = "MARKETING",
-    sub_category,
+    sub_category = "TRANSACTIONAL",
     templateType = "TEXT",
     languageCode = "en",
     header,

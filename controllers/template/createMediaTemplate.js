@@ -8,7 +8,7 @@ export const createMediaTemplate = async (req, res) => {
     content,
     footer,
     category = "MARKETING",
-    sub_category,
+    sub_category = "TRANSACTIONAL",
     templateType = "TEXT",
     buttons = [],
     vertical = "Ticket update",
