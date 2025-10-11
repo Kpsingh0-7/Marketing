@@ -57,7 +57,11 @@ import { sendtesttemplate } from "../controllers/template/sendTemplate.js";
 import { createMediaTemplate } from "../controllers/template/createMediaTemplate.js";
 import { uploadMedia } from "../controllers/template/uploadMedia.js";
 import { sendMedia } from "../controllers/chat/sendMedia.js";
-import { getWabaInfo } from "../controllers/user/getWabaInfo.js"
+import { getWabaInfo } from "../controllers/user/getWabaInfo.js";
+import { updateBlockedUsers } from "../controllers/user/updateBlockedUsers.js";
+import { blockUsers } from "../controllers/user/blockUsers.js";
+import { unblockUsers } from "../controllers/user/unblockUsers.js";
+
 
 const router = Router();
 const upload = multer({ dest: "uploads/" });
@@ -91,6 +95,8 @@ export default function createRouter(io) {
   router.post("/createMediaTemplate", createMediaTemplate);
   router.post("/uploadMedia", upload.single("file"), uploadMedia);
   router.post("/sendMedia", upload.single("file"), sendMedia);
+  router.post("/blockUsers/:customer_id", blockUsers);
+  router.post("/unblockUsers/:customer_id", unblockUsers);
 
   router.post("/logout", logoutUser);
 
@@ -117,6 +123,8 @@ export default function createRouter(io) {
   router.get("/creditUsage", authenticateToken, returnCustomerCreditUsage);
   router.get("/getsubusers", getSubUser);
   router.get("/getWabaInfo/:customer_id", getWabaInfo);
+  router.get("/updateBlockedUsers/:customer_id", updateBlockedUsers);
+
 
 
   router.get("/returnAllMessage", returnAllMessage);
