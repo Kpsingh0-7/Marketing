@@ -47,6 +47,7 @@ export const returnTemplates = async (req, res) => {
         language_code,
         template_type,
         category,
+        sub_category,
         status,
         data,
         container_meta,

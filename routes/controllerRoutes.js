@@ -61,6 +61,18 @@ import { getWabaInfo } from "../controllers/user/getWabaInfo.js";
 import { updateBlockedUsers } from "../controllers/user/updateBlockedUsers.js";
 import { blockUsers } from "../controllers/user/blockUsers.js";
 import { unblockUsers } from "../controllers/user/unblockUsers.js";
+import {
+  getProfileDetails,
+  getProfileAbout,
+  getProfilePicture,
+  syncWabaInfo,
+  updateProfileDetails,
+  updateProfileAbout,
+  updateProfilePicture,
+} from "../controllers/user/wabaProfile.js";
+
+import { updateAppDailyUsageBilling } from "../controllers/credit/updateAppDailyUsageBilling.js";
+
 
 
 const router = Router();
@@ -97,6 +109,7 @@ export default function createRouter(io) {
   router.post("/sendMedia", upload.single("file"), sendMedia);
   router.post("/blockUsers/:customer_id", blockUsers);
   router.post("/unblockUsers/:customer_id", unblockUsers);
+router.post("/:customer_id/update-daily-billing", updateAppDailyUsageBilling);
 
   router.post("/logout", logoutUser);
 
@@ -104,6 +117,9 @@ export default function createRouter(io) {
   router.put("/updatecontact", authenticateToken, updateContact);
   router.put("/updatesubuser", updateSubUser);
   router.put("/updateGroup", upload.single("file"), updateGroup);
+  router.put("/:customer_id/details", updateProfileDetails); // JSON body
+  router.put("/:customer_id/about", updateProfileAbout); // JSON body
+  router.put("/:customer_id/photo",upload.single("image"),updateProfilePicture); // multipart/form-data
 
   router.delete("/deletetemplate", authenticateToken, deleteTemplate);
   router.delete("/deletecontact", authenticateToken, deleteContact);
@@ -124,8 +140,10 @@ export default function createRouter(io) {
   router.get("/getsubusers", getSubUser);
   router.get("/getWabaInfo/:customer_id", getWabaInfo);
   router.get("/updateBlockedUsers/:customer_id", updateBlockedUsers);
-
-
+  router.get("/:customer_id/details", getProfileDetails);
+  router.get("/:customer_id/about", getProfileAbout);
+  router.get("/:customer_id/photo", getProfilePicture);
+  router.get("/:customer_id/waba-info/sync", syncWabaInfo);
 
   router.get("/returnAllMessage", returnAllMessage);
   router.get("/returnAllCustomer", returnAllCustomer);
