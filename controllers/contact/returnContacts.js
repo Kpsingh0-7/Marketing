@@ -34,7 +34,7 @@ export const returnContacts = async (req, res) => {
           contact_id,
           country_code,
           is_active,
-          block,
+          block
         FROM 
           contact
         ${whereClause}
