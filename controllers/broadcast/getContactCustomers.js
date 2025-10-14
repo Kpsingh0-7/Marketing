@@ -142,27 +142,34 @@ export const getContactCustomers = async (req, res) => {
   const {
     customer_id,
     broadcastName,
+    contacts = [],
     messageType,
     schedule,
     scheduleDate,
+    template_name,
     status,
     type,
-    contacts = [],
     template_id,
-    template_name,
+    parameters = [], // per-recipient body parameters
+    languageCode = "en",
+    headerType,
+    headerValue,
+    headerIsId = false,
+    buttons = [],
   } = req.body;
-console.log(contacts);
+  console.log(contacts);
   try {
     if (!broadcastName || !contacts.length || !template_name) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields: broadcastName, contacts, or template_name.",
+        message:
+          "Missing required fields: broadcastName, contacts, or template_name.",
       });
     }
 
     // ✅ Build phone numbers from the request
     const phoneNumbers = contacts
-      .map(c =>
+      .map((c) =>
         c.CountryCode && c.Phone
           ? `${String(c.CountryCode).replace("+", "")}${String(c.Phone)}`
           : null
@@ -178,16 +185,15 @@ console.log(contacts);
 
     // Prepare contacts JSON if scheduled
     const contactsJson = JSON.stringify(
-  contacts.map(c => ({
-    name: c.Name || c.contact_name || "", // fallback if property differs
-    phone:
-      c.Phone
-        ? c.CountryCode
-          ? `+${String(c.CountryCode).replace("+", "")}${c.Phone}`
-          : `+${c.Phone}`
-        : ""
-  }))
-);
+      contacts.map((c) => ({
+        name: c.Name || c.contact_name || "", // fallback if property differs
+        phone: c.Phone
+          ? c.CountryCode
+            ? `+${String(c.CountryCode).replace("+", "")}${c.Phone}`
+            : `+${c.Phone}`
+          : "",
+      }))
+    );
     // ✅ Save broadcast details
     const [insertResult] = await pool.execute(
       `INSERT INTO broadcasts
@@ -204,7 +210,7 @@ console.log(contacts);
         type,
         template_name,
         template_id,
-        contactsJson, 
+        contactsJson,
       ]
     );
 
@@ -225,6 +231,12 @@ console.log(contacts);
         phoneNumbers,
         element_name: template_name,
         customer_id,
+        parameters,
+        languageCode,
+        headerType,
+        headerValue,
+        headerIsId,
+        buttons,
       },
     };
 
@@ -247,7 +259,9 @@ console.log(contacts);
               ]);
 
             if (messageValues.length) {
-              const placeholders = messageValues.map(() => "(?,?,?,?,?,?)").join(",");
+              const placeholders = messageValues
+                .map(() => "(?,?,?,?,?,?)")
+                .join(",");
               const flatValues = messageValues.flat();
               await pool.query(
                 `INSERT INTO broadcast_messages
