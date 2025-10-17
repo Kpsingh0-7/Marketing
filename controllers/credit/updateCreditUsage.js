@@ -206,13 +206,13 @@ export const updateCreditUsage = async (customer_id, direction = "sent") => {
 
       // --- Update customer totals ---
       const newTotalConsumed = parseFloat(customerData.total_credit_consumed || 0) + creditConsumed;
-      const newTotalRemaining = Math.max(parseFloat(customerData.total_credit) - newTotalConsumed, 0);
+     // const newTotalRemaining = Math.max(parseFloat(customerData.total_credit) - newTotalConsumed, 0);
 
       await connection.execute(
         `UPDATE customer 
-         SET total_credit_consumed = ?, total_credit_remaining = ? 
+         SET total_credit_consumed = ?
          WHERE customer_id = ?`,
-        [newTotalConsumed, newTotalRemaining, customer_id]
+        [newTotalConsumed, customer_id]
       );
 
     } else {

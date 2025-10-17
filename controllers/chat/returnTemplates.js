@@ -20,9 +20,14 @@ export const returnTemplates = async (req, res) => {
     let params = [customer_id];
 
     if (search) {
-      conditions.push("(element_name LIKE ? OR category LIKE ?)");
-      params.push(`%${search}%`, `%${search}%`);
-    }
+  conditions.push(`(
+    element_name LIKE ? 
+    OR category LIKE ? 
+    OR sub_category LIKE ?
+  )`);
+  params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+}
+
 
     const whereClause = conditions.length
       ? `WHERE ${conditions.join(" AND ")}`
