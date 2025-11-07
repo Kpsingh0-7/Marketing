@@ -18,19 +18,31 @@ export const syncContacts = async (req, res) => {
       `https://api.foodchow.com/api/UserMaster/GetFoodPosCustomers?shop_id=${customer_id}`
     );
 
-    if (!data.success || !Array.isArray(data.data)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid response from FoodChow API",
+    // ✅ Step 3: Handle empty or invalid response
+    if (!data.success || !data.data || !Array.isArray(data.data) || data.data.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No contacts found...",
+        inserted: 0,
+        skipped: 0,
       });
     }
 
-    // ✅ Step 3: Filter valid WhatsApp numbers
+    // ✅ Step 4: Filter valid WhatsApp numbers
     const validContacts = data.data.filter(
       (c) => c.whatsapp_number && c.whatsapp_number.trim() !== ""
     );
 
-    // ✅ Step 4: Remove duplicates within fetched data
+    if (validContacts.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No valid WhatsApp contacts found",
+        inserted: 0,
+        skipped: 0,
+      });
+    }
+
+    // ✅ Step 5: Remove duplicates within fetched data
     const uniqueContacts = Array.from(
       new Map(validContacts.map((c) => [c.whatsapp_number, c])).values()
     );
@@ -38,7 +50,7 @@ export const syncContacts = async (req, res) => {
     let inserted = 0;
     let skipped = 0;
 
-    // ✅ Step 5: Process each contact
+    // ✅ Step 6: Process each contact
     for (const contact of uniqueContacts) {
       const { name, whatsapp_country_code, whatsapp_number } = contact;
 
@@ -65,7 +77,7 @@ export const syncContacts = async (req, res) => {
       inserted++;
     }
 
-    // ✅ Step 6: Return summary response
+    // ✅ Step 7: Return summary response
     return res.status(200).json({
       success: true,
       message: "Contact sync completed successfully",

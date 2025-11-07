@@ -74,8 +74,6 @@ import {
 import { updateAppDailyUsageBilling } from "../controllers/credit/updateAppDailyUsageBilling.js";
 import { syncContacts } from "../controllers/contact/syncContacts.js";
 
-
-
 const router = Router();
 const upload = multer({ dest: "uploads/" });
 
@@ -110,43 +108,50 @@ export default function createRouter(io) {
   router.post("/sendMedia", upload.single("file"), sendMedia);
   router.post("/blockUsers/:customer_id", blockUsers);
   router.post("/unblockUsers/:customer_id", unblockUsers);
-router.post("/:customer_id/update-daily-billing", updateAppDailyUsageBilling);
+  router.post("/:customer_id/update-daily-billing", updateAppDailyUsageBilling);
 
   router.post("/logout", logoutUser);
 
   router.put("/edit", authenticateToken, updateTemplate);
   router.put("/updatecontact", authenticateToken, updateContact);
   router.put("/updatesubuser", updateSubUser);
-  router.put("/updateGroup", upload.single("file"), updateGroup);
+  router.put("/updateGroup", upload.single("file"), authenticateToken, updateGroup);
   router.put("/:customer_id/details", updateProfileDetails); // JSON body
   router.put("/:customer_id/about", updateProfileAbout); // JSON body
-  router.put("/:customer_id/photo",upload.single("image"),updateProfilePicture); // multipart/form-data
+  router.put(
+    "/:customer_id/photo",
+    upload.single("image"),
+    updateProfilePicture
+  ); // multipart/form-data
 
   router.delete("/deletetemplate", authenticateToken, deleteTemplate);
   router.delete("/deletecontact", authenticateToken, deleteContact);
-  router.delete("/deleteconversations", deleteConversations);
-  router.delete("/deletesubuser", deleteSubUser);
-  router.delete("/deleteGroup", deleteGroup);
+  router.delete("/deleteconversations", authenticateToken, deleteConversations);
+  router.delete("/deletesubuser", authenticateToken, deleteSubUser);
+  router.delete("/deleteGroup", authenticateToken, deleteGroup);
 
   router.get("/me", authenticateToken, getMe);
   router.get("/gettemplates", authenticateToken, getTemplate);
   router.get("/contacts", authenticateToken, returnContacts);
   router.get("/templates", authenticateToken, returnTemplates);
   router.get("/conversations", authenticateToken, returnConversations);
-  router.get("/messages", returnMessages);
+  router.get("/messages", authenticateToken, returnMessages);
   router.get("/returnGroups", authenticateToken, returnGroups);
   router.get("/getBroadcasts", authenticateToken, getBroadcasts);
-  router.get("/getTemplateAnalytics", getTemplateAnalytics);
+  router.get("/getTemplateAnalytics", authenticateToken, getTemplateAnalytics);
   router.get("/creditUsage", authenticateToken, returnCustomerCreditUsage);
-  router.get("/getsubusers", getSubUser);
-  router.get("/getWabaInfo/:customer_id", getWabaInfo);
-  router.get("/updateBlockedUsers/:customer_id", updateBlockedUsers);
-  router.get("/:customer_id/details", getProfileDetails);
-  router.get("/:customer_id/about", getProfileAbout);
-  router.get("/:customer_id/photo", getProfilePicture);
-  router.get("/:customer_id/waba-info/sync", syncWabaInfo);
-  router.get("/sync-contacts", syncContacts);
-
+  router.get("/getsubusers", authenticateToken, getSubUser);
+  router.get("/getWabaInfo/:customer_id", authenticateToken, getWabaInfo);
+  router.get(
+    "/updateBlockedUsers/:customer_id",
+    authenticateToken,
+    updateBlockedUsers
+  );
+  router.get("/:customer_id/details", authenticateToken, getProfileDetails);
+  router.get("/:customer_id/about", authenticateToken, getProfileAbout);
+  router.get("/:customer_id/photo", authenticateToken, getProfilePicture);
+  router.get("/:customer_id/waba-info/sync", authenticateToken, syncWabaInfo);
+  router.get("/sync-contacts", authenticateToken, syncContacts);
 
   router.get("/returnAllMessage", returnAllMessage);
   router.get("/returnAllCustomer", returnAllCustomer);
