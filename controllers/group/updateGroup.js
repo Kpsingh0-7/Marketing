@@ -158,7 +158,7 @@ export const updateGroup = async (req, res) => {
   let connection;
   try {
     const { group_id, customer_id, group_name, description, contacts_json } = req.body;
-
+console.log(req.body);
     if (!group_id || !customer_id) {
       return res.status(400).json({
         success: false,

@@ -2,7 +2,7 @@ import { pool } from "../../config/db.js";
 
 export const returnTemplates = async (req, res) => {
   try {
-    const { customer_id, page = 1, limit = 10, search = "" } = req.query;
+    const { customer_id, page = 1, limit = 10, search = "", sub_category } = req.query;
 
     if (!customer_id) {
       return res.status(400).json({ error: "customer_id is required" });
@@ -20,14 +20,18 @@ export const returnTemplates = async (req, res) => {
     let params = [customer_id];
 
     if (search) {
-  conditions.push(`(
-    element_name LIKE ? 
-    OR category LIKE ? 
-    OR sub_category LIKE ?
-  )`);
-  params.push(`%${search}%`, `%${search}%`, `%${search}%`);
-}
+      conditions.push(`(
+        element_name LIKE ? 
+        OR category LIKE ? 
+        OR sub_category LIKE ?
+      )`);
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    }
 
+    if (sub_category) {
+      conditions.push("sub_category = ?");
+      params.push(sub_category);
+    }
 
     const whereClause = conditions.length
       ? `WHERE ${conditions.join(" AND ")}`
@@ -60,7 +64,7 @@ export const returnTemplates = async (req, res) => {
       FROM whatsapp_templates
       ${whereClause}
       ORDER BY created_on DESC
-      LIMIT ${limitNum} OFFSET ${offset}`, // ✅ inline safe integers
+      LIMIT ${limitNum} OFFSET ${offset}`,
       params
     );
 

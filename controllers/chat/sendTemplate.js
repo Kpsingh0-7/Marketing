@@ -200,7 +200,7 @@ export const sendTemplate = async (req, res) => {
           },
         }
       );
-
+console.log(templateMessageId);
       const templateMessageId = templateResponse.data.messages?.[0]?.id || null;
 
       await pool.execute(

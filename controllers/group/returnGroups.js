@@ -51,8 +51,6 @@ export const returnGroups = async (req, res) => {
         group_id,
         description,
         group_name,
-        file_name,
-        file_path,
         created_at,
         total_contacts
       FROM contact_group

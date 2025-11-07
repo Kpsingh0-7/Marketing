@@ -1,7 +1,8 @@
 // import mysql from 'mysql2/promise';
 // export const pool = mysql.createPool({
 //  host: 'localhost', // replace with your DB host
-//  user: 'markcouk_kpsingh ', // replace with your DB user
+//  user: 'root', // replace with your DB user
+//   port: '3306',
 //  password: 'Kpsingh@1234', // replace with your DB password
 //  database: 'markcouk_marketing' // replace with your DB name
 // });

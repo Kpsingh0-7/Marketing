@@ -72,6 +72,7 @@ import {
 } from "../controllers/user/wabaProfile.js";
 
 import { updateAppDailyUsageBilling } from "../controllers/credit/updateAppDailyUsageBilling.js";
+import { syncContacts } from "../controllers/contact/syncContacts.js";
 
 
 
@@ -144,6 +145,8 @@ router.post("/:customer_id/update-daily-billing", updateAppDailyUsageBilling);
   router.get("/:customer_id/about", getProfileAbout);
   router.get("/:customer_id/photo", getProfilePicture);
   router.get("/:customer_id/waba-info/sync", syncWabaInfo);
+  router.get("/sync-contacts", syncContacts);
+
 
   router.get("/returnAllMessage", returnAllMessage);
   router.get("/returnAllCustomer", returnAllCustomer);

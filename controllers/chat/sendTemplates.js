@@ -85,8 +85,10 @@ export const sendTemplates = async (req, res) => {
       to: phoneNumber,
       type: "template",
       template: {
+       
+        language: { policy: "deterministic",code: languageCode },
+        namespace: "3c7773f5_5bf9_423f_80d4_200817ac205e",
         name: element_name,
-        language: { code: languageCode },
         components: [],
       },
     };
