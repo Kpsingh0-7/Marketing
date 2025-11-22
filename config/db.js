@@ -27,7 +27,7 @@ export const pool = mysql.createPool({
   database: 'default',
   timezone: 'Z', // "Z" means UTC
   waitForConnections: true,
-  connectionLimit: 10,   // adjust based on load
+  connectionLimit: 30,   // adjust based on load
   queueLimit: 0,
    charset: 'utf8mb4_general_ci'
 });

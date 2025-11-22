@@ -8,6 +8,7 @@ import { createWebhookHandler } from "../webhooks/webhook.js";
 import { getTemplate } from "../controllers/template/getTemplate.js";
 import { sendTemplate } from "../controllers/chat/sendTemplate.js";
 import { sendTemplates } from "../controllers/chat/sendTemplates.js";
+import { sendWhatsappMessage } from "../controllers/chat/sendWhatsappMessage.js";
 import { sendOTPTemplate } from "../controllers/chat/sendOTPTemplate.js";
 import { createTemplate } from "../controllers/template/createTemplate.js";
 import { deleteTemplate } from "../controllers/template/deleteTemplate.js";
@@ -73,6 +74,12 @@ import {
 
 import { updateAppDailyUsageBilling } from "../controllers/credit/updateAppDailyUsageBilling.js";
 import { syncContacts } from "../controllers/contact/syncContacts.js";
+import { addFlow } from "../controllers/flow/addFlow.js";
+import { returnFlow } from "../controllers/flow/returnFlow.js";
+import { updateFlow } from "../controllers/flow/updateFlow.js";
+import { deleteFlow } from "../controllers/flow/deleteFlow.js";
+
+import { pool } from "../config/db.js";
 
 const router = Router();
 const upload = multer({ dest: "uploads/" });
@@ -109,6 +116,8 @@ export default function createRouter(io) {
   router.post("/blockUsers/:customer_id", blockUsers);
   router.post("/unblockUsers/:customer_id", unblockUsers);
   router.post("/:customer_id/update-daily-billing", updateAppDailyUsageBilling);
+  router.post("/sendWhatsappMessage", sendWhatsappMessage);
+  router.post("/addFlow", addFlow);
 
   router.post("/logout", logoutUser);
 
@@ -123,12 +132,16 @@ export default function createRouter(io) {
     upload.single("image"),
     updateProfilePicture
   ); // multipart/form-data
+  router.put("/updateFlow/:flow_id", updateFlow);
+
 
   router.delete("/deletetemplate", authenticateToken, deleteTemplate);
   router.delete("/deletecontact", authenticateToken, deleteContact);
   router.delete("/deleteconversations", authenticateToken, deleteConversations);
   router.delete("/deletesubuser", authenticateToken, deleteSubUser);
   router.delete("/deleteGroup", authenticateToken, deleteGroup);
+  router.delete("/deleteFlow/:flow_id", deleteFlow);
+
 
   router.get("/me", authenticateToken, getMe);
   router.get("/gettemplates", authenticateToken, getTemplate);
@@ -155,6 +168,9 @@ export default function createRouter(io) {
 
   router.get("/returnAllMessage", returnAllMessage);
   router.get("/returnAllCustomer", returnAllCustomer);
+  router.get("/returnFlow", returnFlow);
+
 
   return router;
 }
+ 

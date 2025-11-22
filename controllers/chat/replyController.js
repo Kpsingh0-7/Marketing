@@ -1,56 +1,79 @@
-import { sendTemplate } from "./sendTemplate.js";
+import { sendWhatsappMessage } from "./sendWhatsappMessage.js";
+import { runFlow } from "../flow/flow.controller.js";
 
 export async function handleReply(message) {
-  const messageText = message.message.toLowerCase();
-  let element_name;
-  let parameters = [];
+  try {
+    console.log("Incoming Reply:", message);
 
-  switch (true) {
-    // case /^[1-3] star$/.test(messageText):
-    //   element_name = "reply";
-    //   parameters = [];
-    //   break;
-    // case /^[4-5] star$/.test(messageText):
-    //   element_name = "google_review";
-    //   parameters = ["25"];
-    //   break;
-    // case ["hii", "hi", "hiii", "hello", "helo", "helloo"].some((word) =>
-    //   messageText.includes(word)
-    // ):
-    //   element_name = "start";
-    //   parameters = ["Sir/Ma'am", "FOODCHOW"];
-    //   break;
-    // case messageText.includes("help"):
-    //   element_name = "customer_support";
-    //   break;
-    // case messageText.includes("promo"):
-    //   element_name = "promotional_offer";
-    //   break;
-    default:
-      element_name = null;
-  }
+    const phone = message.from;
+    const customer_id = message.customer_id;
+    const contact_id = message.contact_id;
 
-  if (element_name) {
-    const fakeRequest = {
-      body: {
-        phoneNumber: message.from,
-        customer_id: message.customer_id,
-        contact_id: message.contact_id,
-        element_name: element_name,
-        languageCode: "en",
-        parameters: parameters,
-      },
+    const userMessage = message.buttonId || message.message;
+    console.log("User Input:", userMessage);
+
+    // Run the flow
+    const flowResponse = await runFlow({
+      phone,
+      customer_id,
+      contact_id,
+      message: userMessage,
+    });
+
+    console.log("flowResponse:", flowResponse);
+
+    if (!flowResponse || !flowResponse.reply) {
+      console.log("⚠ No flow reply returned.");
+      return;
+    }
+
+    const reply = flowResponse.reply;
+
+    // ---- Build WhatsApp Message Structure ----
+    const sendBody = {
+      phoneNumber: phone,
+      customer_id,
+      contact_id,
+      type: reply.type,
     };
+
+    // TEXT Response
+    if (reply.type === "text") {
+      sendBody.text = reply.text || "";
+    }
+
+    // INTERACTIVE Response (Buttons / List)
+    if (reply.type === "interactive" || reply.type === "text-button") {
+      sendBody.type = "interactive";
+
+      sendBody.bodyText = reply.interactiveButtonsBody || "";
+      sendBody.footerText = reply.interactiveButtonsFooter || "";
+      sendBody.headerText = reply.interactiveButtonsHeader?.text || "";
+     // sendBody.headerTypeInteractive = reply.interactiveButtonsHeader?.type ;
+      sendBody.buttons = (reply.interactiveButtonsItems || []).map((btn) => ({
+        id: btn.id,
+        title: btn.buttonText?.trim() || "",
+      }));
+
+      if (reply.interactiveButtonsHeader?.media?.id) {
+        sendBody.headerMediaId = reply.interactiveButtonsHeader.media.id;
+      }
+    }
+
+    console.log("Sending in standardized format:", sendBody);
+
+    // ---- CALL LIKE YOUR TEMPLATE FUNCTION STYLE ----
+    const fakeRequest = { body: sendBody };
+
     const fakeResponse = {
       status: (code) => ({
-        json: (data) => console.log(`Response (${code}):`, data),
+        json: (data) =>
+          console.log(`Response (${code}):`, JSON.stringify(data, null, 2)),
       }),
     };
 
-    try {
-      await sendTemplate(fakeRequest, fakeResponse);
-    } catch (err) {
-      console.error("sendTemplate failed in handleReply:", err);
-    }
+    await sendWhatsappMessage(fakeRequest, fakeResponse);
+  } catch (err) {
+    console.error("❌ handleReply error:", err);
   }
 }

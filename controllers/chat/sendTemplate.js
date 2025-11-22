@@ -200,8 +200,8 @@ export const sendTemplate = async (req, res) => {
           },
         }
       );
-console.log(templateMessageId);
       const templateMessageId = templateResponse.data.messages?.[0]?.id || null;
+console.log(templateMessageId);
 
       await pool.execute(
         `INSERT INTO messages 

@@ -36,7 +36,7 @@ export const syncContacts = async (req, res) => {
     if (validContacts.length === 0) {
       return res.status(200).json({
         success: true,
-        message: "No valid WhatsApp contacts found",
+        message: "No contacts found...",
         inserted: 0,
         skipped: 0,
       });

@@ -157,7 +157,7 @@ async function handleIncomingMessage(value, gsAppId, io) {
   const timestamp = msg.timestamp;
   let messageText = "No text";
   let mediaUrl = null;
-
+let buttonId ="";
   // ✅ Click tracking for button replies
   if (msg.type === "button" && msg.context?.gs_id) {
     const gs_id = msg.context.gs_id;
@@ -175,6 +175,16 @@ async function handleIncomingMessage(value, gsAppId, io) {
   }
 
   switch (msg.type) {
+    case "interactive":
+    // Interactive button reply
+    if (msg.interactive?.button_reply) {
+      messageText = msg.interactive.button_reply.title;   // BUTTON TITLE
+      buttonId = msg.interactive.button_reply.id;          // BUTTON ID (optional)
+    } else if (msg.interactive?.list_reply) {
+      messageText = msg.interactive.list_reply.title;      // LIST TITLE
+      buttonId = msg.interactive.list_reply.id;
+    }
+    break;
     case "text":
       messageText = msg.text?.body;
       break;
@@ -270,6 +280,7 @@ async function handleIncomingMessage(value, gsAppId, io) {
       message: messageText,
       payload: msg.button?.payload || null,
       timestamp: timestamp,
+      buttonId,
       contact_id,
       customer_id,
     }).catch((err) => console.error("handleReply error:", err));
