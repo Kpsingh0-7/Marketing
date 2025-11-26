@@ -1,694 +1,737 @@
-{
-  "screens": [
-    {
-      "data": {},
-      "id": "WELCOME_SCREEN",
-      "title": "Welcome to FoodExpress",
-      "layout": {
-        "children": [
-          {
-            "children": [
-              {
-                "height": 120,
-                "scale-type": "contain",
-                "src": "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-                "type": "image"
-              },
-              {
-                "text": "🍕 Welcome to FoodExpress! 🍕",
-                "type": "TextHeading"
-              },
-              {
-                "text": "Order delicious food from your favorite restaurants.\n\nWhat would you like to do today?",
-                "type": "TextBody"
-              },
-              {
-                "data-source": [
-                  {
-                    "id": "browse_menu",
-                    "title": "🍽️ Browse Menu"
-                  },
-                  {
-                    "id": "quick_order",
-                    "title": "⚡ Quick Order"
-                  },
-                  {
-                    "id": "track_order",
-                    "title": "📦 Track Order"
-                  },
-                  {
-                    "id": "support",
-                    "title": "📞 Customer Support"
-                  }
-                ],
-                "label": "Select Option",
-                "name": "main_menu_selection",
-                "required": true,
-                "type": "radiobuttongroup"
-              },
-              {
-                "label": "Continue",
-                "on-click-action": {
-                  "name": "navigate",
-                  "next": {
-                    "name": "TERMS_AND_CONDITIONS",
-                    "type": "screen"
-                  },
-                  "payload": {
-                    "selected_option": "${form.main_menu_selection}"
-                  }
-                },
-                "type": "footer"
-              }
-            ],
-            "name": "welcome_form",
-            "type": "form"
-          }
-        ],
-        "type": "SingleColumnLayout"
-      },
-      "title": "Welcome to FoodExpress"
-    },
-    {
-      "data": {
-        "selected_option": {
-          "__example__": "browse_menu",
-          "type": "string"
-        }
-      },
-      "id": "TERMS_AND_CONDITIONS",
-      "title": "Terms & Conditions",
-      "layout": {
-        "children": [
-          {
-            "type": "RichText",
-            "text": [
-              "# FoodExpress Terms & Conditions",
-              "## 1. Service Description",
-              "FoodExpress provides food delivery and pickup services from partner restaurants. By using our service, you agree to these terms.",
-              "## 2. Order & Payment",
-              "• All prices are in **local currency** and include applicable taxes",
-              "• Payment is processed at the time of order confirmation",
-              "• We accept **cash on delivery**, **credit cards**, and **digital wallets**",
-              "## 3. Delivery & Pickup",
-              "• **Delivery time**: 30-45 minutes (may vary based on location)",
-              "• **Free delivery** on orders above $25",
-              "• **Pickup orders** must be collected within 30 minutes",
-              "## 4. Cancellation Policy",
-              "• Orders can be cancelled within **5 minutes** of placement",
-              "• Cancellations after 5 minutes may incur a **cancellation fee**",
-              "## 5. Quality Assurance",
-              "• We partner with **certified restaurants**",
-              "• **100% satisfaction guarantee** or full refund",
-              "• Report issues within **24 hours** of delivery",
-              "## 6. Privacy & Data",
-              "Your personal information is protected under our [Privacy Policy](https://foodexpress.com/privacy)",
-              "## 7. Contact Information",
-              "For support: **📞 1-800-FOOD-EX** or **📧 support@foodexpress.com**"
-            ]
-          },
-          {
-            "label": "I Accept Terms & Conditions",
-            "on-click-action": {
-              "name": "navigate",
-              "next": {
-                "name": "RESTAURANT_SELECTION",
-                "type": "screen"
-              },
-              "payload": {
-                "selected_option": "${data.selected_option}"
-              }
-            },
-            "type": "footer"
-          }
-        ],
-        "type": "SingleColumnLayout"
-      }
-    },
-    {
-      "data": {
-        "selected_option": {
-          "__example__": "browse_menu",
-          "type": "string"
-        }
-      },
-      "id": "RESTAURANT_SELECTION",
-      "title": "Select Restaurant",
-      "layout": {
-        "children": [
-          {
-            "children": [
-              {
-                "text": "🏪 Choose Your Restaurant",
-                "type": "TextHeading"
-              },
-              {
-                "text": "Select from our curated list of **premium restaurants** offering delicious cuisine:",
-                "type": "TextBody",
-                "markdown": true
-              },
-              {
-                "data-source": [
-                  {
-                    "id": "pizza_hut",
-                    "title": "🍕 Pizza Hut - Italian Cuisine"
-                  },
-                  {
-                    "id": "kfc",
-                    "title": "🍗 KFC - Fried Chicken"
-                  },
-                  {
-                    "id": "mcdonalds",
-                    "title": "🍔 McDonald's - Fast Food"
-                  },
-                  {
-                    "id": "subway",
-                    "title": "🥪 Subway - Healthy Sandwiches"
-                  },
-                  {
-                    "id": "dominos",
-                    "title": "🍕 Domino's - Pizza & Pasta"
-                  }
-                ],
-                "label": "Select Restaurant",
-                "name": "restaurant_choice",
-                "required": true,
-                "type": "radiobuttongroup"
-              },
-              {
-                "label": "Continue",
-                "on-click-action": {
-                  "name": "navigate",
-                  "next": {
-                    "name": "MENU_BROWSING",
-                    "type": "screen"
-                  },
-                  "payload": {
-                    "selected_option": "${data.selected_option}",
-                    "restaurant": "${form.restaurant_choice}"
-                  }
-                },
-                "type": "footer"
-              }
-            ],
-            "name": "restaurant_form",
-            "type": "form"
-          }
-        ],
-        "type": "SingleColumnLayout"
-      },
-      "title": "Select Restaurant"
-    },
-    {
-      "data": {
-        "selected_option": {
-          "__example__": "browse_menu",
-          "type": "string"
-        },
-        "restaurant": {
-          "__example__": "pizza_hut",
-          "type": "string"
-        }
-      },
-      "id": "MENU_BROWSING",
-      "title": "Browse Menu",
-      "layout": {
-        "children": [
-          {
-            "children": [
-              {
-                "text": "📋 Menu Items",
-                "type": "TextHeading"
-              },
-              {
-                "text": "**Select multiple items** from our delicious menu. Prices include taxes and delivery fees.",
-                "type": "TextBody",
-                "markdown": true
-              },
-              {
-                "data-source": [
-                  {
-                    "id": "margherita_pizza",
-                    "title": "🍕 Margherita Pizza - $12.99"
-                  },
-                  {
-                    "id": "pepperoni_pizza",
-                    "title": "🍕 Pepperoni Pizza - $14.99"
-                  },
-                  {
-                    "id": "chicken_pasta",
-                    "title": "🍝 Chicken Pasta - $11.99"
-                  },
-                  {
-                    "id": "garlic_bread",
-                    "title": "🥖 Garlic Bread - $4.99"
-                  },
-                  {
-                    "id": "caesar_salad",
-                    "title": "🥗 Caesar Salad - $8.99"
-                  },
-                  {
-                    "id": "chocolate_cake",
-                    "title": "🍰 Chocolate Cake - $6.99"
-                  }
-                ],
-                "label": "Select Items",
-                "name": "menu_selection",
-                "required": true,
-                "type": "checkboxgroup"
-              },
-              {
-                "label": "Continue",
-                "on-click-action": {
-                  "name": "navigate",
-                  "next": {
-                    "name": "ORDER_SUMMARY",
-                    "type": "screen"
-                  },
-                  "payload": {
-                    "selected_option": "${data.selected_option}",
-                    "restaurant": "${data.restaurant}",
-                    "selected_items": "${form.menu_selection}"
-                  }
-                },
-                "type": "footer"
-              }
-            ],
-            "name": "menu_form",
-            "type": "form"
-          }
-        ],
-        "type": "SingleColumnLayout"
-      },
-      "title": "Browse Menu"
-    },
-    {
-      "data": {
-        "selected_option": {
-          "__example__": "browse_menu",
-          "type": "string"
-        },
-        "restaurant": {
-          "__example__": "pizza_hut",
-          "type": "string"
-        },
-        "selected_items": {
-          "__example__": ["margherita_pizza", "garlic_bread"],
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        }
-      },
-      "id": "ORDER_SUMMARY",
-      "title": "Order Summary",
-      "layout": {
-        "children": [
-          {
-            "children": [
-              {
-                "text": "📋 Order Summary",
-                "type": "TextHeading"
-              },
-              {
-                "type": "RichText",
-                "text": [
-                  "## Order Details",
-                  "**Restaurant:** ${data.restaurant}",
-                  "**Selected Items:** ${data.selected_items}",
-                  "",
-                  "## Pricing Breakdown",
-                  "| Item | Price |",
-                  "|------|-------|",
-                  "| Margherita Pizza | **$12.99** |",
-                  "| Garlic Bread | **$4.99** |",
-                  "| **Subtotal** | **$17.98** |",
-                  "| Delivery Fee | **$3.99** |",
-                  "| Tax | **$1.80** |",
-                  "| **Total** | **$23.77** |",
-                  "",
-                  "## Delivery Information",
-                  "• **Estimated delivery time:** 30-45 minutes",
-                  "• **Free delivery** on orders above $25",
-                  "• **Real-time tracking** available"
-                ]
-              },
-              {
-                "data-source": [
-                  {
-                    "id": "delivery",
-                    "title": "🚚 Home Delivery"
-                  },
-                  {
-                    "id": "pickup",
-                    "title": "🏪 Pickup"
-                  }
-                ],
-                "label": "Delivery Option",
-                "name": "delivery_option",
-                "required": true,
-                "type": "radiobuttongroup"
-              },
-              {
-                "label": "Continue",
-                "on-click-action": {
-                  "name": "navigate",
-                  "next": {
-                    "name": "CUSTOMER_INFO",
-                    "type": "screen"
-                  },
-                  "payload": {
-                    "selected_option": "${data.selected_option}",
-                    "restaurant": "${data.restaurant}",
-                    "selected_items": "${data.selected_items}",
-                    "delivery_type": "${form.delivery_option}"
-                  }
-                },
-                "type": "footer"
-              }
-            ],
-            "name": "summary_form",
-            "type": "form"
-          }
-        ],
-        "type": "SingleColumnLayout"
-      },
-      "title": "Order Summary"
-    },
-    {
-      "data": {
-        "selected_option": {
-          "__example__": "browse_menu",
-          "type": "string"
-        },
-        "restaurant": {
-          "__example__": "pizza_hut",
-          "type": "string"
-        },
-        "selected_items": {
-          "__example__": ["margherita_pizza", "garlic_bread"],
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "delivery_type": {
-          "__example__": "delivery",
-          "type": "string"
-        }
-      },
-      "id": "CUSTOMER_INFO",
-      "title": "Customer Information",
-      "layout": {
-        "children": [
-          {
-            "children": [
-              {
-                "text": "👤 Customer Information",
-                "type": "TextHeading"
-              },
-              {
-                "text": "Please provide your details for order processing and delivery:",
-                "type": "TextBody"
-              },
-              {
-                "label": "Full Name",
-                "name": "customer_name",
-                "required": true,
-                "type": "text"
-              },
-              {
-                "label": "Phone Number",
-                "name": "phone_number",
-                "required": true,
-                "type": "phone"
-              },
-              {
-                "label": "Email Address",
-                "name": "email_address",
-                "required": true,
-                "type": "email"
-              },
-              {
-                "label": "Delivery Address",
-                "name": "delivery_address",
-                "required": true,
-                "type": "text",
-                "helper-text": "Enter your complete delivery address including street, city, and postal code"
-              },
-              {
-                "label": "Continue",
-                "on-click-action": {
-                  "name": "navigate",
-                  "next": {
-                    "name": "PAYMENT_METHOD",
-                    "type": "screen"
-                  },
-                  "payload": {
-                    "selected_option": "${data.selected_option}",
-                    "restaurant": "${data.restaurant}",
-                    "selected_items": "${data.selected_items}",
-                    "delivery_type": "${data.delivery_type}",
-                    "customer_name": "${form.customer_name}",
-                    "phone_number": "${form.phone_number}",
-                    "email_address": "${form.email_address}",
-                    "delivery_address": "${form.delivery_address}"
-                  }
-                },
-                "type": "footer"
-              }
-            ],
-            "name": "customer_form",
-            "type": "form"
-          }
-        ],
-        "type": "SingleColumnLayout"
-      },
-      "title": "Customer Information"
-    },
-    {
-      "data": {
-        "selected_option": {
-          "__example__": "browse_menu",
-          "type": "string"
-        },
-        "restaurant": {
-          "__example__": "pizza_hut",
-          "type": "string"
-        },
-        "selected_items": {
-          "__example__": ["margherita_pizza", "garlic_bread"],
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "delivery_type": {
-          "__example__": "delivery",
-          "type": "string"
-        },
-        "customer_name": {
-          "__example__": "John Doe",
-          "type": "string"
-        },
-        "phone_number": {
-          "__example__": "+1234567890",
-          "type": "string"
-        },
-        "email_address": {
-          "__example__": "john@example.com",
-          "type": "string"
-        },
-        "delivery_address": {
-          "__example__": "123 Main St, City, State 12345",
-          "type": "string"
-        }
-      },
-      "id": "PAYMENT_METHOD",
-      "title": "Payment Method",
-      "layout": {
-        "children": [
-          {
-            "children": [
-              {
-                "text": "💳 Payment Method",
-                "type": "TextHeading"
-              },
-              {
-                "text": "Choose your preferred payment method:",
-                "type": "TextBody"
-              },
-              {
-                "data-source": [
-                  {
-                    "id": "cash_on_delivery",
-                    "title": "💵 Cash on Delivery"
-                  },
-                  {
-                    "id": "credit_card",
-                    "title": "💳 Credit/Debit Card"
-                  },
-                  {
-                    "id": "digital_wallet",
-                    "title": "📱 Digital Wallet (PayPal, Apple Pay)"
-                  },
-                  {
-                    "id": "bank_transfer",
-                    "title": "🏦 Bank Transfer"
-                  }
-                ],
-                "label": "Select Payment Method",
-                "name": "payment_method",
-                "required": true,
-                "type": "radiobuttongroup"
-              },
-              {
-                "label": "Continue",
-                "on-click-action": {
-                  "name": "navigate",
-                  "next": {
-                    "name": "ORDER_CONFIRMATION",
-                    "type": "screen"
-                  },
-                  "payload": {
-                    "selected_option": "${data.selected_option}",
-                    "restaurant": "${data.restaurant}",
-                    "selected_items": "${data.selected_items}",
-                    "delivery_type": "${data.delivery_type}",
-                    "customer_name": "${data.customer_name}",
-                    "phone_number": "${data.phone_number}",
-                    "email_address": "${data.email_address}",
-                    "delivery_address": "${data.delivery_address}",
-                    "payment_method": "${form.payment_method}"
-                  }
-                },
-                "type": "footer"
-              }
-            ],
-            "name": "payment_form",
-            "type": "form"
-          }
-        ],
-        "type": "SingleColumnLayout"
-      },
-      "title": "Payment Method"
-    },
-    {
-      "data": {
-        "selected_option": {
-          "__example__": "browse_menu",
-          "type": "string"
-        },
-        "restaurant": {
-          "__example__": "pizza_hut",
-          "type": "string"
-        },
-        "selected_items": {
-          "__example__": ["margherita_pizza", "garlic_bread"],
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "delivery_type": {
-          "__example__": "delivery",
-          "type": "string"
-        },
-        "customer_name": {
-          "__example__": "John Doe",
-          "type": "string"
-        },
-        "phone_number": {
-          "__example__": "+1234567890",
-          "type": "string"
-        },
-        "email_address": {
-          "__example__": "john@example.com",
-          "type": "string"
-        },
-        "delivery_address": {
-          "__example__": "123 Main St, City, State 12345",
-          "type": "string"
-        },
-        "payment_method": {
-          "__example__": "cash_on_delivery",
-          "type": "string"
-        }
-      },
-      "id": "ORDER_CONFIRMATION",
-      "title": "Order Confirmed",
-      "layout": {
-        "children": [
-          {
-            "children": [
-              {
-                "text": "✅ Order Confirmed!",
-                "type": "TextHeading"
-              },
-              {
-                "type": "RichText",
-                "text": [
-                  "## Order Details",
-                  "**Order ID:** #FOOD123456",
-                  "**Restaurant:** ${data.restaurant}",
-                  "**Customer:** ${data.customer_name}",
-                  "**Phone:** ${data.phone_number}",
-                  "**Address:** ${data.delivery_address}",
-                  "**Payment:** ${data.payment_method}",
-                  "",
-                  "## Delivery Information",
-                  "• **Estimated Delivery:** 30-45 minutes",
-                  "• **Real-time tracking** available via SMS",
-                  "• **Contact driver** for delivery updates",
-                  "",
-                  "## What's Next?",
-                  "1. **Order confirmation** sent to ${data.email_address}",
-                  "2. **SMS updates** on order status",
-                  "3. **Track your order** in real-time",
-                  "4. **Rate your experience** after delivery",
-                  "",
-                  "**Thank you for choosing FoodExpress! 🍕**"
-                ]
-              },
-              {
-                "label": "Track Order",
-                "on-click-action": {
-                  "name": "complete",
-                  "payload": {
-                    "order_id": "FOOD123456",
-                    "restaurant": "${data.restaurant}",
-                    "customer_name": "${data.customer_name}",
-                    "phone_number": "${data.phone_number}",
-                    "email_address": "${data.email_address}",
-                    "delivery_address": "${data.delivery_address}",
-                    "payment_method": "${data.payment_method}",
-                    "selected_items": "${data.selected_items}",
-                    "delivery_type": "${data.delivery_type}"
-                  }
-                },
-                "type": "footer"
-              }
-            ],
-            "name": "confirmation_form",
-            "type": "form"
-          }
-        ],
-        "type": "SingleColumnLayout"
-      },
-      "terminal": true,
-      "title": "Order Confirmed"
+assistantId
+: "691beee4d253a90d52f87cb7"
+flowId
+: "692032df4748650d5d536b58"
+flowObject
+: {_id: "692032df4748650d5d536b58", keywords: [], flowMessages: [
+    ,…
+  ], status: false, isDeleted: false,…
+}
+assistantId
+: "691beee4d253a90d52f87cb7"
+catalogueId
+: null
+clientId
+: "691beee4d253a90d52f87cb2"
+createdAt
+: "2025-11-21T09:37:35.362Z"
+createdBy
+: "691beee4d253a90d52f87cb2"
+flow
+: {nodes: [
+    {id: "keyword", type: "keywordBox",…
+    },…
+  ],…
+}
+edges
+: [
+  {source: "keyword", sourceHandle: "keyword-right-keyword", target: "1763807086476",…
+  },…
+]
+0
+: {source: "keyword", sourceHandle: "keyword-right-keyword", target: "1763807086476",…
+}
+animated
+: true
+markerEnd
+: {type: "arrowclosed", width: 20, height: 20, color: "#008069"
+}
+color
+: "#008069"
+height
+: 20
+type
+: "arrowclosed"
+width
+: 20
+source
+: "keyword"
+sourceHandle
+: "keyword-right-keyword"
+style
+: {strokeWidth: 1, stroke: "#008069"
+}
+stroke
+: "#008069"
+strokeWidth
+: 1
+target
+: "1763807086476"
+targetHandle
+: "master-component-left-1763807086476"
+type
+: "buttonedge"1
+: {source: "1763807086476", sourceHandle: "message_with_button-right-1763807086476-1763807106704",…
+}
+animated
+: true
+markerEnd
+: {type: "arrowclosed", width: 20, height: 20, color: "#008069"
+}
+color
+: "#008069"
+height
+: 20
+type
+: "arrowclosed"
+width
+: 20
+source
+: "1763807086476"
+sourceHandle
+: "message_with_button-right-1763807086476-1763807106704"
+style
+: {strokeWidth: 1, stroke: "#008069"
+}
+stroke
+: "#008069"
+strokeWidth
+: 1
+target
+: "1763807134012"
+targetHandle
+: "master-component-left-1763807134012"
+type
+: "buttonedge"2
+: {source: "1763807086476", sourceHandle: "message_with_button-right-1763807086476-1763807113503",…
+}
+animated
+: true
+markerEnd
+: {type: "arrowclosed", width: 20, height: 20, color: "#008069"
+}
+color
+: "#008069"
+height
+: 20
+type
+: "arrowclosed"
+width
+: 20
+source
+: "1763807086476"
+sourceHandle
+: "message_with_button-right-1763807086476-1763807113503"
+style
+: {strokeWidth: 1, stroke: "#008069"
+}
+stroke
+: "#008069"
+strokeWidth
+: 1
+target
+: "1763807143894"
+targetHandle
+: "master-component-left-1763807143894"
+type
+: "buttonedge"3
+: {source: "1763807086476", sourceHandle: "message_with_button-right-1763807086476-1763807123403",…
+}
+animated
+: true
+markerEnd
+: {type: "arrowclosed", width: 20, height: 20, color: "#008069"
+}
+color
+: "#008069"
+height
+: 20
+type
+: "arrowclosed"
+width
+: 20
+source
+: "1763807086476"
+sourceHandle
+: "message_with_button-right-1763807086476-1763807123403"
+style
+: {strokeWidth: 1, stroke: "#008069"
+}
+stroke
+: "#008069"
+strokeWidth
+: 1
+target
+: "1763807143259"
+targetHandle
+: "master-component-left-1763807143259"
+type
+: "buttonedge"4
+: {source: "1763807134012", sourceHandle: "message_with_button-right-1763807134012-1763807194574",…
+}
+animated
+: true
+markerEnd
+: {type: "arrowclosed", width: 20, height: 20, color: "#008069"
+}
+color
+: "#008069"
+height
+: 20
+type
+: "arrowclosed"
+width
+: 20
+source
+: "1763807134012"
+sourceHandle
+: "message_with_button-right-1763807134012-1763807194574"
+style
+: {strokeWidth: 1, stroke: "#008069"
+}
+stroke
+: "#008069"
+strokeWidth
+: 1
+target
+: "1763807182687"
+targetHandle
+: "master-component-left-1763807182687"
+type
+: "buttonedge"
+nodes
+: [
+  {id: "keyword", type: "keywordBox",…
+  },…
+]
+0
+: {id: "keyword", type: "keywordBox",…
+}
+data
+: {label: "Node 1", text: "Add keywords to start chat ", keywords: [
+    "gjygyjgy ",
+    "gfhfhf",
+    "vnvgng"
+  ],…
+}
+ad
+: null
+isNewFlow
+: true
+keywords
+: [
+  "gjygyjgy ",
+  "gfhfhf",
+  "vnvgng"
+]
+0
+: "gjygyjgy "1
+: "gfhfhf"2
+: "vnvgng"
+label
+: "Node 1"
+qrCampaigns
+: []
+regex
+: "bvhjgj| gfhfgh|vnfgn"
+regexCaseSensitive
+: true
+templates
+: []
+text
+: "Add keywords to start chat "
+id
+: "keyword"
+position
+: {x: -35.546405889650146, y: 27.297396709994075
+}
+x
+: -35.546405889650146
+y
+: 27.297396709994075
+positionAbsolute
+: {x: -35.546405889650146, y: 27.297396709994075
+}
+x
+: -35.546405889650146
+y
+: 27.297396709994075
+type
+: "keywordBox"1
+: {id: "1763807086476", type: "masterComponent", data: {isDrag: true, id: "1763807086476",…
+  },…
+}
+data
+: {isDrag: true, id: "1763807086476",…
+}
+content
+: [
+  {id: "1763807086476-message", type: "message", data: {
+      ,…
     }
-  ],
-  "version": "7.2",
-  "data_api_version": "3.0",
-  "routing_model": {
-    "WELCOME_SCREEN": ["TERMS_AND_CONDITIONS"],
-    "TERMS_AND_CONDITIONS": ["RESTAURANT_SELECTION"],
-    "RESTAURANT_SELECTION": ["MENU_BROWSING"],
-    "MENU_BROWSING": ["ORDER_SUMMARY"],
-    "ORDER_SUMMARY": ["CUSTOMER_INFO"],
-    "CUSTOMER_INFO": ["PAYMENT_METHOD"],
-    "PAYMENT_METHOD": ["ORDER_CONFIRMATION"],
-    "ORDER_CONFIRMATION": []
   }
-} 
+]
+0
+: {id: "1763807086476-message", type: "message", data: {
+    ,…
+  }
+}
+data
+: {
+  ,…
+}
+buttons
+: [
+  {text: "Electronics", id: 1763807106704
+  },
+  {text: "Fashion", id: 1763807113503
+  },…
+]
+0
+: {text: "Electronics", id: 1763807106704
+}
+id
+: 1763807106704
+text
+: "Electronics"1
+: {text: "Fashion", id: 1763807113503
+}
+id
+: 1763807113503
+text
+: "Fashion"2
+: {text: "Home & Kitchen", id: 1763807123403
+}
+id
+: 1763807123403
+text
+: "Home & Kitchen"
+text
+: "👋 Welcome to *ShopEase*! \nYour one-stop shop for the best deals online.\n\nWhat would you like to explore today?"
+id
+: "1763807086476-message"
+type
+: "message"
+id
+: "1763807086476"
+isDrag
+: true
+id
+: "1763807086476"
+position
+: {x: 432.4060841604389, y: 179.20125198283708
+}
+x
+: 432.4060841604389
+y
+: 179.20125198283708
+type
+: "masterComponent"2
+: {id: "1763807134012", type: "masterComponent",…
+}
+data
+: {isDrag: true, id: "1763807134012", content: [
+    {id: "1763807134012-message", type: "message",…
+    }
+  ]
+}
+content
+: [
+  {id: "1763807134012-message", type: "message",…
+  }
+]
+0
+: {id: "1763807134012-message", type: "message",…
+}
+id
+: "1763807134012"
+isDrag
+: true
+id
+: "1763807134012"
+position
+: {x: 937.7694947624805, y: -126.96358523210172
+}
+x
+: 937.7694947624805
+y
+: -126.96358523210172
+type
+: "masterComponent"3
+: {id: "1763807143259", type: "masterComponent",…
+}
+data
+: {isDrag: true, id: "1763807143259", content: [
+    {id: "1763807143259-message", type: "message",…
+    }
+  ]
+}
+content
+: [
+  {id: "1763807143259-message", type: "message",…
+  }
+]
+0
+: {id: "1763807143259-message", type: "message",…
+}
+data
+: {text: "🏡 *Home & Kitchen*↵Pick what you’re looking for:", buttons: []
+}
+buttons
+: []
+text
+: "🏡 *Home & Kitchen*\nPick what you’re looking for:"
+id
+: "1763807143259-message"
+type
+: "message"
+id
+: "1763807143259"
+isDrag
+: true
+id
+: "1763807143259"
+position
+: {x: 935.1573651677554, y: 984.5484476232115
+}
+x
+: 935.1573651677554
+y
+: 984.5484476232115
+type
+: "masterComponent"4
+: {id: "1763807143894", type: "masterComponent",…
+}
+data
+: {isDrag: true, id: "1763807143894", content: [
+    {id: "1763807143894-message", type: "message",…
+    }
+  ]
+}
+content
+: [
+  {id: "1763807143894-message", type: "message",…
+  }
+]
+0
+: {id: "1763807143894-message", type: "message",…
+}
+data
+: {text: "👗 *Fashion*↵Choose a category:", buttons: []
+}
+buttons
+: []
+text
+: "👗 *Fashion*\nChoose a category:"
+id
+: "1763807143894-message"
+type
+: "message"
+id
+: "1763807143894"
+isDrag
+: true
+id
+: "1763807143894"
+position
+: {x: 936.3659850770539, y: 448.7317302072198
+}
+x
+: 936.3659850770539
+y
+: 448.7317302072198
+type
+: "masterComponent"5
+: {id: "1763807182687", type: "masterComponent", data: {isDrag: true, id: "1763807182687",…
+  },…
+}
+data
+: {isDrag: true, id: "1763807182687",…
+}
+content
+: [
+  {id: "1763807182687-message", type: "message", data: {
+      ,…
+    }
+  }
+]
+0
+: {id: "1763807182687-message", type: "message", data: {
+    ,…
+  }
+}
+data
+: {
+  ,…
+}
+buttons
+: []
+text
+: "📱 Top Smartphones:\n• iPhone 14 Pro\n• Samsung S23 Ultra\n• OnePlus 11\n\nChoose one to see details:"
+id
+: "1763807182687-message"
+type
+: "message"
+id
+: "1763807182687"
+isDrag
+: true
+id
+: "1763807182687"
+position
+: {x: 1406.4797065389182, y: -229.67001435780043
+}
+x
+: 1406.4797065389182
+y
+: -229.67001435780043
+type
+: "masterComponent"
+flowMessages
+: [
+  ,…
+]
+0
+: {messageId: "keyword", keywords: [
+    "GJYGYJGY",
+    "GFHFHF",
+    "VNVGNG"
+  ], templates: [], qrCampaigns: [],…
+}
+ad
+: null
+ads
+: null
+iceBreakers
+: []
+isOrderEnabled
+: false
+keywords
+: [
+  "GJYGYJGY",
+  "GFHFHF",
+  "VNVGNG"
+]
+0
+: "GJYGYJGY"1
+: "GFHFHF"2
+: "VNVGNG"
+messageId
+: "keyword"
+qrCampaigns
+: []
+regex
+: "bvhjgj| gfhfgh|vnfgn"
+regexCaseSensitive
+: true
+templates
+: []
+triggerMessageId
+: "1763807086476"1
+: {messageId: "1763807086476",…
+}
+content
+: [
+  {type: "INTERACTIVE", interactive: {type: "button", body: {
+        ,…
+      },…
+    }
+  }
+]
+0
+: {type: "INTERACTIVE", interactive: {type: "button", body: {
+      ,…
+    },…
+  }
+}
+interactive
+: {type: "button", body: {
+    ,…
+  },…
+}
+action
+: {buttons: [
+    {type: "reply",…
+    },
+    {type: "reply",…
+    },
+    {type: "reply",…
+    }
+  ]
+}
+buttons
+: [
+  {type: "reply",…
+  },
+  {type: "reply",…
+  },
+  {type: "reply",…
+  }
+]
+0
+: {type: "reply",…
+}
+reply
+: {id: "message_with_button-1763807086476-1763807106704-|692032df4748650d5d536b58", title: "Electronics"
+}
+id
+: "message_with_button-1763807086476-1763807106704-|692032df4748650d5d536b58"
+title
+: "Electronics"
+triggerMessageId
+: "1763807134012"
+type
+: "reply"1
+: {type: "reply",…
+}
+reply
+: {id: "message_with_button-1763807086476-1763807113503-|692032df4748650d5d536b58", title: "Fashion"
+}
+id
+: "message_with_button-1763807086476-1763807113503-|692032df4748650d5d536b58"
+title
+: "Fashion"
+triggerMessageId
+: "1763807143894"
+type
+: "reply"2
+: {type: "reply",…
+}
+reply
+: {id: "message_with_button-1763807086476-1763807123403-|692032df4748650d5d536b58",…
+}
+id
+: "message_with_button-1763807086476-1763807123403-|692032df4748650d5d536b58"
+title
+: "Home & Kitchen"
+triggerMessageId
+: "1763807143259"
+type
+: "reply"
+body
+: {
+  ,…
+}
+text
+: "👋 Welcome to *ShopEase*! \nYour one-stop shop for the best deals online.\n\nWhat would you like to explore today?"
+type
+: "button"
+type
+: "INTERACTIVE"
+messageId
+: "1763807086476"2
+: {messageId: "1763807134012", content: [
+    {type: "INTERACTIVE",…
+    }
+  ]
+}
+content
+: [
+  {type: "INTERACTIVE",…
+  }
+]
+0
+: {type: "INTERACTIVE",…
+}
+interactive
+: {type: "button", body: {text: "📱 *Electronics*↵Select a product to explore:"
+  },…
+}
+action
+: {buttons: [
+    {type: "reply",…
+    }
+  ]
+}
+buttons
+: [
+  {type: "reply",…
+  }
+]
+0
+: {type: "reply",…
+}
+reply
+: {id: "message_with_button-1763807134012-1763807194574-|692032df4748650d5d536b58",…
+}
+id
+: "message_with_button-1763807134012-1763807194574-|692032df4748650d5d536b58"
+title
+: "iPhone 14 Pro"
+triggerMessageId
+: "1763807182687"
+type
+: "reply"
+body
+: {text: "📱 *Electronics*↵Select a product to explore:"
+}
+text
+: "📱 *Electronics*\nSelect a product to explore:"
+type
+: "button"
+type
+: "INTERACTIVE"
+messageId
+: "1763807134012"3
+: {messageId: "1763807143259",…
+}
+content
+: [
+  {type: "TEXT", text: "🏡 *Home & Kitchen*↵Pick what you’re looking for:"
+  }
+]
+0
+: {type: "TEXT", text: "🏡 *Home & Kitchen*↵Pick what you’re looking for:"
+}
+text
+: "🏡 *Home & Kitchen*\nPick what you’re looking for:"
+type
+: "TEXT"
+messageId
+: "1763807143259"4
+: {messageId: "1763807143894", content: [
+    {type: "TEXT", text: "👗 *Fashion*↵Choose a category:"
+    }
+  ]
+}
+content
+: [
+  {type: "TEXT", text: "👗 *Fashion*↵Choose a category:"
+  }
+]
+0
+: {type: "TEXT", text: "👗 *Fashion*↵Choose a category:"
+}
+text
+: "👗 *Fashion*\nChoose a category:"
+type
+: "TEXT"
+messageId
+: "1763807143894"5
+: {messageId: "1763807182687", content: [
+    {type: "TEXT",…
+    }
+  ]
+}
+content
+: [
+  {type: "TEXT",…
+  }
+]
+0
+: {type: "TEXT",…
+}
+text
+: "📱 Top Smartphones:\n• iPhone 14 Pro\n• Samsung S23 Ultra\n• OnePlus 11\n\nChoose one to see details:"
+type
+: "TEXT"
+messageId
+: "1763807182687"
+flowName
+: "Untitled"
+intents
+: {}
+isDeleted
+: false
+keywords
+: []
+status
+: false
+type
+: "USER"
+updatedAt
+: "2025-11-22T10:27:56.362Z"
+__v
+: 0
+_id
+: "692032df4748650d5d536b58"

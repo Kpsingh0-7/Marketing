@@ -1,298 +1,171 @@
 {
+  "id": null,
   "name": "foodchow",
-  "description": "",
   "flowNodes": [
     {
       "id": "start",
-      "flowNodeType": "flowStartNode",
+      "flowNodeType": "mediabutton",
+      "mimeType": "",
+      "flowReplies": {
+        "type": "interactive",
+        "interactive": {
+          "type": "button",
+          "header": {
+            "type": "image",
+            "image": {
+              "link": "<MEDIA_URL>",
+              "id": "2762702990552401"
+            }
+          },
+          "body": {
+            "text": "Hi Pablo! Your gardening workshop is scheduled for 9am tomorrow. Use the buttons if you need to reschedule. Thank you!"
+          },
+          "footer": {
+            "text": "Lucky Shrub: Your gateway to succulents!™"
+          },
+          "action": {
+            "buttons": [
+              {
+                "type": "reply",
+                "reply": { "id": "change-button", "title": "Change" }
+              },
+              {
+                "type": "reply",
+                "reply": { "id": "cancel-button", "title": "Cancel" }
+              }
+            ]
+          }
+        }
+      },
       "flowNodePosition": {
         "posX": "-957.6713058267375",
         "posY": "45.327898087204744"
+      }
+    },
+
+    {
+      "id": "change-button",
+      "flowNodeType": "textbutton",
+      "mimeType": "",
+      "flowReplies": {
+        "type": "interactive",
+        "interactive": {
+          "type": "button",
+          "header": { "type": "text", "text": "Hii" },
+          "body": {
+            "text": "👋 Hi, I'm Jigar — Founder of FoodChow.\n\nMy mission is to empower local restaurants with the same smart technology used by brands like Domino's & Pizza Hut, but at 1% of their cost.\n\nBefore I share how we can help, tell me which of these is your biggest challenge 👇\n\n🔸 Automate billing & reduce errors\n🔸 Save 20-30% commission\n🔸 WhatsApp automation & repeat orders\n🔸 Get new customers daily"
+          },
+          "footer": { "text": "Lucky Shrub: Your gateway to succulents!™" },
+          "action": {
+            "buttons": [
+              {
+                "type": "reply",
+                "reply": {
+                  "id": "f424192c-f4e2-475d-9aea-f3fbca7eb55f",
+                  "title": "Save Money"
+                }
+              },
+              {
+                "type": "reply",
+                "reply": {
+                  "id": "ad9a6a95-aea7-4bfa-b1e6-927bdca3de71",
+                  "title": "Grow Business"
+                }
+              },
+              {
+                "type": "reply",
+                "reply": {
+                  "id": "d8bc8e40-5f2e-48e3-bc30-7ba7db4ccdf1",
+                  "title": "Customers Daily"
+                }
+              }
+            ]
+          }
+        }
       },
-      "data": {
-        "label": "flowStartNode"
+      "flowNodePosition": {
+        "posX": "-957.6713058267375",
+        "posY": "45.327898087204744"
+      }
+    },
+
+    {
+      "id": "cancel-button",
+      "flowNodeType": "text",
+      "mimeType": "",
+      "flowReplies": {
+        "type": "text",
+        "text": {
+          "preview_url": true,
+          "body": "As requested, here''s the link to our latest product: https://www.meta.com/quest/quest-3/"
+        }
+      },
+      "flowNodePosition": {
+        "posX": "-957.6713058267375",
+        "posY": "45.327898087204744"
       }
     },
     {
-      "id": "node-1763466258977-h9cd87onzet",
-      "type": "text-button",
-      "flowNodeType": "InteractiveButtons",
-      "flowNodePosition": {
-        "posX": "-524.6593529973732",
-        "posY": "-73.33998408302239"
-      },
-      "interactiveButtonsHeader": {
-        "type": "Text",
-        "text": "",
-        "media": null
-      },
-      "interactiveButtonsBody": "👋 Hi, I'm Jigar — Founder of FoodChow.\n\nMy mission is to empower local restaurants with the same smart technology used by brands like Domino's & Pizza Hut, but at 1% of their cost.\n\nBefore I share how we can help, tell me which of these is your biggest challenge 👇\n\n🔸  Automate billing & reduce errors\n🔸 Save 20-30% commission\n🔸 WhatsApp automation & repeat orders\n🔸 Get new customers daily\n",
-      "interactiveButtonsFooter": "",
-      "interactiveButtonsItems": [
-        {
-          "id": "f424192c-f4e2-475d-9aea-f3fbca7eb55f",
-          "buttonText": " Save Money",
-          "nodeResultId": "node-1763466308398-rjq0sgt0sjf"
-        },
-        {
-          "id": "ad9a6a95-aea7-4bfa-b1e6-927bdca3de71",
-          "buttonText": " Grow Business",
-          "nodeResultId": "node-1763466344438-yk01922uvtd"
-        },
-        {
-          "id": "d8bc8e40-5f2e-48e3-bc30-7ba7db4ccdf1",
-          "buttonText": "customers daily",
-          "nodeResultId": "node-1763466395345-ccz03s2xyx"
+      "id": "f424192c-f4e2-475d-9aea-f3fbca7eb55f",
+      "flowNodeType": "image",
+      "mimeType": "",
+      "flowReplies": {
+        "type": "image",
+        "image": {
+          "id": "1479537139650973",
+          "link": "<MEDIA_URL>",
+          "caption": "The best succulent ever?"
         }
-      ],
-      "isStartNode": false
-    },
-    {
-      "id": "node-1763466308398-rjq0sgt0sjf",
-      "type": "text-button",
-      "flowNodeType": "InteractiveButtons",
+      },
       "flowNodePosition": {
-        "posX": "591.8504158523388",
-        "posY": "-391.21315754885933"
-      },
-      "interactiveButtonsHeader": {
-        "type": "Text",
-        "text": "",
-        "media": null
-      },
-      "interactiveButtonsBody": "💰 Great! Let's help you save money.\n\nWhich one is your priority?",
-      "interactiveButtonsFooter": "",
-      "interactiveButtonsItems": [
-        {
-          "id": "b3ac7edc-e0e9-40c4-b7c2-7d8194a784b7",
-          "buttonText": "Automate billing",
-          "nodeResultId": "node-1763466448596-degv19yhza"
+        "posX": "-957.6713058267375",
+        "posY": "45.327898087204744"
+      }
+    },
+
+    {
+      "id": "f424192c-f4e2-475d-9aea-f3fbca7eb55f",
+      "flowNodeType": "video",
+      "mimeType": "",
+      "flowReplies": {
+        "type": "video",
+        "video": {
+          "id": "1479537139650973",
+          "link": "<MEDIA_URL>",
+          "caption": "The best succulent ever?"
         }
-      ],
-      "isStartNode": false
-    },
-    {
-      "id": "node-1763466344438-yk01922uvtd",
-      "type": "text-button",
-      "flowNodeType": "InteractiveButtons",
+      },
       "flowNodePosition": {
-        "posX": "593.3681165132746",
-        "posY": "198.1831599470935"
-      },
-      "interactiveButtonsHeader": {
-        "type": "Text",
-        "text": "",
-        "media": null
-      },
-      "interactiveButtonsBody": "📈 Excellent! Let's grow your business.\n\nWhich one interests you more?",
-      "interactiveButtonsFooter": "",
-      "interactiveButtonsItems": [
-        {
-          "id": "fa4dd7bc-2a33-4184-b750-0c5a3111337b",
-          "buttonText": "WhatsApp auto",
-          "nodeResultId": ""
-        },
-        {
-          "id": "b27c06c7-5a4f-4f30-96c5-372eaa576a03",
-          "buttonText": " New customers",
-          "nodeResultId": ""
-        },
-        {
-          "id": "213f7c4e-d4c2-4c64-a1ce-a8b03fe706cc",
-          "buttonText": " Back",
-          "nodeResultId": ""
+        "posX": "-957.6713058267375",
+        "posY": "45.327898087204744"
+      }
+    },
+
+    {
+      "id": "d8bc8e40-5f2e-48e3-bc30-7ba7db4ccdf1",
+      "flowNodeType": "document",
+      "mimeType": "",
+      "flowReplies": {
+        "type": "document",
+        "document": {
+          "id": "1376223850470843",
+          "link": "<MEDIA_URL>",
+          "filename": "order_abc123.pdf",
+          "caption": "Your order confirmation (PDF)"
         }
-      ],
-      "isStartNode": false
-    },
-    {
-      "id": "node-1763466395345-ccz03s2xyx",
-      "type": "text-button",
-      "flowNodeType": "InteractiveButtons",
+      },
       "flowNodePosition": {
-        "posX": "597.6460289550969",
-        "posY": "776.3139919294196"
-      },
-      "interactiveButtonsHeader": {
-        "type": "Text",
-        "text": "",
-        "media": null
-      },
-      "interactiveButtonsBody": "Here's everything we offer to help your restaurant grow:\n\n💼 Individual Solutions:\n• POS Software - ₹5,475/year\n• Online Ordering - ₹5,475 lifetime\n• WhatsApp Automation - ₹5,475/year\n\n🚀 Complete Package:\n• Starter Growth Plan - ₹25,000 (All-in-one + 250 orders guaranteed)\n\nWhat interests you most?",
-      "interactiveButtonsFooter": "",
-      "interactiveButtonsItems": [
-        {
-          "id": "9eb1049f-fb89-43c0-b22c-b37e85a94916",
-          "buttonText": " Growth Plan",
-          "nodeResultId": "node-1763466670541-dc1irblomh7"
-        }
-      ],
-      "isStartNode": false
-    },
-    {
-      "id": "node-1763466448596-degv19yhza",
-      "type": "text-button",
-      "flowNodeType": "InteractiveButtons",
-      "flowNodePosition": {
-        "posX": "1268.8854804019534",
-        "posY": "-841.8464878258837"
-      },
-      "interactiveButtonsHeader": {
-        "type": "Text",
-        "text": "",
-        "media": null
-      },
-      "interactiveButtonsBody": "✅ Great choice! Automating billing is crucial.\n\n⚙ Our POS Software (₹5,475/year) helps you:\n• Automate billing & reduce manual errors\n• Manage tables & orders efficiently\n• Track inventory in real-time\n• Generate reports instantly\n\nHundreds of restaurants have eliminated billing errors completely!\n\nWould you like to see a quick demo?",
-      "interactiveButtonsFooter": "",
-      "interactiveButtonsItems": [
-        {
-          "id": "70e3fed4-bbfd-4802-bcc1-8c907e8163f2",
-          "buttonText": " Yes, show demo",
-          "nodeResultId": ""
-        }
-      ],
-      "isStartNode": false
-    },
-    {
-      "id": "node-1763466670541-dc1irblomh7",
-      "type": "text-button",
-      "flowNodeType": "InteractiveButtons",
-      "flowNodePosition": {
-        "posX": "1236.7466107079047",
-        "posY": "952.5025867710092"
-      },
-      "interactiveButtonsHeader": {
-        "type": "Text",
-        "text": "",
-        "media": null
-      },
-      "interactiveButtonsBody": "🚀 Perfect! Customer acquisition is key to growth.\n\n🚀 Starter Growth Plan (₹25,000):\n• POS + Online Ordering + WhatsApp Automation\n• 250 orders GUARANTEED in 90 days\n• If not, we market FREE until you do! 💪\n• Free setup + training\n• Bonus worth ₹5,000 this week\n\nThis is our most popular plan for serious growth!\n\nShall I reserve a slot for you?",
-      "interactiveButtonsFooter": "",
-      "interactiveButtonsItems": [
-        {
-          "id": "9f34e671-3a05-46ff-add1-465c2473ea01",
-          "buttonText": "Reserve slot",
-          "nodeResultId": "node-1763466728053-3wjyo8e8ak8"
-        },
-        {
-          "id": "7556e483-1749-45d2-a83c-c1d825cc869f",
-          "buttonText": "Tell me more",
-          "nodeResultId": "node-1763466794360-hnfqhaxky9e"
-        },
-        {
-          "id": "222dec30-b028-43c2-ad84-826f6b18816a",
-          "buttonText": "See pricing",
-          "nodeResultId": ""
-        }
-      ],
-      "isStartNode": false
-    },
-    {
-      "id": "node-1763466728053-3wjyo8e8ak8",
-      "type": "text-button",
-      "flowNodeType": "InteractiveButtons",
-      "flowNodePosition": {
-        "posX": "2086.217639970568",
-        "posY": "876.4494048049337"
-      },
-      "interactiveButtonsHeader": {
-        "type": "Text",
-        "text": "",
-        "media": null
-      },
-      "interactiveButtonsBody": "Thank you for choosing FoodChow! Your Diwali Growth Plan slot is reserved.\n\nOur growth expert will contact you within 1 hour to:\n✅ Complete your onboarding\n✅ Set up your systems\n✅ Start your 250-order guarantee journey\n\n*What happens next:*\n1. We'll call you to confirm details\n2. Setup your POS + Website + WhatsApp (same day)\n3. Train your team (1-2 hours)\n4. Launch your growth campaign\n\n*Questions?* Reply anytime, I'm here to help!\n\n— Jigar Doriwala\nFounder, FoodChow\nEmpowering Local Restaurants Globally 🌍",
-      "interactiveButtonsFooter": "",
-      "interactiveButtonsItems": [
-        {
-          "id": "ec41f9d1-4f93-4521-af48-4ee99d33d5f0",
-          "buttonText": "See pricing",
-          "nodeResultId": ""
-        },
-        {
-          "id": "bd2d58c6-84dd-4586-ae82-411da8c3ca4f",
-          "buttonText": "All solutions",
-          "nodeResultId": ""
-        }
-      ],
-      "isStartNode": false
-    },
-    {
-      "id": "node-1763466794360-hnfqhaxky9e",
-      "type": "text-button",
-      "flowNodeType": "InteractiveButtons",
-      "flowNodePosition": {
-        "posX": "2082.8206630562304",
-        "posY": "1923.0871877581944"
-      },
-      "interactiveButtonsHeader": {
-        "type": "Text",
-        "text": "",
-        "media": null
-      },
-      "interactiveButtonsBody": "*What You Get (₹25,000):*\n✅ POS Software (₹5,475 value)\n✅ Online Ordering System (₹5,475 value)\n✅ WhatsApp Automation (₹5,475 value)\n✅ 250 Orders Guaranteed in 90 days\n✅ Free setup & training (₹10,000 value)\n✅ Diwali bonus (₹5,000 value)\n\n*Total Value: ₹31,425*\n*You Pay: ₹25,000*\n*You Save: ₹6,425 + Get 250 orders!*\n\n*The Guarantee:*\nIf you don't get 250 orders in 90 days, we'll market for you FREE until you do! 💪\n\n*Why This Works:*\n• Complete digital transformation\n• All tools integrated\n• Expert support\n• Proven results",
-      "interactiveButtonsFooter": "",
-      "interactiveButtonsItems": [],
-      "isStartNode": false
+        "posX": "-957.6713058267375",
+        "posY": "45.327898087204744"
+      }
     }
   ],
+
   "flowEdges": [
     {
       "id": "edge-start-node-1763466258977-h9cd87onzet-1763466271016",
       "sourceNodeId": "start",
       "targetNodeId": "node-1763466258977-h9cd87onzet"
-    },
-    {
-      "id": "edge-node-1763466258977-h9cd87onzet-node-1763466308398-rjq0sgt0sjf-1763466315255",
-      "sourceNodeId": "node-1763466258977-h9cd87onzetbtn-f424192c-f4e2-475d-9aea-f3fbca7eb55f",
-      "targetNodeId": "node-1763466308398-rjq0sgt0sjf"
-    },
-    {
-      "id": "edge-node-1763466258977-h9cd87onzet-node-1763466344438-yk01922uvtd-1763466392452",
-      "sourceNodeId": "node-1763466258977-h9cd87onzetbtn-ad9a6a95-aea7-4bfa-b1e6-927bdca3de71",
-      "targetNodeId": "node-1763466344438-yk01922uvtd"
-    },
-    {
-      "id": "edge-node-1763466308398-rjq0sgt0sjf-node-1763466448596-degv19yhza-1763466469928",
-      "sourceNodeId": "node-1763466308398-rjq0sgt0sjfbtn-b3ac7edc-e0e9-40c4-b7c2-7d8194a784b7",
-      "targetNodeId": "node-1763466448596-degv19yhza"
-    },
-    {
-      "id": "edge-node-1763466258977-h9cd87onzet-node-1763466395345-ccz03s2xyx-1763466594674",
-      "sourceNodeId": "node-1763466258977-h9cd87onzetbtn-d8bc8e40-5f2e-48e3-bc30-7ba7db4ccdf1",
-      "targetNodeId": "node-1763466395345-ccz03s2xyx"
-    },
-    {
-      "id": "edge-node-1763466395345-ccz03s2xyx-node-1763466670541-dc1irblomh7-1763466678479",
-      "sourceNodeId": "node-1763466395345-ccz03s2xyxbtn-9eb1049f-fb89-43c0-b22c-b37e85a94916",
-      "targetNodeId": "node-1763466670541-dc1irblomh7"
-    },
-    {
-      "id": "edge-node-1763466670541-dc1irblomh7-node-1763466728053-3wjyo8e8ak8-1763466734728",
-      "sourceNodeId": "node-1763466670541-dc1irblomh7btn-9f34e671-3a05-46ff-add1-465c2473ea01",
-      "targetNodeId": "node-1763466728053-3wjyo8e8ak8"
-    },
-    {
-      "id": "edge-node-1763466670541-dc1irblomh7-node-1763466794360-hnfqhaxky9e-1763466803945",
-      "sourceNodeId": "node-1763466670541-dc1irblomh7btn-7556e483-1749-45d2-a83c-c1d825cc869f",
-      "targetNodeId": "node-1763466794360-hnfqhaxky9e"
     }
-  ],
-  "triggerConfig": {
-    "keywords": [
-      "foodchow",
-      "restaurant",
-      "pos",
-      "billing",
-      "delivery",
-      "commission",
-      "whatsapp",
-      "automation",
-      "grow",
-      "customers"
-    ],
-    "regex": "",
-    "caseSensitive": false
-  },
-  "lastUpdated": "2025-11-20T11:12:22.386Z",
-  "isPro": false
+  ]
 }
