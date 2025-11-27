@@ -1,0 +1,46 @@
+{
+  "customer_id": 1000,
+
+  "drip_name": "Welcome Drip",
+  "drip_description": "This drip sends a welcome message and follow-up messages.",
+  "status": "active",
+
+  "delivery_preferences": {
+    "allow_once": true,
+    "continue_after_delivery": true,
+    "days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "time_type": "Time Range",
+    "time_from": "10:00",
+    "time_to": "18:00",
+    "timezone": "Asia/Kolkata"
+  },
+
+  "retry_settings": {
+    "max_attempts": 3,
+    "retry_delay_minutes": 10
+  },
+
+  "steps": [
+    {
+      "step": 1,
+      "step_name": "Welcome Message",
+      "template_name": "welcome_template",
+      "parameters":[],
+      "delay_minutes": 0,
+      "conditions": null,
+      "message_preview": "Welcome to our service! We're excited to have you."
+
+    },
+    {
+      "step": 2,
+      "step_name": "Day 1 Follow-up",
+      "template_name": "followup_day1",
+      "parameters":[],
+      "delay_minutes": 0,
+      "conditions": null,
+      "message_preview": "Hope you're enjoying! Want more help?"
+    }
+  ]
+}
+
+

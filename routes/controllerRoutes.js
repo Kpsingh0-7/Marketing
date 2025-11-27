@@ -78,8 +78,8 @@ import { addFlow } from "../controllers/flow/addFlow.js";
 import { returnFlow } from "../controllers/flow/returnFlow.js";
 import { updateFlow } from "../controllers/flow/updateFlow.js";
 import { deleteFlow } from "../controllers/flow/deleteFlow.js";
+import { addDrip } from "../controllers/drip/addDrip.js";
 
-import { pool } from "../config/db.js";
 
 const router = Router();
 const upload = multer({ dest: "uploads/" });
@@ -118,6 +118,7 @@ export default function createRouter(io) {
   router.post("/:customer_id/update-daily-billing", updateAppDailyUsageBilling);
   router.post("/sendWhatsappMessage", sendWhatsappMessage);
   router.post("/addFlow", addFlow);
+  router.post("/drip/add", addDrip);
 
   router.post("/logout", logoutUser);
 
