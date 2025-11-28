@@ -129,7 +129,7 @@ async function completeUser(id) {
   await pool.execute(
     `
     UPDATE drip_users 
-    SET status='completed', completed_at=NOW()
+    SET status='completed'
     WHERE id=?
   `,
     [id]

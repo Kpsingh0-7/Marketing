@@ -79,6 +79,7 @@ import { returnFlow } from "../controllers/flow/returnFlow.js";
 import { updateFlow } from "../controllers/flow/updateFlow.js";
 import { deleteFlow } from "../controllers/flow/deleteFlow.js";
 import { addDrip } from "../controllers/drip/addDrip.js";
+import { getDrip } from "../controllers/drip/getDrip.js"
 
 
 const router = Router();
@@ -170,6 +171,8 @@ export default function createRouter(io) {
   router.get("/returnAllMessage", returnAllMessage);
   router.get("/returnAllCustomer", returnAllCustomer);
   router.get("/returnFlow", returnFlow);
+  router.get("/drip/customer/:customer_id", getDrip);
+
 
 
   return router;
