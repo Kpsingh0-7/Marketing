@@ -76,10 +76,10 @@ export const returnContacts = async (req, res) => {
     search = "",
     createdFrom,
     createdTo,
-    optedIn,        // "yes", "no", "all"
-    blocked,        // "yes", "no", "all"
-    readStatus,     // "read", "unread", "all"
-    tag,            // "premium", "VIP", ...
+    optedIn,
+    blocked,
+    readStatus,
+    tag,
     couponcode,
   } = req.query;
 
@@ -91,62 +91,74 @@ export const returnContacts = async (req, res) => {
   const offset = (page - 1) * limitNum;
 
   try {
-    let where = `WHERE customer_id = ?`;
+    let where = `WHERE c.customer_id = ?`;
     const params = [customer_id];
 
-    // 🔍 Search filter
     if (search) {
-      where += ` AND (first_name LIKE ? OR last_name LIKE ? OR mobile_no LIKE ?)`;
+      where += ` AND (c.first_name LIKE ? OR c.last_name LIKE ? OR c.mobile_no LIKE ?)`;
       params.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
-    // 🗓 Created Date Filter
     if (createdFrom && createdTo) {
-      where += ` AND created_at BETWEEN ? AND ?`;
+      where += ` AND c.created_at BETWEEN ? AND ?`;
       params.push(createdFrom, createdTo);
     }
 
-    // 👍 Opted In Filter (using is_active)
-    if (optedIn === "yes") where += ` AND is_active = 1`;
-    if (optedIn === "no") where += ` AND is_active = 0`;
+    if (optedIn === "yes") where += ` AND c.is_active = 1`;
+    if (optedIn === "no") where += ` AND c.is_active = 0`;
 
-    // 🚫 Block Filter
-    if (blocked === "yes") where += ` AND block = 1`;
-    if (blocked === "no") where += ` AND block = 0`;
+    if (blocked === "yes") where += ` AND c.block = 1`;
+    if (blocked === "no") where += ` AND c.block = 0`;
 
-    // 📩 Read Status Filter
-    if (readStatus === "read") where += ` AND unread_count = 0`;
-    if (readStatus === "unread") where += ` AND unread_count > 0`;
+    if (readStatus === "read") where += ` AND c.unread_count = 0`;
+    if (readStatus === "unread") where += ` AND c.unread_count > 0`;
 
-    // 🏷 Tag Filter
     if (tag) {
-      where += ` AND tag = ?`;
+      where += ` AND c.contact_id IN (
+        SELECT ct.contact_id 
+        FROM contact_tags ct
+        JOIN tags t ON ct.tag_id = t.id
+        WHERE t.tag = ?
+      )`;
       params.push(tag);
     }
 
-    // 🎟 Coupon filter
     if (couponcode) {
-      where += ` AND couponcode = ?`;
+      where += ` AND c.couponcode = ?`;
       params.push(couponcode);
     }
 
-    // ----------- FETCH DATA -----------
+    // ------------- GET CONTACTS + TAGS ----------------
     const [rows] = await pool.query(
       `
-      SELECT *
-      FROM contact
+      SELECT 
+        c.*,
+        GROUP_CONCAT(t.tag) AS tags
+      FROM contact c
+      LEFT JOIN contact_tags ct ON c.contact_id = ct.contact_id
+      LEFT JOIN tags t ON ct.tag_id = t.id
       ${where}
-      ORDER BY created_at DESC
+      GROUP BY c.contact_id
+      ORDER BY c.created_at DESC
       LIMIT ${limitNum} OFFSET ${offset}
       `,
       params
     );
 
-    // ----------- COUNT FOR PAGINATION -----------
+    // ------------- GET TOTAL COUNT ----------------
     const [[{ total }]] = await pool.query(
-      `SELECT COUNT(*) AS total FROM contact ${where}`,
+      `
+      SELECT COUNT(*) AS total
+      FROM contact c
+      ${where}
+      `,
       params
     );
+
+    // ✨ Convert tags from "a,b,c" → ["a","b","c"]
+    rows.forEach(row => {
+      row.tags = row.tags ? row.tags.split(",") : [];
+    });
 
     res.json({
       data: rows,
