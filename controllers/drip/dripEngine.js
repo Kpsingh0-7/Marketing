@@ -161,7 +161,7 @@ async function handleError(user, error) {
 }
 
 // 🕒 Runs every 1 minute
-cron.schedule("* * * * *", async () => {
+cron.schedule("0 * * * *", async () => {
   console.log("\n⏱ Running Drip Scheduler...");
   await runDripEngine();
 });

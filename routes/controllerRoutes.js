@@ -79,7 +79,11 @@ import { returnFlow } from "../controllers/flow/returnFlow.js";
 import { updateFlow } from "../controllers/flow/updateFlow.js";
 import { deleteFlow } from "../controllers/flow/deleteFlow.js";
 import { addDrip } from "../controllers/drip/addDrip.js";
-import { getDrip } from "../controllers/drip/getDrip.js"
+import { getDrip } from "../controllers/drip/getDrip.js";
+import { addTag } from "../controllers/tag/addTag.js";
+import { getTags } from "../controllers/tag/getTags.js";
+import { deleteTag } from "../controllers/tag/deleteTag.js";
+import { assignTag } from "../controllers/tag/assignTag.js";
 
 
 const router = Router();
@@ -120,6 +124,9 @@ export default function createRouter(io) {
   router.post("/sendWhatsappMessage", sendWhatsappMessage);
   router.post("/addFlow", addFlow);
   router.post("/drip/add", addDrip);
+  router.post("/tag/add", addTag);
+  router.post("/tag/assignTag", assignTag);
+
 
   router.post("/logout", logoutUser);
 
@@ -129,11 +136,7 @@ export default function createRouter(io) {
   router.put("/updateGroup", upload.single("file"), authenticateToken, updateGroup);
   router.put("/:customer_id/details", updateProfileDetails); // JSON body
   router.put("/:customer_id/about", updateProfileAbout); // JSON body
-  router.put(
-    "/:customer_id/photo",
-    upload.single("image"),
-    updateProfilePicture
-  ); // multipart/form-data
+  router.put("/:customer_id/photo",upload.single("image"),updateProfilePicture); // multipart/form-data
   router.put("/updateFlow/:flow_id", updateFlow);
 
 
@@ -143,6 +146,7 @@ export default function createRouter(io) {
   router.delete("/deletesubuser", authenticateToken, deleteSubUser);
   router.delete("/deleteGroup", authenticateToken, deleteGroup);
   router.delete("/deleteFlow/:flow_id", deleteFlow);
+  router.delete("/tag/delete/:tag_id", deleteTag);
 
 
   router.get("/me", authenticateToken, getMe);
@@ -172,6 +176,7 @@ export default function createRouter(io) {
   router.get("/returnAllCustomer", returnAllCustomer);
   router.get("/returnFlow", returnFlow);
   router.get("/drip/customer/:customer_id", getDrip);
+  router.get("/tag/customer/:customer_id", getTags);
 
 
 
